@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Go WASM File Reader</title>
+  </head>
+  <body>
+    <input type="file" id="fileInput" />
+    <script src="./wasm_exec.js"></script>
+    <script>
+      const go = new Go() // Go实例
+      WebAssembly.instantiateStreaming(
+        fetch("main.wasm"),
+        go.importObject
+      ).then((result) => {
+        console.log("loaded!")
+        go.run(result.instance)
+      })
+
+      // 处理文件选择
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", function (event) {
+          const file = event.target.files[0]
+          if (file) {
+            // file.arrayBuffer().then((res) => {
+            //   console.log({ file }, { res })
+            //   readFile(res)
+            // })
+            readFile(file)
+            // 调用Go函数
+          }
+        })
+    </script>
+  </body>
+</html>
