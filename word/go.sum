@@ -1,0 +1,4 @@
+github.com/mattn/docx2md v0.0.6 h1:sRGKvNpSffi12pPDcnEeuh/ExlO7a0kLkEgHwkye7cA=
+github.com/mattn/docx2md v0.0.6/go.mod h1:Zqo0gKxEXPwyClf2hfII5kgSjX+6dMbn/nGHQ6jxURI=
+github.com/mattn/go-runewidth v0.0.7 h1:Ei8KR0497xHyKJPAv59M1dkC+rOZCMBJ+t3fZ+twI54=
+github.com/mattn/go-runewidth v0.0.7/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
