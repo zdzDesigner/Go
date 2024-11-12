@@ -9,7 +9,6 @@ import (
 	// "flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	// "log"
 	"os"
 	"path"
@@ -123,8 +122,8 @@ type Numbering struct {
 }
 
 type file struct {
-	rels  Relationships
-	num   Numbering
+	rels Relationships
+	num  Numbering
 	// r     *zip.ReadCloser
 	r     *zip.Reader
 	embed bool
@@ -180,7 +179,7 @@ func (zf *file) extract(rel *Relationship, w io.Writer) error {
 			fmt.Fprintf(w, "![](data:image/png;base64,%s)",
 				base64.StdEncoding.EncodeToString(b[:n]))
 		} else {
-			err = ioutil.WriteFile(rel.Target, b, 0o644)
+			err = os.WriteFile(rel.Target, b, 0o644)
 			if err != nil {
 				return err
 			}
@@ -466,13 +465,18 @@ func (zf *file) Walk(node *Node, w io.Writer) error {
 
 func readFile(f *zip.File) (*Node, error) {
 	rc, err := f.Open()
-	defer rc.Close()
+	defer func() error {
+		return rc.Close()
+	}()
 
-	b, _ := ioutil.ReadAll(rc)
+	// fmt.Println(rc)
+	b, _ := io.ReadAll(rc)
 	if err != nil {
 		return nil, err
 	}
 
+	writeFile(b)
+	fmt.Println(string(b))
 	var node Node
 	err = xml.Unmarshal(b, &node)
 	if err != nil {
@@ -481,81 +485,27 @@ func readFile(f *zip.File) (*Node, error) {
 	return &node, nil
 }
 
+func writeFile(b []byte) error {
+	f, err := os.Create("./mid.xml")
+	if err != nil {
+		return err
+	}
+	buf := bytes.NewBuffer(b)
+  n, err := buf.WriteTo(f)
+	fmt.Println(n, err.Error())
+
+	return nil
+}
+
 func findFile(files []*zip.File, target string) *zip.File {
 	for _, f := range files {
 		if ok, _ := path.Match(target, f.Name); ok {
+			fmt.Println(target, f.Name)
 			return f
 		}
 	}
 	return nil
 }
-
-// func docx2md(arg string, embed bool) error {
-// 	r, err := zip.OpenReader(arg)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer r.Close()
-//
-// 	var rels Relationships
-// 	var num Numbering
-//
-// 	for _, f := range r.File {
-// 		switch f.Name {
-// 		case "word/_rels/document.xml.rels":
-// 			rc, err := f.Open()
-// 			defer rc.Close()
-//
-// 			b, _ := ioutil.ReadAll(rc)
-// 			if err != nil {
-// 				return err
-// 			}
-//
-// 			err = xml.Unmarshal(b, &rels)
-// 			if err != nil {
-// 				return err
-// 			}
-// 		case "word/numbering.xml":
-// 			rc, err := f.Open()
-// 			defer rc.Close()
-//
-// 			b, _ := ioutil.ReadAll(rc)
-// 			if err != nil {
-// 				return err
-// 			}
-//
-// 			err = xml.Unmarshal(b, &num)
-// 			if err != nil {
-// 				return err
-// 			}
-// 		}
-// 	}
-//
-// 	f := findFile(r.File, "word/document*.xml")
-// 	if f == nil {
-// 		return errors.New("incorrect document")
-// 	}
-// 	node, err := readFile(f)
-// 	if err != nil {
-// 		return err
-// 	}
-//
-// 	var buf bytes.Buffer
-// 	zf := &file{
-// 		r:     r,
-// 		rels:  rels,
-// 		num:   num,
-// 		embed: embed,
-// 		list:  make(map[string]int),
-// 	}
-// 	err = zf.Walk(node, &buf)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	fmt.Print(buf.String())
-//
-// 	return nil
-// }
 
 func NewZf(r *zip.Reader) (*file, error) {
 	var rels Relationships
@@ -567,7 +517,7 @@ func NewZf(r *zip.Reader) (*file, error) {
 			rc, err := f.Open()
 			defer rc.Close()
 
-			b, _ := ioutil.ReadAll(rc)
+			b, _ := io.ReadAll(rc)
 			if err != nil {
 				return nil, err
 			}
@@ -580,7 +530,7 @@ func NewZf(r *zip.Reader) (*file, error) {
 			rc, err := f.Open()
 			defer rc.Close()
 
-			b, _ := ioutil.ReadAll(rc)
+			b, _ := io.ReadAll(rc)
 			if err != nil {
 				return nil, err
 			}
@@ -613,29 +563,76 @@ func NewZf(r *zip.Reader) (*file, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(buf.String())
+	// fmt.Print(buf.String())
 
 	return zf, nil
 }
 
-//
-// func main() {
-// 	var embed bool
-// 	var showVersion bool
-// 	flag.BoolVar(&embed, "embed", false, "embed resources")
-// 	flag.BoolVar(&showVersion, "v", false, "Print the version")
-// 	flag.Parse()
-// 	if showVersion {
-// 		fmt.Printf("%s %s (rev: %s/%s)\n", name, version, revision, runtime.Version())
-// 		return
-// 	}
-// 	if flag.NArg() == 0 {
-// 		flag.Usage()
-// 		os.Exit(1)
-// 	}
-// 	for _, arg := range flag.Args() {
-// 		if err := docx2md(arg, embed); err != nil {
-// 			log.Fatal(err)
-// 		}
-// 	}
-// }
+func Docx2md(arg string, embed bool) error {
+	r, err := zip.OpenReader(arg)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+
+	var rels Relationships
+	var num Numbering
+
+	for _, f := range r.File {
+		// fmt.Println("f.Name:", f.Name)
+		switch f.Name {
+		case "word/_rels/document.xml.rels":
+			rc, err := f.Open()
+			defer rc.Close()
+
+			b, _ := io.ReadAll(rc)
+			if err != nil {
+				return err
+			}
+
+			err = xml.Unmarshal(b, &rels)
+			if err != nil {
+				return err
+			}
+		case "word/numbering.xml":
+			rc, err := f.Open()
+			defer rc.Close()
+
+			b, _ := io.ReadAll(rc)
+			if err != nil {
+				return err
+			}
+
+			err = xml.Unmarshal(b, &num)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	f := findFile(r.File, "word/document*.xml")
+	if f == nil {
+		return errors.New("incorrect document")
+	}
+	node, err := readFile(f)
+	if err != nil {
+		return err
+	}
+	// zipReader, err := zip.NewReader(r, r.Stat().Size())
+
+	var buf bytes.Buffer
+	zf := &file{
+		r:     &r.Reader,
+		rels:  rels,
+		num:   num,
+		embed: embed,
+		list:  make(map[string]int),
+	}
+	err = zf.Walk(node, &buf)
+	if err != nil {
+		return err
+	}
+	// fmt.Print(buf.String())
+
+	return nil
+}

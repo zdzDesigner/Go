@@ -1,0 +1,4045 @@
+<?xml version="1.0" encoding="utf-8"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:wpsCustomData="http://www.wps.cn/officeDocument/2013/wpsCustomData" mc:Ignorable="w14 w15 wp14">
+  <w:background w:color="FFFFFF"/>
+  <w:body>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Arial" w:hAnsi="Arial"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:jc w:val="center"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="44"/>
+          <w:szCs w:val="44"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="44"/>
+          <w:szCs w:val="44"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>专利申请</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:jc w:val="center"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="44"/>
+          <w:szCs w:val="44"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="44"/>
+          <w:szCs w:val="44"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>技术交底书</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="8"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:widowControl w:val="0"/>
+        <w:suppressAutoHyphens/>
+        <w:bidi w:val="0"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:left="0" w:right="0" w:firstLine="0"/>
+        <w:jc w:val="center"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:eastAsia="Arial Unicode MS"/>
+          <w:color w:val="333333"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="333333"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:eastAsia="Arial Unicode MS"/>
+          <w:color w:val="333333"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="333333"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>一种</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:eastAsia="Arial Unicode MS"/>
+          <w:color w:val="333333"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="333333"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>响应式框架下基于JSON配置的UI编辑器</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="center"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="黑体"/>
+          <w:color w:val="333333"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="333333"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="黑体"/>
+          <w:color w:val="333333"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="333333"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>唐鸽</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="仿宋_GB2312" w:hAnsi="仿宋_GB2312" w:eastAsia="仿宋_GB2312" w:cs="仿宋_GB2312"/>
+          <w:color w:val="000000"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>一、背景技术：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>1</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、目前市面上已有的、与您想申请专利的产品或软件最相似的技术有哪些？</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>目前市面上类似的软件挺多，比较典型的有如下两个：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>1.react-jsonschema-form 基于react框架开发的开源软件</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>https://github.com/rjsf-team/react-jsonschema-form</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>2.json-editor 适用于各种框架的开源软件</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:fldChar w:fldCharType="begin"/>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:instrText xml:space="preserve"> HYPERLINK "http://jeremydorn.com/json-editor" </w:instrText>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:fldChar w:fldCharType="separate"/>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="3"/>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>http://jeremydorn.com/json-editor</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:fldChar w:fldCharType="end"/>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>2</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、简单描述一下这些相似的技术。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>从产品功能来说：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>基本都是通过上传一套定义好</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>的JSON配置</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>，即基于</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>JSON</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>配置的</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>SCHEMA</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>结构。这些组件通过渲染这个JSON配置数据，来展示一个可编辑的UI界面。通过这个可编辑的UI界面，用户能比较方便的操作一些实际上很复杂的数据。其优势就在于通过给用户呈现一个可视化的UI编辑界面，达到极大降低操作复杂数据的难度。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>从技术方案来说：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>这些技术可能使用的语言和程序的设计不同。但设计思想基本一致</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>，</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>即渲染JSON配置数据呈现可视化页面</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>，</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>并响应界面上对字段的操作改动而</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>生成</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>最终的结果数据。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:bookmarkStart w:id="0" w:name="_GoBack"/>
+      <w:bookmarkEnd w:id="0"/>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>3</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、这些相似的技术有哪些缺陷？</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>这些技术本身没有缺陷，只是因应用场景的不同而各有特点。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>相对于我开发的UI编辑器而言，其缺陷主要有如下几点：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>比如 react-jsonschema-form</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>1.界面交互上便捷性不足，并不能很方便的操作输入的</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>JSON</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>配置</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>数据</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>，而只能直接更改</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>上传</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>文件内容；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>2.并不能展示局部的</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>JSON配置</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>数据，在数据结构比较大的情况，需要上下滚动页面，查看并不方便；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>3.适用于react框架下，并不适用于我司平台的vue框架；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>比如 json-editor</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>1.缺少一些特殊表单组件支持，如计数器组件；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>2.缺少树形结构展示，不能很方便的浏览整个JSON配置的结构；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>3.缺少能以可视化的方式调整JSON配置的功能；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>总之，各个技术有其适用的应用场景，在我司平台下，都是缺少了部分必要功能的。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>4</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、这些缺陷是由于上面提到的相似的技术中的哪些内容导致的？</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>有以下</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>几点</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>1.缺少JSON配置的树形菜单展示，缺少了支持查看局部数据的交互方式，是由于对于</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>JSON</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>数据的渲染展示方式的不同导致的；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>2.缺少计数器等特殊组件的支持，是由于对于表单组件的支持情况不同导致</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>的</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>3.不能支持部分框架，是由于选用的框架与语言不同</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>且</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>没有做各种框架的适配功能导致的；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>4.缺少能以可视化的方式调整JSON配置的功能，是由于只支持更改</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>JSON</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>文件内容导致的；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>二、本专利申请：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>1</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、本行业的从业人员（尤其是竞品公司人员），如果要解决这些缺陷，通常会采用什么样的方法？ 为什么不容易想到您的方案？</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>通常会采用什么样的方法：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>通常会更改该软件的操作界面，增加树形结构菜单展示</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>的功能</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>，增加局部数据查看的功能；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>通常会增加特殊组件的支持，增加诸如计数器等表单组件；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>通过会增加对于不同框架的兼容性，增加兼容适配的API；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>通过调整JSON配置的交互方法，增加可视化编辑JSON配置的功能；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>为什么不容易想到您的方案：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>因为我的方案在特定的业务场景下有这样需求，就需要我去支持。而他们做的是非常通用的公共组件，并没有考虑各种非常现实特殊的应用场景。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="SimSun" w:hAnsi="SimSun" w:eastAsia="SimSun" w:cs="SimSun"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>2</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、简单说明一下您想申请专利的产品或软件是怎么解决上面这些缺陷的？</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>1.改造组件，增加解析JSON配置的折叠菜单，方便查看JSON配置的结构；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>2.增加查看整个JSON配置下局部数据块的功能；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>3.增加支持各种特殊的表单插件，如计数器；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>4.将</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>JSON配置解析</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>为Object对象，Array数组和常规的字段，对于不同类型数据增加不同类型的调整按钮，来可视化的配置JSON配置；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>3</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、提供解决上面缺陷的产品或者软件具体实现的流程图，并结合流程图中的每一个步骤，对您的产品或者软件进行详细的描述。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="SimSun" w:hAnsi="SimSun" w:eastAsia="SimSun" w:cs="SimSun"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:tab/>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>如下图所示，</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>是该软件的界面，左边为JSON配置树形菜单，右边为UI编辑模块</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="240" w:lineRule="auto"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="SimSun" w:hAnsi="SimSun" w:eastAsia="SimSun" w:cs="SimSun"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="SimSun" w:hAnsi="SimSun" w:eastAsia="SimSun" w:cs="SimSun"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:drawing>
+          <wp:inline distT="0" distB="0" distL="114300" distR="114300">
+            <wp:extent cx="5260975" cy="1705610"/>
+            <wp:effectExtent l="0" t="0" r="22225" b="21590"/>
+            <wp:docPr id="4" name="Picture 4" descr="20190926095940"/>
+            <wp:cNvGraphicFramePr>
+              <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"></a:graphicFrameLocks>
+            </wp:cNvGraphicFramePr>
+            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                  <pic:nvPicPr>
+                    <pic:cNvPr id="4" name="Picture 4" descr="20190926095940"/>
+                    <pic:cNvPicPr>
+                      <a:picLocks noChangeAspect="1"/>
+                    </pic:cNvPicPr>
+                  </pic:nvPicPr>
+                  <pic:blipFill>
+                    <a:blip r:embed="rId6"/>
+                    <a:stretch>
+                      <a:fillRect/>
+                    </a:stretch>
+                  </pic:blipFill>
+                  <pic:spPr>
+                    <a:xfrm>
+                      <a:off x="0" y="0"/>
+                      <a:ext cx="5260975" cy="1705610"/>
+                    </a:xfrm>
+                    <a:prstGeom prst="rect">
+                      <a:avLst/>
+                    </a:prstGeom>
+                  </pic:spPr>
+                </pic:pic>
+              </a:graphicData>
+            </a:graphic>
+          </wp:inline>
+        </w:drawing>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="SimSun" w:hAnsi="SimSun" w:eastAsia="SimSun" w:cs="SimSun"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>如下图</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>是具体实现的流程图</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="240" w:lineRule="auto"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:drawing>
+          <wp:inline distT="0" distB="0" distL="114300" distR="114300">
+            <wp:extent cx="5268595" cy="7257415"/>
+            <wp:effectExtent l="0" t="0" r="14605" b="6985"/>
+            <wp:docPr id="6" name="Picture 6" descr="20190926100158"/>
+            <wp:cNvGraphicFramePr>
+              <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"></a:graphicFrameLocks>
+            </wp:cNvGraphicFramePr>
+            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                  <pic:nvPicPr>
+                    <pic:cNvPr id="6" name="Picture 6" descr="20190926100158"/>
+                    <pic:cNvPicPr>
+                      <a:picLocks noChangeAspect="1"/>
+                    </pic:cNvPicPr>
+                  </pic:nvPicPr>
+                  <pic:blipFill>
+                    <a:blip r:embed="rId7"/>
+                    <a:stretch>
+                      <a:fillRect/>
+                    </a:stretch>
+                  </pic:blipFill>
+                  <pic:spPr>
+                    <a:xfrm>
+                      <a:off x="0" y="0"/>
+                      <a:ext cx="5268595" cy="7257415"/>
+                    </a:xfrm>
+                    <a:prstGeom prst="rect">
+                      <a:avLst/>
+                    </a:prstGeom>
+                  </pic:spPr>
+                </pic:pic>
+              </a:graphicData>
+            </a:graphic>
+          </wp:inline>
+        </w:drawing>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="SimSun" w:hAnsi="SimSun" w:eastAsia="SimSun" w:cs="SimSun"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="SimSun" w:hAnsi="SimSun" w:eastAsia="SimSun" w:cs="SimSun"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="left"/>
+        <w:outlineLvl w:val="0"/>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="left"/>
+        <w:outlineLvl w:val="0"/>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="both"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>第一步，通过上传按钮，</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>上传</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>JSON配置数据。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="both"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>第二步，程序会解析JSON配置数据。生成一套JSON配置的树形菜单数据，并渲染出一个菜单界面，该界面支持折叠和选中其中节点。生成一套JSON配置的UI编辑界面。该界面响应树形菜单的选中操作，渲染树形菜单选中节点的数据。UI编辑界面上主要有编辑JSON数据的表单组件和编辑JSON结构的增删改按钮。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="both"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>第三步，选中左侧树形菜单的某一个节点，这是一个必要的操作步骤。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="both"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>第四步，程序响应第三步的选中操作，渲染UI编辑界面</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="both"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>第五步，在第四步的基础上，用户可以方便的操作JSON配置的结构与数据。UI编辑界面提供对JSON结构的增删改按钮，编辑JSON数据的各种表单组件。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="both"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>第六步，程序响应用户操作，通过API暴露出操作的数据结果。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="both"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:jc w:val="center"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>4</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、您在产品或者软件开发过程中，与团队成员之间进行讨论或者头脑风暴时除了现在要申请专利的技术之外，是否还存在其它的备选方案？ 从这些备选方案中挑选一到两个进行详细描述，并说明其存在的优缺点。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>有其他的备选方案</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>有一种是通过封装现有他人的组件，来融入到我司平台下</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>如react-jsonschema-form：https://github.com/rjsf-team/react-jsonschema-form</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>虽然是react框架下的组件，但也可以通过如下几点来适配</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>1.增加兼容层，对于其暴露对接口通过vue代码封装并再次暴露接口，达到封装成为自己组件的目的</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>2.增加新的样式皮肤文件，对于其界面的元素进行覆盖，从而更改其样式和部分交互形式</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>3.增加适配的树形结构菜单，将这个菜单组件同封装的react一起再次封装成为一个组件，达到支持树形菜单结构的目的</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>4.增加局部查看JSON配置的功能，同样是自行开发查看功能，并且同原组件一起封装并暴露接口</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>5.增加可视化的JOSN编辑功能，将JSON配置数据分为Object对象，Array数组和常规的字段方式，增加不同的数据类型编辑按钮，并且同原组件一起封装并暴露接口</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>优点：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>使用了成熟稳定的第三方组件，开发速度较快，功能bug较少且稳定；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>缺点：</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>使用第三方技术，可拓展性会受限于第三方的组件支持情况。且如果第三方存在缺陷，将会很难解决；</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>5</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、针对您最终拍板选定的方案，从立项到产品最终成形之间，有没有产生了一些虽然不太完美，但在一定程度上也是可行的</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>beta</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>版？ 对这些可行的</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>beta</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>版进行详细描述，并说明其优缺点。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Times" w:hAnsi="Times"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Times" w:hAnsi="Times"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>略</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Times" w:hAnsi="Times"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>6</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>、在说明本方案的效果的时候，不仅要说其能够直接达到的效果，还要充分发散其能够引起的连锁反应，以及所能够达到的更深层次的效果。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>本方案借鉴了各种其他方案的优势，且增加了特殊的功能支持，JSON配置树形菜单，</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>JSON配置</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>局部数据查看，分类型的JSON配置调整及更多的表单组件支持。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>增强了该组件在不同业务场景下的通用性，非常的好用，美观。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>更深层次的是，由于其对于JSON配置数据的可视化编辑方式，可以适用于绝大多数的业务场景，通用性与易用性都很强，可以支持很多业务场景的快速落地，这是具有极大现实意义的。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="420"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="Arial Unicode MS" w:hAnsi="Arial Unicode MS" w:eastAsia="Arial Unicode MS" w:cs="Arial Unicode MS"/>
+          <w:b w:val="0"/>
+          <w:bCs w:val="0"/>
+          <w:i w:val="0"/>
+          <w:iCs w:val="0"/>
+          <w:sz w:val="22"/>
+          <w:szCs w:val="22"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:firstLine="480"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t>7</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t xml:space="preserve">、在描述技术效果时应当紧密结合方案，并且技术效果与技术方案之间的核心要点应该做到一一对应，而不是只简单的罗列多个技术效果，但没有说明哪个技术效果是由哪些技术要点（例如，某一个步骤）带来的。 </w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="8"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:widowControl w:val="0"/>
+        <w:suppressAutoHyphens/>
+        <w:bidi w:val="0"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:ind w:left="0" w:right="0" w:firstLine="0"/>
+        <w:jc w:val="both"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:eastAsia="Times New Roman" w:cs="Times New Roman"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="21"/>
+          <w:szCs w:val="21"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:tab/>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>一</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:before="156" w:line="360" w:lineRule="auto"/>
+        <w:ind w:left="902" w:firstLine="0"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="1"/>
+        </w:numPr>
+        <w:bidi w:val="0"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:right="0"/>
+        <w:jc w:val="both"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>列出本发明中所出现的英文缩写的英文全称及中文定义。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="仿宋_GB2312" w:hAnsi="仿宋_GB2312" w:eastAsia="仿宋_GB2312" w:cs="仿宋_GB2312"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="8"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:widowControl w:val="0"/>
+        <w:numPr>
+          <w:ilvl w:val="1"/>
+          <w:numId w:val="2"/>
+        </w:numPr>
+        <w:suppressAutoHyphens/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="both"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:lang w:val="zh-TW" w:eastAsia="zh-TW"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>JSON</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t xml:space="preserve"> : </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+        </w:rPr>
+        <w:t>JavaScript Object Notation</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia" w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="zh-CN" w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="default" w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-CN"/>
+        </w:rPr>
+        <w:t>JS对象简谱</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="8"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:widowControl w:val="0"/>
+        <w:numPr>
+          <w:ilvl w:val="1"/>
+          <w:numId w:val="2"/>
+        </w:numPr>
+        <w:suppressAutoHyphens/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:jc w:val="both"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:eastAsia="zh-TW"/>
+        </w:rPr>
+        <w:t>Schema</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t xml:space="preserve">:  </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+        </w:rPr>
+        <w:t>XML Schema</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="黑体" w:hAnsi="黑体" w:eastAsia="黑体" w:cs="黑体"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="8"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:widowControl w:val="0"/>
+        <w:suppressAutoHyphens/>
+        <w:bidi w:val="0"/>
+        <w:spacing w:before="156" w:line="480" w:lineRule="exact"/>
+        <w:ind w:left="900" w:right="0" w:firstLine="0"/>
+        <w:jc w:val="both"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:eastAsia="Times New Roman" w:cs="Times New Roman"/>
+          <w:kern w:val="1"/>
+          <w:sz w:val="21"/>
+          <w:szCs w:val="21"/>
+          <w:u w:color="000000"/>
+          <w:rtl w:val="0"/>
+          <w:lang w:val="en-US"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:spacing w:line="480" w:lineRule="exact"/>
+        <w:outlineLvl w:val="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="仿宋_GB2312" w:hAnsi="仿宋_GB2312" w:eastAsia="仿宋_GB2312" w:cs="仿宋_GB2312"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="7"/>
+        <w:framePr w:w="0" w:hRule="auto" w:wrap="auto" w:vAnchor="margin" w:hAnchor="text" w:yAlign="inline"/>
+        <w:jc w:val="center"/>
+      </w:pPr>
+    </w:p>
+    <w:sectPr>
+      <w:headerReference r:id="rId3" w:type="default"/>
+      <w:footerReference r:id="rId4" w:type="default"/>
+      <w:pgSz w:w="11900" w:h="16840"/>
+      <w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="851" w:footer="992" w:gutter="0"/>
+      <w:pgNumType w:start="1"/>
+      <w:cols w:space="720" w:num="1"/>
+    </w:sectPr>
+  </w:body>
+</w:document>
+

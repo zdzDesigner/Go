@@ -8,12 +8,15 @@ import (
 	"strings"
 )
 
+// `空间复杂度` 优先与 `时间复杂度`
 // 空间敏感
 // bufio 带有缓冲区的读写, 内存小,时间无感知(速度慢), 一般处理大文件
 
 func main() {
 	f, err := os.Open("./main.go")
-	defer f.Close()
+	defer func() {
+		f.Close()
+	}()
 
 	if err != nil {
 		log.Fatal(err)
@@ -35,5 +38,4 @@ func main() {
 			break
 		}
 	}
-
 }

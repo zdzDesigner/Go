@@ -3,6 +3,7 @@ package main
 import (
 	"archive/zip"
 	"bytes"
+	"flag"
 	// "encoding/xml"
 	"fmt"
 	"syscall/js"
@@ -51,7 +52,8 @@ func parseFile(b []byte) {
 		return
 	}
 
-	lib.NewZf(r)
+	_, err = lib.NewZf(r)
+	fmt.Println(err)
 	// var buf bytes.Buffer
 	// zf, err := lib.NewZf(r)
 	// err = zf.Walk(&node, &buf)
@@ -69,20 +71,10 @@ func readFile(this js.Value, p []js.Value) interface{} {
 	fileReader.Call("readAsArrayBuffer", file)
 	fileReader.Call("addEventListener", "load", js.FuncOf(func(this js.Value, p []js.Value) interface{} {
 		fmt.Println("p length:", len(p))
-		// fileReader.Get("result").Call("readAsArrayBuffer").Call("then", js.FuncOf(func(v js.Value, x []js.Value) any {
-		// 	return nil
-		// }))
-		// length := data.Get("length").Int()
-		// data := js.Global().Get("Uint8Array").New(x[0])
-		// length := data.Get("length").Int()
-		// fmt.Println("file data length:", length)
-		// dst := make([]byte, length)
-		// js.CopyBytesToGo(dst, data)
-		// fmt.Println("File contents:", fileReader.Get("result").String())
 		res := fileReader.Get("result")
-		// res := p[0].Get("target").Get("result")
-		data := js.Global().Get("Uint8Array").New(res)
-		length := data.Get("length").Int()
+		// res := p[0].Get("target").Get("result") // evt.target.result
+		data := js.Global().Get("Uint8Array").New(res) // new Uint8Array(res)
+		length := data.Get("length").Int()             // data.length
 		fmt.Println("file data length:", length)
 		dst := make([]byte, length)
 		js.CopyBytesToGo(dst, data)
@@ -92,8 +84,9 @@ func readFile(this js.Value, p []js.Value) interface{} {
 	return nil
 }
 
+
 func main() {
-	c := make(chan struct{}, 0)
+	c := make(chan struct{})
 
 	// 在Go中注册函数
 	js.Global().Set("readFile", js.FuncOf(readFile))

@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 )
 
@@ -13,24 +13,24 @@ func main() {
 	chwt := make(chan struct{})
 	go func() {
 		for {
-
 		}
 	}()
 	fileReadBase()
-	<-chwt
 
+	writeFile([]byte("ssss"))
+	<-chwt
 }
 
 func fileReadBase() {
 	// f, err := os.Open("/home/zdz/Documents/Try/Go/imooc/demo/file/read_write/a.text")
-	f, err := os.OpenFile("/home/zdz/Documents/Try/Go/imooc/demo/file/read_write/a.text", os.O_RDWR, 0666)
+	f, err := os.OpenFile("/home/zdz/Documents/Try/Go/imooc/demo/file/read_write/a.text", os.O_RDWR, 0o666)
 	if err != nil {
 		panic(err)
 	}
 	// defer f.Close()
 	// 查看文件描述符, f.Close() 销毁文件描述符
 
-	txt, _ := ioutil.ReadAll(f)
+	txt, _ := io.ReadAll(f)
 	fmt.Println("ioutil.ReadAll::", string(txt))
 	// 读完了
 
@@ -51,6 +51,9 @@ func fileReadBase() {
 
 func fileReadWrite() {
 	filea, err := os.Open("/home/zdz/Documents/Try/Go/imooc/demo/file/read_write/a.text")
+	if err != nil {
+		panic(err)
+	}
 	fileb, err := os.OpenFile("/home/zdz/Documents/Try/Go/imooc/demo/file/read_write/b.text", os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		panic(err)
@@ -69,4 +72,16 @@ func fileReadWrite() {
 	fmt.Println(buf.String(), n)
 	n, err = buf.WriteTo(fileb)
 	fmt.Println(err, n)
+}
+
+func writeFile(b []byte) error {
+	f, err := os.Create("./mid.xml")
+	if err != nil {
+		return err
+	}
+	buf := bytes.NewBuffer(b)
+	n, err := buf.WriteTo(f)
+	fmt.Println(n, err.Error())
+
+	return nil
 }

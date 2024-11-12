@@ -1,0 +1,13 @@
+<bookstore>
+    <book>
+        <title lang="en">Go Programming</title>
+        <author>John Doe</author>
+        <price>39.95</price>
+    </book>
+    <book>
+        <title lang="zh">学习Go语言</title>
+        <author>李明</author>
+        <price>49.99</price>
+    </book>
+</bookstore>
+
