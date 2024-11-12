@@ -1,0 +1,5 @@
+sdfasf
+sdfasffffffffffferipheralBaseAddr = cpar; //DMA外设ADC基地址
+DMA_InitStructure.DMA_MemoryBaseAddr = cmar; //DMA内存基地址
+DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST; //数据传输方向，从内存读取发送到外设
+DMA_InitStructure.DMA_BufferSize = cndtr; //DMA通道的DMA缓存的大小
