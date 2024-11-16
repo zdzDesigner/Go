@@ -1,4 +1,4 @@
-package tcp1
+package main
 
 import (
 	"bufio"
@@ -8,44 +8,70 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"syscall"
 )
+
+func reuse(listener net.Listener) {
+	// 强制获取底层的 *net.TCPListener
+	tcpListener, ok := listener.(*net.TCPListener)
+	if !ok {
+		fmt.Println("Error: Unable to cast to *net.TCPListener")
+		return
+	}
+
+	// 获取底层的文件描述符
+	file, err := tcpListener.File()
+	if err != nil {
+		fmt.Println("Error getting file descriptor:", err)
+		return
+	}
+	defer file.Close()
+
+	// 设置 SO_REUSEADDR 选项
+	err = syscall.SetsockoptInt(int(file.Fd()), syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1)
+	if err != nil {
+		fmt.Println("Error setting SO_REUSEADDR:", err)
+		return
+	}
+}
 
 // Entry ..
 func Entry() {
-
-	address := "127.0.0.1:6002"
+	address := "127.0.0.1:6003"
 	// address := "192.168.101.5:6002"
 	listener, err := net.Listen("tcp", address)
-
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
+  // reuse(listener)
 	fmt.Printf("start server: %s\n", address)
 
 	// bts := make([]byte, 0, 4)
 	for {
-		fmt.Println("for listener")
+		// fmt.Println("for listener")
 		// time.Sleep(time.Millisecond * 100)
 		conn, err := listener.Accept()
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		// fmt.Println(conn.RemoteAddr())
+		fmt.Println(conn.RemoteAddr())
 		// bts, err := ioutil.ReadAll(conn)
 		// fmt.Println(string(bts), err)
-		// conn.Write([]byte("hello"))
+		conn.Write([]byte("hello"))
 
 		// go echo(conn)
-		go Echo2(conn)
+		// go Echo2(conn)
 	}
+}
 
+func main() {
+	Entry()
 }
 
 func echo(conn net.Conn) {
-
 	r := bufio.NewReader(conn)
 	b := make([]byte, 10000)
 	r.Read(b)
@@ -72,11 +98,9 @@ func echo(conn net.Conn) {
 	}
 	fmt.Println("close")
 	conn.Close()
-
 }
 
 func Echo2(conn net.Conn) {
-
 	r := bufio.NewReader(conn)
 	buffer := bytes.NewBuffer([]byte{})
 	headEnd := false
@@ -122,7 +146,6 @@ func Echo2(conn net.Conn) {
 			}
 		}
 	}
-
 }
 
 func respRow(line string) string {

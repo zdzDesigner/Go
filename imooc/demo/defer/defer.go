@@ -8,11 +8,11 @@ import (
 * defer 中唯一修改返回参数的方式: 使用命名返回参数
  */
 func main() {
-	fmt.Println("return:", base())
+	// fmt.Println("return:", base())
 	// defer..
 	// return: bbbbbbbbbbb
 
-	// fmt.Println("return:", base3())
+	fmt.Println("return:", base3())
 	// defer.. aa
 	// defer after.. bbb
 	// return: aa

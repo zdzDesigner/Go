@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -36,7 +36,7 @@ func bufioPeek() {
 	reader := strings.NewReader(`zdz todoadweradsaased`)
 
 	br := bufio.NewReader(reader)
-	fmt.Println(br.Size())
+	fmt.Println("br.Size:", br.Size())
 	for {
 		buf := make([]byte, 4)
 		_, err := br.Read(buf)
@@ -49,7 +49,6 @@ func bufioPeek() {
 		fmt.Println("preBuf::", string(preBuf))
 
 	}
-
 }
 
 func readFirstLine() {
@@ -98,7 +97,7 @@ func readFrom() {
 	`)
 
 	// buf 的扩容, 使用了 bytes 中的 buf.ReadFrom, grow 自增策略
-	buf1, _ := ioutil.ReadAll(reader)
+	buf1, _ := io.ReadAll(reader)
 	fmt.Println(string(buf1))
 	return
 	buf := bytes.NewBuffer(make([]byte, 0, 10))
