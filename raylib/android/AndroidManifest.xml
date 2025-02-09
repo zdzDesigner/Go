@@ -15,6 +15,7 @@
 
         <!-- Our activity is the built-in NativeActivity framework class. -->
                 <!-- android:screenOrientation="landscape" -->
+                <!-- android:screenOrientation="portrait" -->
         <activity android:name="android.app.NativeActivity"
                 android:exported="true"
                 android:configChanges="orientation|keyboardHidden|screenSize"

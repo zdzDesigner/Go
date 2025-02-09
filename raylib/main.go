@@ -27,12 +27,12 @@ const (
 	MeasureState = 0
 	DrawState    = 1
 )
+
 func init() {
 	rl.SetCallbackFunc(main)
 }
 
 func main() {
-
 	rl.InitWindow(screenWidth, screenHeight, "raylib [text] example - draw text inside a rectangle")
 
 	text := `Text cannot escape	this container	...word wrap also works when active so here's a long text for testing.
@@ -130,16 +130,17 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 			Height: 12.0,
 		}, rl.Maroon)
 
-		rl.DrawText("Word Wrap: ", 313, screenHeight-115, 20, rl.Black)
-		if wordWrap {
-			rl.DrawText("ON", 447, screenHeight-115, 20, rl.Red)
-		} else {
-			rl.DrawText("OFF", 447, screenHeight-115, 20, rl.Black)
-		}
+		// rl.DrawText("Word Wrap: ", 313, screenHeight-115, 20, rl.Black)
+		// if wordWrap {
+		// 	rl.DrawText("ON", 447, screenHeight-115, 20, rl.Red)
+		// } else {
+		// 	rl.DrawText("OFF", 447, screenHeight-115, 20, rl.Black)
+		// }
 
-		rl.DrawText("Press [SPACE] to toggle word wrap", 218, screenHeight-86, 20, rl.Gray)
-		rl.DrawText("Click hold & drag the    to resize the container", 155, screenHeight-38, 20, rl.RayWhite)
+		// rl.DrawText("Press [SPACE] to toggle word wrap", 218, screenHeight-86, 20, rl.Gray)
+		// rl.DrawText("Click hold & drag the    to resize the container", 155, screenHeight-38, 20, rl.RayWhite)
 
+		rl.DrawCircleV(rl.NewVector2(30, 200), 140, rl.Red)
 		rl.EndDrawing()
 	}
 
@@ -158,8 +159,8 @@ func DrawTextBoxed(font rl.Font, text string, rec rl.Rectangle, fontSize, spacin
 
 // DrawTextBoxedSelectable draws text using font inside rectangle limits with support for text selection
 func DrawTextBoxedSelectable(font rl.Font, text string, rec rl.Rectangle, fontSize, spacing float32,
-	wordWrap bool, tint rl.Color, selectStart, selectLength int32, selectTint, selectBackTint rl.Color) {
-
+	wordWrap bool, tint rl.Color, selectStart, selectLength int32, selectTint, selectBackTint rl.Color,
+) {
 	length := int32(len(text)) // Total length in bytes of the text, scanned by codepoints in loop
 
 	// TextOffsetY : Offset between lines (on line break '\n')
@@ -309,4 +310,3 @@ func DrawTextBoxedSelectable(font rl.Font, text string, rec rl.Rectangle, fontSi
 		}
 	}
 }
-

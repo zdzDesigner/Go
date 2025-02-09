@@ -15,6 +15,8 @@ export ANDROID_TOOLCHAIN=${ANDROID_NDK_HOME}/toolchains/arm-linux-androideabi-4.
 
 
 
+rm -rf ./android/build/outputs/apk
+# rm android/libs/armeabi-v7a/libexample.so
 
 
 CC="armv7a-linux-androideabi${ANDROID_API}-clang" \
@@ -31,4 +33,4 @@ bash ./gradlew assembleDebug --stacktrace
 
 
 adb uninstall "com.example.goraylib"
-adb install ./android/build/outputs/apk/debug/android-debug.apk
+adb install -r ./android/build/outputs/apk/debug/android-debug.apk
