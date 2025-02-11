@@ -1,12 +1,14 @@
 package main
 
 import (
+	// "bufio"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+
 	// "strings"
 
 	"cameras/src/config"
@@ -16,11 +18,8 @@ import (
 )
 
 const (
-	// rtspURL     = "rtsp://admin:password@192.168.1.100:554/stream" // RTSP源地址
-	rtsp_url     = "rtsp://localhost:8554/mystream" // RTSP源地址
-	hls_dir      = "./static/hls"                   // HLS输出目录
-	hls_segment  = 5                                // 切片时长(秒)
-	hls_playlist = "stream.m3u8"                    // 播放列表名
+	// rtspURL  = "rtsp://admin:password@192.168.1.100:554/stream" // RTSP源地址
+	// rtsp_url = "rtsp://localhost:8554/mystream"                 // RTSP源地址
 )
 
 func main() {
@@ -35,8 +34,12 @@ func main() {
 	app.GET("/", func(c *gin.Context) {
 		c.File("./static/index.html")
 	})
+	hls_dir := "./static/hls/"
+	os.RemoveAll(hls_dir)
+	go convStream("rtsp://localhost:8554/mystream1", hls_dir+"1")
+	go convStream("rtsp://localhost:8554/mystream2", hls_dir+"2")
 
-	go convStream()
+	// TODO:: 浏览器无法播放(检测ffmpeg pull错误, 重新执行ffmpeg 指令)
 
 	app.Run(config.PORT)
 	// 启动HTTP服务
@@ -46,9 +49,10 @@ func main() {
 	// }()
 }
 
-func convStream() {
+func convStream(rtsp_url string, hls_dir string) {
+	hls_segment := 5              // 切片时长(秒)
+	hls_playlist := "stream.m3u8" // 播放列表名
 	// 清理旧HLS文件
-	os.RemoveAll(hls_dir)
 	os.MkdirAll(hls_dir, 0o755)
 
 	// 启动FFmpeg转码进程
@@ -74,11 +78,23 @@ func convStream() {
 	// 捕获FFmpeg日志
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
+	// stderrPipe, err := cmd.StderrPipe()
+	// if err != nil {
+	// 	return
+	// }
 
 	// 启动转码
 	if err := cmd.Start(); err != nil {
 		log.Fatalf("FFmpeg启动失败: %v", err)
 	}
+	// // 实时读取stderr
+	// go func() {
+	// 	scanner := bufio.NewScanner(stderrPipe)
+	// 	for scanner.Scan() {
+	// 		fmt.Printf("实时错误输出: %s\n", scanner.Text())
+	// 	}
+	// }()
+
 	fmt.Println("convert stream!")
 	// defer cmd.Process.Kill()
 }

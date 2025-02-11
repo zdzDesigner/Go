@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>HLS播放器</title>
@@ -6,27 +6,53 @@
   </head>
   <body>
     <!-- <video id="video" controls width="140" autoplay="true"></video> -->
-    <video id="video" width="120" muted="muted"></video>
+    <video id="video" width="420" muted="muted"></video>
+    <video id="video2" width="420" muted="muted"></video>
+    <!-- <video id="video3" width="420" muted="muted"></video> -->
 
     <script>
       const video = document.getElementById("video")
+      // const video2 = document.getElementById("video2")
+      // const video3 = document.getElementById("video3")
 
-      const uri = "http://localhost:8088/static/hls/stream.m3u8"
-
-      if (Hls.isSupported()) {
+      const createPlayer = (video, uri) => {
+        if (!Hls.isSupported()) return null
         const hls = new Hls()
         hls.loadSource(uri)
         hls.attachMedia(video)
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           console.log("played!")
-          // video.play()
-        })
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = "uri"
-        video.addEventListener("loadedmetadata", () => {
           video.play()
         })
+        // TODO:: 加载
+        video.addEventListener("loadeddata", (event) => {
+          // TODO:: 加载完成
+          console.log(
+            "Yay! readyState just increased to  " +
+              "HAVE_CURRENT_DATA or greater for first time."
+          )
+        })
+        return hls
       }
+      const uri = "http://localhost:8088/static/hls/1/stream.m3u8"
+      const uri2 = "http://localhost:8088/static/hls/2/stream.m3u8"
+      const uris = [uri, uri2]
+
+      let index = 0
+      let player = createPlayer(video, uris[index])
+      document.body.addEventListener("click", () => {
+        player.destroy()
+        index++
+        if (index >= 2) index = 0
+        player = createPlayer(video, uris[index])
+      })
+
+      // if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      //   video.src = "uri"
+      //   video.addEventListener("loadedmetadata", () => {
+      //     video.play()
+      //   })
+      // }
     </script>
   </body>
 </html>
