@@ -65,7 +65,7 @@ func convStream() {
 	// 	"-hls_flags", "delete_segments", // 自动删除旧切片
 	// 	filepath.Join(hls_dir, hls_playlist),
 	// )
-	ffmpeg_args := "-i rtsp://localhost:8554/mystream -c:v copy -c:a aac -f hls -hls_time 2 -hls_list_size 5 -hls_wrap 5 output.m3u8"
+	ffmpeg_args := "-i rtsp://localhost:8554/mystream -c:v copy -c:a aac -f hls -hls_time 2 -hls_list_size 5 -hls_wrap 5 ./static/hls/output.m3u8"
 	cmd := exec.Command("ffmpeg", strings.Split(ffmpeg_args, " ")...)
 
 	// 捕获FFmpeg日志
@@ -77,5 +77,5 @@ func convStream() {
 		log.Fatalf("FFmpeg启动失败: %v", err)
 	}
 	fmt.Println("convert stream!")
-	defer cmd.Process.Kill()
+	// defer cmd.Process.Kill()
 }

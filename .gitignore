@@ -3,3 +3,4 @@ trocli
 .zip
 .gradle
 build
+./cameras/static/hls
