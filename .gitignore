@@ -4,3 +4,4 @@ trocli
 .gradle
 .so
 build
+cameras/static/hls/*
