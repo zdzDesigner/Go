@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <title>HLS播放器</title>
+    <script src="/static/hls.min.js"></script>
+  </head>
+  <body>
+    <!-- <video id="video" controls width="240"></video> -->
+    <video id="video" width="240"></video>
+
+    <script>
+      const video = document.getElementById("video")
+
+      if (Hls.isSupported()) {
+        const hls = new Hls()
+        hls.loadSource("http://localhost:9900/stream.m3u8")
+        hls.attachMedia(video)
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play()
+        })
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = "http://localhost:8080/stream.m3u8"
+        video.addEventListener("loadedmetadata", () => {
+          video.play()
+        })
+      }
+    </script>
+  </body>
+</html>
