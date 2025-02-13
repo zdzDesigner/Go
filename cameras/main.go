@@ -8,12 +8,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	// "strings"
 
 	"cameras/src/config"
 
-	"github.com/eapache/go-resiliency/breaker"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
@@ -43,7 +43,12 @@ func main() {
 	}
 	for index, uri := range uris {
 		fmt.Println(uri, index)
-		go convStream(uri, hls_dir+fmt.Sprintf("%d", index+1))
+		ctrl := make(chan string)
+		go func() {
+			time.Sleep(time.Second * 3)
+			ctrl <- "reset"
+		}()
+		go convStream(uri, hls_dir+fmt.Sprintf("%d", index+1), ctrl)
 	}
 
 	// TODO:: 浏览器无法播放(检测ffmpeg pull错误, 重新执行ffmpeg 指令)
@@ -56,7 +61,7 @@ func main() {
 	// }()
 }
 
-func convStream(rtsp_url string, hls_dir string) {
+func convStream(rtsp_url string, hls_dir string, ctrl <-chan string) {
 	hls_segment := 5              // 切片时长(秒)
 	hls_playlist := "stream.m3u8" // 播放列表名
 	// 清理旧HLS文件
@@ -65,7 +70,9 @@ func convStream(rtsp_url string, hls_dir string) {
 	// 启动FFmpeg转码进程
 	cmd := exec.Command("ffmpeg",
 		// "-rtsp_transport", "tcp", // 强制TCP传输
-		"-loglevel", "fatal",
+		// "-loglevel", "info",
+		"-loglevel", "error",
+		// "-loglevel", "fatal",
 		// "-stimeout", "5000000",
 		// "-reconnect", "1",
 		// "-reconnect_streamed", "1",
@@ -84,7 +91,7 @@ func convStream(rtsp_url string, hls_dir string) {
 		"-tune", "zerolatency", // 零延迟编码
 		filepath.Join(hls_dir, hls_playlist),
 	)
-	// ffmpeg_args := "-i rtsp://localhost:8554/mystream -c:v copy -c:a aac -f hls -hls_time 2 -hls_list_size 5 -hls_wrap 5 ./static/hls/output.m3u8"
+	// ffmpeg_args := "ffmpeg -i rtsp://localhost:8554/mystream -c:v copy -c:a aac -f hls -hls_time 2 -hls_list_size 5 -hls_wrap 5 ./static/hls/output.m3u8"
 	// cmd := exec.Command("ffmpeg", strings.Split(ffmpeg_args, " ")...)
 
 	// 捕获FFmpeg日志
@@ -104,11 +111,22 @@ func convStream(rtsp_url string, hls_dir string) {
 		scanner := bufio.NewScanner(stderr_pipe)
 		for scanner.Scan() {
 			fmt.Printf("实时错误输出: %s\n", scanner.Text())
-			convStream(rtsp_url, hls_dir)
+			cmd.Process.Kill()
+			time.Sleep(time.Millisecond * 100)
+			convStream(rtsp_url, hls_dir, ctrl)
+			return
+		}
+	}()
+	// 控制
+	go func() {
+		select {
+		case res := <-ctrl:
+			if res == "reset" {
+				fmt.Println("reset")
+			}
 			return
 		}
 	}()
 
 	fmt.Println("convert stream!")
-	// defer cmd.Process.Kill()
 }
