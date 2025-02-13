@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "bufio"
+	"bufio"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,13 +13,14 @@ import (
 
 	"cameras/src/config"
 
+	"github.com/eapache/go-resiliency/breaker"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	// rtspURL  = "rtsp://admin:password@192.168.1.100:554/stream" // RTSP源地址
-	// rtsp_url = "rtsp://localhost:8554/mystream"                 // RTSP源地址
+// rtspURL  = "rtsp://admin:password@192.168.1.100:554/stream" // RTSP源地址
+// rtsp_url = "rtsp://localhost:8554/mystream"                 // RTSP源地址
 )
 
 func main() {
@@ -36,8 +37,14 @@ func main() {
 	})
 	hls_dir := "./static/hls/"
 	os.RemoveAll(hls_dir)
-	go convStream("rtsp://localhost:8554/mystream1", hls_dir+"1")
-	go convStream("rtsp://localhost:8554/mystream2", hls_dir+"2")
+	uris := []string{
+		"rtsp://localhost:8554/mystream1",
+		"rtsp://localhost:8554/mystream2",
+	}
+	for index, uri := range uris {
+		fmt.Println(uri, index)
+		go convStream(uri, hls_dir+fmt.Sprintf("%d", index+1))
+	}
 
 	// TODO:: 浏览器无法播放(检测ffmpeg pull错误, 重新执行ffmpeg 指令)
 
@@ -58,6 +65,11 @@ func convStream(rtsp_url string, hls_dir string) {
 	// 启动FFmpeg转码进程
 	cmd := exec.Command("ffmpeg",
 		// "-rtsp_transport", "tcp", // 强制TCP传输
+		"-loglevel", "fatal",
+		// "-stimeout", "5000000",
+		// "-reconnect", "1",
+		// "-reconnect_streamed", "1",
+		// "-reconnect_delay_max", "10",
 		"-i", rtsp_url, // 输入源
 		"-c:v", "libx264", // 视频编码
 		"-crf", "23", // 质量参数
@@ -78,22 +90,24 @@ func convStream(rtsp_url string, hls_dir string) {
 	// 捕获FFmpeg日志
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
-	// stderrPipe, err := cmd.StderrPipe()
-	// if err != nil {
-	// 	return
-	// }
+	stderr_pipe, err := cmd.StderrPipe()
+	if err != nil {
+		return
+	}
 
 	// 启动转码
 	if err := cmd.Start(); err != nil {
 		log.Fatalf("FFmpeg启动失败: %v", err)
 	}
-	// // 实时读取stderr
-	// go func() {
-	// 	scanner := bufio.NewScanner(stderrPipe)
-	// 	for scanner.Scan() {
-	// 		fmt.Printf("实时错误输出: %s\n", scanner.Text())
-	// 	}
-	// }()
+	// 实时读取stderr
+	go func() {
+		scanner := bufio.NewScanner(stderr_pipe)
+		for scanner.Scan() {
+			fmt.Printf("实时错误输出: %s\n", scanner.Text())
+			convStream(rtsp_url, hls_dir)
+			return
+		}
+	}()
 
 	fmt.Println("convert stream!")
 	// defer cmd.Process.Kill()
