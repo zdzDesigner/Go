@@ -17,7 +17,6 @@ func main() {
 
 	pointer()
 	structer()
-
 }
 
 type Arg struct {
@@ -47,6 +46,7 @@ func argVal(source string, key string) string {
 func update(names []string) {
 	names[0] = "xxx"
 }
+
 func pointer() {
 	names := []string{"ccc"}
 	update(names)
@@ -54,7 +54,6 @@ func pointer() {
 	time.Sleep(time.Second)
 
 	fmt.Println(names)
-
 }
 
 type Val struct {
@@ -64,10 +63,11 @@ type Val struct {
 func updateStruct(val Val) {
 	val.Name = "ccc"
 }
+
 func structer() {
 	val := Val{Name: "aaa"}
 	updateStruct(val)
 	time.Sleep(time.Second)
 	fmt.Println(val.Name)
-
 }
+

@@ -3,7 +3,9 @@ package main
 import "fmt"
 
 func main() {
-	base("aa---", "bb")
+	// base("aa---", "bb")
+	isNil(nil)
+	isNil([]string{"aa"})
 }
 
 func base(args ...string) {
@@ -19,8 +21,13 @@ func baseGo(args ...string) {
 
 func isempty(str string) bool {
 	fmt.Println("str:", str)
-	if str != "" {
-		return true
-	}
-	return false
+	return str != ""
+}
+
+func isNil(keys []string) {
+	toArg(keys...)
+}
+
+func toArg(keys ...string) {
+	fmt.Println("keys:", keys)
 }

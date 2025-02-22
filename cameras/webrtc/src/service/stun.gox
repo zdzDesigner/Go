@@ -1,0 +1,102 @@
+package service
+
+import (
+	"fmt"
+	"log"
+	"net"
+
+	"github.com/pion/stun/v3"
+)
+
+type StunServer struct {
+	conn *net.UDPConn
+}
+
+// 创建新的 STUN Server
+func NewStunServer(addr string) (*StunServer, error) {
+	udpAddr, err := net.ResolveUDPAddr("udp", addr)
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := net.ListenUDP("udp", udpAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &StunServer{conn: conn}, nil
+}
+
+// 处理 STUN 请求
+func (s *StunServer) handleRequest() {
+	buffer := make([]byte, 1024)
+
+	for {
+		n, addr, err := s.conn.ReadFromUDP(buffer)
+		if err != nil {
+			log.Printf("Error reading from UDP: %v", err)
+			continue
+		}
+
+		// 解析 STUN 消息
+		msg, err := stun.ParseMessage(buffer[:n])
+		if err != nil {
+			log.Printf("Error parsing STUN message: %v", err)
+			continue
+		}
+
+		// 只处理 Binding 请求
+		if msg.Type.Method == stun.MethodBinding && msg.Type.Class == stun.ClassRequest {
+			// 创建响应
+			resp := stun.Message{
+				Type:        stun.NewType(stun.MethodBinding, stun.ClassSuccessResponse),
+				Transaction: msg.Transaction,
+			}
+
+			// 添加 XOR-MAPPED-ADDRESS 属性
+			xorAddr := stun.XORMappedAddress{
+				IP:   addr.IP,
+				Port: addr.Port,
+			}
+			if err := xorAddr.AddTo(&resp); err != nil {
+				log.Printf("Error adding XOR address: %v", err)
+				continue
+			}
+
+			// 编码响应
+			raw, err := resp.Build()
+			if err != nil {
+				log.Printf("Error building response: %v", err)
+				continue
+			}
+
+			// 发送响应
+			if _, err := s.conn.WriteToUDP(raw, addr); err != nil {
+				log.Printf("Error sending response: %v", err)
+			}
+		}
+	}
+}
+
+// 启动服务器
+func (s *StunServer) Start() {
+	log.Printf("STUN server started on %s", s.conn.LocalAddr().String())
+	s.handleRequest()
+}
+
+// 关闭服务器
+func (s *StunServer) Close() {
+	s.conn.Close()
+}
+
+func StartStunServer() {
+	// 创建 STUN 服务器，监听 3478 端口（STUN 默认端口）
+	server, err := NewStunServer(":3478")
+	if err != nil {
+		log.Fatal("Failed to create STUN server:", err)
+	}
+	defer server.Close()
+
+	// 启动服务器
+	server.Start()
+}
