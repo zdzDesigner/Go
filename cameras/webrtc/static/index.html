@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head> </head>
   <body>
@@ -8,14 +8,23 @@
       const pc = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       })
-
+      const dataChannel = pc.createDataChannel("rtp-debug")
+      dataChannel.onmessage = (event) => {
+        console.log("RTP Packet info:", event.data)
+      }
       console.log({ pc })
       pc.ontrack = (evt) => {
-        console.log("track", evt)
-        const stream = evt.streams[0]
-        console.log(stream.getTracks())
-        video.srcObject = stream
+        // const track = event.track
+        // const receiver = event.receiver
+        // const rtpReceiver = receiver.rtpReceiver
+        // console.log({ track, receiver, rtpReceiver })
+
+        // const stream = evt.streams[0]
+        // console.log("Tracks:", stream.getTracks())
+        // video.srcObject = stream
         // video.play()
+        video.srcObject = new MediaStream([evt.track])
+        video.play()
       }
 
       pc.onicecandidate = (evt) => {
@@ -27,10 +36,19 @@
               candidate: evt.candidate.candidate,
               sdpMid: evt.candidate.sdpMid,
               sdpMLineIndex: evt.candidate.sdpMLineIndex,
-            }),
+            })
           )
         }
       }
+      // ?
+      // pc.ondatachannel = (evt) => {
+      //   console.log("ondatachannel:", { evt })
+      //   const dataChannel = evt.channel
+      //   dataChannel.onmessage = (evt) => {
+      //     const receivedBlob = evt.data // 这是接收到的Blob类型的二进制数据
+      //     // 处理receivedBlob
+      //   }
+      // }
 
       const ws = new WebSocket(`ws://${location.host}/ws`)
       ws.onmessage = async (evt) => {
