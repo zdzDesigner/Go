@@ -55,8 +55,8 @@ func main() {
 	// ws
 	http.HandleFunc("/ws", websocketHandler)
 
-	log.Println("Server running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Server running on :8777")
+	log.Fatal(http.ListenAndServe(":8777", nil))
 }
 
 func broadcastRTP() {
@@ -83,7 +83,7 @@ func broadcastRTP() {
 			continue
 		}
 
-		// fmt.Println(buffer)
+		// fmt.Println(n, len(buffer[:n]))
 		pkt := &rtp.Packet{
 			Header: rtp.Header{
 				Version:        2,
@@ -97,7 +97,7 @@ func broadcastRTP() {
 
 		track_lock.RLock()
 		for track := range tracks {
-			fmt.Println("--------")
+			// fmt.Println("--------")
 			if err := track.WriteRTP(pkt); err != nil {
 				log.Printf("写入 RTP 失败: %v", err)
 			}
@@ -105,7 +105,7 @@ func broadcastRTP() {
 		track_lock.RUnlock()
 
 		sequenceNumber++
-		timestamp += 90000 / 10 // 假设 30fps
+		timestamp += 90000 / 30 // 假设 30fps
 	}
 }
 
@@ -145,6 +145,13 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		delete(tracks, video_track)
 		track_lock.Unlock()
 	}()
+
+	// 创建数据通道
+	dataChannel, err := peerConnection.CreateDataChannel("rtp-debug", nil)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("dataChannel:", dataChannel)
 
 	// 添加轨道
 	if _, err = peerConnection.AddTrack(video_track); err != nil {
