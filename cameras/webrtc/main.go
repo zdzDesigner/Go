@@ -18,9 +18,9 @@ import (
 )
 
 var (
-	upgrader  = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
-	tracks    = make(map[*webrtc.TrackLocalStaticRTP]struct{})
-	trackLock sync.RWMutex
+	upgrader   = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
+	tracks     = make(map[*webrtc.TrackLocalStaticRTP]struct{})
+	track_lock sync.RWMutex
 )
 
 func main() {
@@ -95,14 +95,14 @@ func broadcastRTP() {
 			Payload: buffer[:n],
 		}
 
-		trackLock.RLock()
+		track_lock.RLock()
 		for track := range tracks {
 			fmt.Println("--------")
 			if err := track.WriteRTP(pkt); err != nil {
 				log.Printf("写入 RTP 失败: %v", err)
 			}
 		}
-		trackLock.RUnlock()
+		track_lock.RUnlock()
 
 		sequenceNumber++
 		timestamp += 90000 / 10 // 假设 30fps
@@ -123,7 +123,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	defer peerConnection.Close()
 
 	// 创建视频轨道
-	videoTrack, err := webrtc.NewTrackLocalStaticRTP(
+	video_track, err := webrtc.NewTrackLocalStaticRTP(
 		webrtc.RTPCodecCapability{
 			MimeType:  "video/h264",
 			ClockRate: 90000,
@@ -137,17 +137,17 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 注册轨道
-	trackLock.Lock()
-	tracks[videoTrack] = struct{}{}
-	trackLock.Unlock()
+	track_lock.Lock()
+	tracks[video_track] = struct{}{}
+	track_lock.Unlock()
 	defer func() {
-		trackLock.Lock()
-		delete(tracks, videoTrack)
-		trackLock.Unlock()
+		track_lock.Lock()
+		delete(tracks, video_track)
+		track_lock.Unlock()
 	}()
 
 	// 添加轨道
-	if _, err = peerConnection.AddTrack(videoTrack); err != nil {
+	if _, err = peerConnection.AddTrack(video_track); err != nil {
 		log.Println(err)
 		return
 	}
