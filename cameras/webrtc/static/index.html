@@ -36,8 +36,9 @@
       //     // 处理receivedBlob
       //   }
       // }
-      console.log({ pc })
       pc.ontrack = (evt) => {
+        video.srcObject = evt.streams[0]
+        video.play()
         // const track = event.track
         // const receiver = event.receiver
         // const rtpReceiver = receiver.rtpReceiver
@@ -47,8 +48,8 @@
         // console.log("Tracks:", stream.getTracks())
         // video.srcObject = stream
         // video.play()
-        video.srcObject = new MediaStream([evt.track])
-        video.play()
+        // video.srcObject = new MediaStream([evt.track])
+        // video.play()
       }
 
       pc.onicecandidate = (evt) => {

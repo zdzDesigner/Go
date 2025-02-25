@@ -29,6 +29,7 @@ func main() {
 		"-re",
 		"-stream_loop", "-1",
 		"-i", "/home/zdz/temp/video/SampleVideo_1280x720_5mb.mp4",
+		// "-i", "/home/zdz/temp/video/output.h264",
 		"-c:v", "libx264",
 		"-profile:v", "baseline",
 		"-preset", "ultrafast",
@@ -37,6 +38,7 @@ func main() {
 		"-f", "rtp",
 		"-sdp_file", "video.sdp", // 生成 SDP 文件用于解析参数
 		"rtp://127.0.0.1:5004?pkt_size=1200",
+		// "rtp://127.0.0.1:5004?pkt_size=100",
 	)
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
@@ -61,10 +63,10 @@ func main() {
 
 func broadcastRTP() {
 	// 解析 SDP 获取 SSRC 和 PayloadType
-	sdp, err := parseSDP("video.sdp")
-	if err != nil {
-		return
-	}
+	// sdp, err := parseSDP("video.sdp")
+	// if err != nil {
+	// 	return
+	// }
 
 	conn, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: 5004})
 	if err != nil {
@@ -82,23 +84,28 @@ func broadcastRTP() {
 			log.Printf("读取 RTP 失败: %v", err)
 			continue
 		}
+		// fmt.Println(n)
+		rtpkt := rtp.Packet{}
+		rtpkt.Unmarshal(buffer[:n])
+		// fmt.Println(rtpkt)
 
+		// pkt := (buffer[:n]).(*rtp.Packet)
 		// fmt.Println(n, len(buffer[:n]))
-		pkt := &rtp.Packet{
-			Header: rtp.Header{
-				Version:        2,
-				PayloadType:    sdp.PayloadType,
-				SequenceNumber: sequenceNumber,
-				Timestamp:      timestamp,
-				// SSRC:           sdp.SSRC,
-			},
-			Payload: buffer[:n],
-		}
+		// pkt := &rtp.Packet{
+		// 	Header: rtp.Header{
+		// 		Version:        2,
+		// 		PayloadType:    sdp.PayloadType,
+		// 		SequenceNumber: sequenceNumber,
+		// 		Timestamp:      timestamp,
+		// 		SSRC:           sdp.SSRC,
+		// 	},
+		// 	Payload: buffer[:n],
+		// }
 
 		track_lock.RLock()
 		for track := range tracks {
 			// fmt.Println("--------")
-			if err := track.WriteRTP(pkt); err != nil {
+			if err := track.WriteRTP(&rtpkt); err != nil {
 				log.Printf("写入 RTP 失败: %v", err)
 			}
 		}
@@ -161,7 +168,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	// 	fmt.Println(string(msg.Data))
 	// })
 
-  // 被动方
+	// 被动方
 	peerConnection.OnDataChannel(func(dc *webrtc.DataChannel) {
 		dc.OnMessage(func(msg webrtc.DataChannelMessage) {
 			fmt.Println(string(msg.Data))
@@ -170,10 +177,20 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// 添加轨道
-	if _, err = peerConnection.AddTrack(video_track); err != nil {
+	rtp_sender, err := peerConnection.AddTrack(video_track)
+	if err != nil {
 		log.Println(err)
 		return
 	}
+	_ = rtp_sender
+	// go func() {
+	// 	buf := make([]byte, 1500)
+	// 	for {
+	// 		if _, _, err := rtp_sender.Read(buf); err != nil {
+	// 			return
+	// 		}
+	// 	}
+	// }()
 
 	// 信令处理
 	for {
@@ -243,8 +260,8 @@ func parseSDP(filepath string) (*sdpInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	// fmt.Println(sdp.Media[0].PayloadType)
+	fmt.Println("PayloadType:", sdp.Media[0].PayloadType)
 	payloadType := sdp.Media[0].PayloadType
 	// 实现 SDP 解析逻辑（根据实际生成的 SDP 文件）
-	return &sdpInfo{SSRC: 12345678, PayloadType: uint8(payloadType)}, nil
+	return &sdpInfo{SSRC: 88822211, PayloadType: uint8(payloadType)}, nil
 }
