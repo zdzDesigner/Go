@@ -146,12 +146,28 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		track_lock.Unlock()
 	}()
 
-	// 创建数据通道
-	dataChannel, err := peerConnection.CreateDataChannel("rtp-debug", nil)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("dataChannel:", dataChannel)
+	// 主动方 创建数据通道
+	// dataChannel, err := peerConnection.CreateDataChannel("rtp-debug", nil)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// dataChannel.OnOpen(func() {
+	// 	fmt.Println("dataChannel OPEN")
+	// 	dataChannel.Send([]byte("xxxxxx"))
+	// })
+	// // fmt.Println("dataChannel:", dataChannel)
+	// dataChannel.OnMessage(func(msg webrtc.DataChannelMessage) {
+	// 	fmt.Println(string(msg.Data))
+	// })
+
+  // 被动方
+	peerConnection.OnDataChannel(func(dc *webrtc.DataChannel) {
+		dc.OnMessage(func(msg webrtc.DataChannelMessage) {
+			fmt.Println(string(msg.Data))
+			dc.Send([]byte("xxxxxx"))
+		})
+	})
 
 	// 添加轨道
 	if _, err = peerConnection.AddTrack(video_track); err != nil {
@@ -172,7 +188,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		signal_type := signal["type"].(string)
-		fmt.Println("signal:", signal)
+		// fmt.Println("signal:", signal)
 		switch signal_type {
 		case "offer":
 			// sdp := signal.(map[string]interface{})
@@ -227,7 +243,7 @@ func parseSDP(filepath string) (*sdpInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(sdp.Media[0].PayloadType)
+	// fmt.Println(sdp.Media[0].PayloadType)
 	payloadType := sdp.Media[0].PayloadType
 	// 实现 SDP 解析逻辑（根据实际生成的 SDP 文件）
 	return &sdpInfo{SSRC: 12345678, PayloadType: uint8(payloadType)}, nil

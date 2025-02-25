@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head> </head>
   <body>
@@ -8,10 +8,34 @@
       const pc = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       })
+      // 主动方
       const dataChannel = pc.createDataChannel("rtp-debug")
-      dataChannel.onmessage = (event) => {
-        console.log("RTP Packet info:", event.data)
-      }
+      dataChannel.addEventListener("open", () => {
+        console.log("dataChannel OPEN")
+        dataChannel.send("Hello")
+      })
+      dataChannel.addEventListener("close", () => {
+        console.log("dataChannel CLOSE")
+        // dataChannel.send("Hello, 这是通过数据通道发送的消息！")
+      })
+      dataChannel.addEventListener("message", (evt) => {
+        console.log("dataChannel message:", evt.data)
+        let utf8decoder = new TextDecoder() // default 'utf-8' or 'utf8'
+        const res = utf8decoder.decode(evt.data)
+        console.log({ res })
+
+        // dataChannel.send("Hello, 这是通过数据通道发送的消息！")
+      })
+      // 被动放
+      // pc.ondatachannel = (evt) => {
+      //   console.log("ondatachannel:", { evt })
+      //   const dataChannel = evt.channel
+      //   dataChannel.onmessage = (evt) => {
+      //     const receivedBlob = evt.data // 这是接收到的Blob类型的二进制数据
+      //     console.log({ receivedBlob })
+      //     // 处理receivedBlob
+      //   }
+      // }
       console.log({ pc })
       pc.ontrack = (evt) => {
         // const track = event.track
@@ -36,19 +60,11 @@
               candidate: evt.candidate.candidate,
               sdpMid: evt.candidate.sdpMid,
               sdpMLineIndex: evt.candidate.sdpMLineIndex,
-            })
+            }),
           )
         }
       }
-      // ?
-      // pc.ondatachannel = (evt) => {
-      //   console.log("ondatachannel:", { evt })
-      //   const dataChannel = evt.channel
-      //   dataChannel.onmessage = (evt) => {
-      //     const receivedBlob = evt.data // 这是接收到的Blob类型的二进制数据
-      //     // 处理receivedBlob
-      //   }
-      // }
+      // 监听数据通道事件
 
       const ws = new WebSocket(`ws://${location.host}/ws`)
       ws.onmessage = async (evt) => {
@@ -65,8 +81,14 @@
         // pc.addTransceiver("video").receiver.track
         pc.addTransceiver("video", { direction: "recvonly" })
         pc.createOffer()
-          .then((offer) => pc.setLocalDescription(offer))
-          .then(() => ws.send(JSON.stringify(pc.localDescription)))
+          .then((offer) => {
+            console.log(JSON.stringify(pc.localDescription)) // null
+            return pc.setLocalDescription(offer)
+          })
+          .then(() => {
+            console.log(JSON.stringify(pc.localDescription)) // {type,sdp}
+            ws.send(JSON.stringify(pc.localDescription))
+          })
       }
     </script>
   </body>
