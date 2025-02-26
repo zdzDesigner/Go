@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 
 	"cameras/src/service"
@@ -24,25 +26,53 @@ var (
 )
 
 func main() {
-	// 启动 FFmpeg 生成 RTP 流
-	cmd := exec.Command("ffmpeg",
-		"-re",
-		"-stream_loop", "-1",
-		"-i", "/home/zdz/temp/video/SampleVideo_1280x720_5mb.mp4",
-		// "-i", "/home/zdz/temp/video/output.h264",
-		"-c:v", "libx264",
-		"-profile:v", "baseline",
-		"-preset", "ultrafast",
-		"-tune", "zerolatency",
-		"-an",
-		"-f", "rtp",
-		"-sdp_file", "video.sdp", // 生成 SDP 文件用于解析参数
-		"rtp://127.0.0.1:5004?pkt_size=1200",
-		// "rtp://127.0.0.1:5004?pkt_size=100",
-	)
-	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
+	// 启动 FFmpeg 生成 RTP 流 !!! 注意空格数量
+	ffmpeg_args := "-re -i /home/zdz/temp/video/SampleVideo_1280x720_5mb.mp4 -c:v libx264 -profile:v baseline -preset ultrafast -tune zerolatency -an -f rtp rtp://127.0.0.1:5004?pkt_size=1200"
+	// ffmpeg_args := "-re -i /home/zdz/temp/video/SampleVideo_1280x720_5mb.mp4 -c:v libvpx -preset ultrafast -an -f rtp rtp://127.0.0.1:5004?pkt_size=1200"
+	// ffmpeg_args := "-re -stream_loop -1 -i /home/zdz/temp/video/SampleVideo_1280x720_5mb.mp4 -c:v libvpx -preset ultrafast -an -f rtp rtp://127.0.0.1:5004?pkt_size=1200"
+	// 测试视频
+	// ffmpeg_args := "-re -f lavfi -i testsrc=size=640x480:rate=30 -pix_fmt yuv420p -c:v libx264 -g 10 -preset ultrafast -tune zerolatency -f rtp rtp://127.0.0.1:5004?pkt_size=1200"
+	// vp8
+	// ffmpeg_args := "-re -f lavfi -i testsrc=size=640x480:rate=30 -vcodec libvpx -cpu-used 5 -deadline 1 -g 10 -error-resilient 1 -auto-alt-ref 1 -f rtp rtp://127.0.0.1:5004?pkt_size=1200"
+
+	fmt.Println(strings.Split(ffmpeg_args, " "))
+	cmd := exec.Command("ffmpeg", strings.Split(ffmpeg_args, " ")...)
+
+	// cmd := exec.Command("ffmpeg",
+	// 	"-re",
+	// 	// "-stream_loop", "-1",
+	// 	"-i", "/home/zdz/temp/video/SampleVideo_1280x720_5mb.mp4",
+	// 	// "-i", "/home/zdz/temp/video/output.h264",
+	// 	"-c:v", "libx264",
+	// 	"-profile:v", "baseline",
+	// 	"-preset", "ultrafast",
+	// 	"-tune", "zerolatency",
+	// 	"-an", // 需要禁止音频
+	// 	"-f", "rtp",
+	// 	// "-sdp_file", "video.sdp", // 生成 SDP 文件用于解析参数
+	// 	"rtp://127.0.0.1:5004?pkt_size=1200",
+	// 	// "rtp://127.0.0.1:5004?pkt_size=100",
+	// )
+	stderr_pipe, err := cmd.StderrPipe()
+	if err != nil {
+		return
 	}
+
+	// 启动转码
+	if err := cmd.Start(); err != nil {
+		log.Fatalf("FFmpeg启动失败: %v", err)
+	}
+	// 实时读取stderr
+	go func() {
+		scanner := bufio.NewScanner(stderr_pipe)
+		for scanner.Scan() {
+			if strings.Contains(scanner.Text(), "Error") {
+				fmt.Printf("实时错误输出: %s\n", scanner.Text())
+				cmd.Process.Kill()
+				return
+			}
+		}
+	}()
 	defer cmd.Process.Kill()
 
 	// 启动广播服务
@@ -85,11 +115,10 @@ func broadcastRTP() {
 			continue
 		}
 		// fmt.Println(n)
-		rtpkt := rtp.Packet{}
-		rtpkt.Unmarshal(buffer[:n])
-		// fmt.Println(rtpkt)
+		pkt := &rtp.Packet{}
+		pkt.Unmarshal(buffer[:n])
+		// fmt.Println(pkt)
 
-		// pkt := (buffer[:n]).(*rtp.Packet)
 		// fmt.Println(n, len(buffer[:n]))
 		// pkt := &rtp.Packet{
 		// 	Header: rtp.Header{
@@ -105,7 +134,7 @@ func broadcastRTP() {
 		track_lock.RLock()
 		for track := range tracks {
 			// fmt.Println("--------")
-			if err := track.WriteRTP(&rtpkt); err != nil {
+			if err := track.WriteRTP(pkt); err != nil {
 				log.Printf("写入 RTP 失败: %v", err)
 			}
 		}
@@ -132,7 +161,8 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	// 创建视频轨道
 	video_track, err := webrtc.NewTrackLocalStaticRTP(
 		webrtc.RTPCodecCapability{
-			MimeType:  "video/h264",
+			MimeType: webrtc.MimeTypeH264,
+			// MimeType:  webrtc.MimeTypeVP8,
 			ClockRate: 90000,
 		},
 		"video",
