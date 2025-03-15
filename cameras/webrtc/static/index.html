@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head> </head>
   <body>
-    <video id="video" muted="muted" width="80"></video>
+    <video id="video" muted="muted" width="680"></video>
     <script>
       const video = document.getElementById("video")
       const pc = new RTCPeerConnection({
@@ -61,7 +61,7 @@
               candidate: evt.candidate.candidate,
               sdpMid: evt.candidate.sdpMid,
               sdpMLineIndex: evt.candidate.sdpMLineIndex,
-            }),
+            })
           )
         }
       }

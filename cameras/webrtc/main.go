@@ -29,15 +29,16 @@ func main() {
 		"-re",
 		"-stream_loop", "-1",
 		"-i", "/home/zdz/temp/video/SampleVideo_1280x720_5mb.mp4",
+		// "-i", "/home/zdz/temp/video/22222.mp4",
 		// "-i", "/home/zdz/temp/video/output.h264",
 		"-c:v", "libx264",
-		"-profile:v", "baseline",
-		"-preset", "ultrafast",
+		// "-profile:v", "baseline",
+		// "-preset", "ultrafast",
 		"-tune", "zerolatency",
 		"-an",
 		"-f", "rtp",
 		"-sdp_file", "video.sdp", // 生成 SDP 文件用于解析参数
-		"rtp://127.0.0.1:5004?pkt_size=1200",
+		"rtp://127.0.0.1:5004?pkt_size=600",
 		// "rtp://127.0.0.1:5004?pkt_size=100",
 	)
 	if err := cmd.Start(); err != nil {
