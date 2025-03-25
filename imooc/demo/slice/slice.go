@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// fmt.Println(len(getnil()), getnil(), "aa")
-	// base()
+	base()
 	// base1()
 	// arrnil()
 	// append2()
@@ -35,11 +35,32 @@ func main() {
 	// define()
 	// removeProgress()
 	// _continue()
-	lennil()
+	// lennil()
+	readSouce()
 }
 
 func lennil() {
 	fmt.Println(len(getnil()) == 0)
+}
+
+// /go1.21.3/src/io/io.go
+// b = append(b, 0)[:len(b)]
+func readSouce() {
+	b := make([]byte, 0, 4)
+	fmt.Printf("%p\n", b) // 0xc000114010
+	b = append(b, 'a')
+	b = append(b, 'a')
+	b = append(b, 'a')
+	b = append(b, 'a')
+	fmt.Printf("%p\n", b) // 0xc000114010
+
+	b = append(b, 0) // 超过cap自动扩容, b 指针新地址
+	b = append(b, 0)
+	fmt.Printf("%p\n", b) // 0xc000114018
+	fmt.Println(b)        // [97 97 97 97 0 0]
+	b = append(b, 0)[:4]  // 扩容后填充原来值
+	fmt.Printf("%p\n", b) // 0xc000114018
+	fmt.Println(b)        // [97 97 97 97]
 }
 
 func append2() {
@@ -363,9 +384,9 @@ func clone_deep() {
 }
 
 func base() {
-	clone()
-	clone_deep()
-	return
+	// clone()
+	// clone_deep()
+	// return
 
 	// TO::未初始
 	var arr []string
@@ -377,10 +398,11 @@ func base() {
 	// TO::初始
 	bs := []byte{2, 3, 4, 5, 6, 8}
 	// [) 左闭右开
-	fmt.Println(bs[0:])  // 2, 3, 4, 5, 6, 8
-	fmt.Println(bs[:4])  // 2, 3, 4, 5
-	fmt.Println(bs[0:2]) // 2, 3
-	fmt.Println(bs[1:4]) // 3, 4, 5
+	fmt.Println(bs[0:])     // 2, 3, 4, 5, 6, 8
+	fmt.Println(bs[0:][2:]) // 4, 5, 6, 8
+	fmt.Println(bs[:4])     // 2, 3, 4, 5
+	fmt.Println(bs[0:2])    // 2, 3
+	fmt.Println(bs[1:4])    // 3, 4, 5
 
 	fmt.Println("半清空:")
 	bs = bs[:0]
