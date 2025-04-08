@@ -24,6 +24,14 @@ func base() {
 	for {
 		time.Sleep(time.Millisecond * 100)
 		n, err := filea.Read(stream)
+		// 获取当前文件指针位置 io.SeekCurrent
+		position_cur, _ := filea.Seek(0, io.SeekCurrent)
+		fmt.Println("position_cur:", position_cur)
+		// position_start, _ := filea.Seek(0, io.SeekStart)
+		// fmt.Println("position_start:", position_start)
+		// position_end, _ := filea.Seek(0, io.SeekEnd)
+		// fmt.Println("position_end", position_end)
+
 		if err != nil && err == io.EOF {
 			fmt.Println("Read:", err)
 			break
