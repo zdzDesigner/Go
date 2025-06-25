@@ -54,3 +54,15 @@ func main() {
 
 	fmt.Println(StringifyLessThan([]MyString{"a", "", "b", "z"}, MyString("xx")))
 }
+
+
+
+
+type Ia interface {
+  int | string  // 仅代表int和string
+}
+
+// underlying type 底层类型
+type Ib interface {
+  ~int | ~string  // 代表以int和string为底层类型的所有类型
+}

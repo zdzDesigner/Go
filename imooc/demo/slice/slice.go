@@ -11,7 +11,8 @@ import (
 
 func main() {
 	// fmt.Println(len(getnil()), getnil(), "aa")
-	base()
+	// base()
+  noresivc()
 	// base1()
 	// arrnil()
 	// append2()
@@ -36,11 +37,21 @@ func main() {
 	// removeProgress()
 	// _continue()
 	// lennil()
-	readSouce()
+	// readSouce()
 }
 
 func lennil() {
 	fmt.Println(len(getnil()) == 0)
+}
+
+func noresivc() {
+	b := make([]byte, 0, 4)
+	fmt.Printf("%p\n", b) // 0xc000114010
+	// append(b, 'a')
+	// append(b, 'a')
+	// append(b, 'a')
+	// append(b, 'a')
+	fmt.Println(b)
 }
 
 // /go1.21.3/src/io/io.go
