@@ -147,6 +147,23 @@ func (p *Packet) subcribeAck(packet []byte, packet_id uint16) error {
 	return nil
 }
 
+func (p *Packet) unsubscribe(packet_id uint16, topic string) []byte {
+	topicBytes := []byte(topic)
+
+	vHeader := []byte{
+		byte(packet_id >> 8), byte(packet_id),
+	}
+
+	payload := []byte{
+		byte(len(topicBytes) >> 8), byte(len(topicBytes)),
+	}
+	payload = append(payload, topicBytes...)
+
+	fullPacket := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
+	fullPacket = append(fullPacket, payload...)
+	return append([]byte{UNSUBSCRIBE<<4 | 0x02}, fullPacket...)
+}
+
 func (p *Packet) payload(header byte, payload []byte) (topic string, qos byte, start int, err error) {
 	// 确保包格式正确
 	if len(payload) < 2 {
@@ -168,6 +185,22 @@ func (p *Packet) payload(header byte, payload []byte) (topic string, qos byte, s
 	start = 2 + int(binary.BigEndian.Uint16(payload[:2]))
 
 	return
+}
+
+func (p *Packet) publish(topic, message string) []byte {
+	topicBytes := []byte(topic)
+	msgBytes := []byte(message)
+
+	vHeader := []byte{
+		byte(len(topicBytes) >> 8), byte(len(topicBytes)),
+	}
+	vHeader = append(vHeader, topicBytes...)
+
+	payload := msgBytes
+
+	fullPacket := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
+	fullPacket = append(fullPacket, payload...)
+	return append([]byte{PUBLISH << 4}, fullPacket...)
 }
 
 func (p *Packet) publishAck(packet_id uint16) []byte {

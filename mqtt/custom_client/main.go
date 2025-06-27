@@ -138,7 +138,6 @@ func (c *MQTTClient) connect(broker, clientID string) error {
 // 订阅主题
 func (c *MQTTClient) subscribe(topic string) error {
 	packet_id := c.nextPacketID()
-	// packet := c.createSubscribePacket(packet_id, topic)
 	packet := c.packet.subcribe(packet_id, topic)
 
 	if _, err := c.conn.Write(packet); err != nil {
@@ -156,59 +155,12 @@ func (c *MQTTClient) subscribe(topic string) error {
 	// return c.awaitSubAck(packet_id)
 }
 
-// 创建SUBSCRIBE包
-func (c *MQTTClient) createSubscribePacket(packet_id uint16, topic string) []byte {
-	topicBytes := []byte(topic)
-
-	vHeader := []byte{
-		byte(packet_id >> 8), byte(packet_id),
-	}
-
-	payload := []byte{
-		byte(len(topicBytes) >> 8), byte(len(topicBytes)),
-	}
-	payload = append(payload, topicBytes...)
-	payload = append(payload, 0) // QoS 0
-
-	fullPacket := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
-	fullPacket = append(fullPacket, payload...)
-	return append([]byte{SUBSCRIBE<<4 | 0x02}, fullPacket...)
-}
-
 // 发布消息
 func (c *MQTTClient) publish(topic, message string) error {
-	packet := c.createPublishPacket(topic, message)
+	packet := c.packet.publish(topic, message)
 	_, err := c.conn.Write(packet)
 	return err
 }
-
-// 创建PUBLISH包
-func (c *MQTTClient) createPublishPacket(topic, message string) []byte {
-	topicBytes := []byte(topic)
-	msgBytes := []byte(message)
-
-	vHeader := []byte{
-		byte(len(topicBytes) >> 8), byte(len(topicBytes)),
-	}
-	vHeader = append(vHeader, topicBytes...)
-
-	payload := msgBytes
-
-	fullPacket := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
-	fullPacket = append(fullPacket, payload...)
-	return append([]byte{PUBLISH << 4}, fullPacket...)
-}
-
-// 发送PUBACK (QoS 1)
-// func (c *MQTTClient) sendPuback(packet_id uint16) error {
-// 	puback := []byte{
-// 		0x40,                                  // PUBACK包类型和标志
-// 		0x02,                                  // 剩余长度
-// 		byte(packet_id >> 8), byte(packet_id), // 包ID
-// 	}
-// 	_, err := c.conn.Write(puback)
-// 	return err
-// }
 
 // Ping检查
 func (c *MQTTClient) ping() error {
@@ -232,31 +184,13 @@ func (c *MQTTClient) ping() error {
 // 取消订阅
 func (c *MQTTClient) unsubscribe(topic string) error {
 	packet_id := c.nextPacketID()
-	packet := c.createUnsubscribePacket(packet_id, topic)
+	packet := c.packet.unsubscribe(packet_id, topic)
 
 	if _, err := c.conn.Write(packet); err != nil {
 		return err
 	}
 
 	return c.awaitUnsubAck(packet_id)
-}
-
-// 创建UNSUBSCRIBE包
-func (c *MQTTClient) createUnsubscribePacket(packet_id uint16, topic string) []byte {
-	topicBytes := []byte(topic)
-
-	vHeader := []byte{
-		byte(packet_id >> 8), byte(packet_id),
-	}
-
-	payload := []byte{
-		byte(len(topicBytes) >> 8), byte(len(topicBytes)),
-	}
-	payload = append(payload, topicBytes...)
-
-	fullPacket := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
-	fullPacket = append(fullPacket, payload...)
-	return append([]byte{UNSUBSCRIBE<<4 | 0x02}, fullPacket...)
 }
 
 // 等待取消订阅确认
@@ -405,138 +339,6 @@ func (c *MQTTClient) nextPacketID() uint16 {
 	}
 	return id
 }
-
-// 创建CONNECT包
-// func (c *MQTTClient) createConnectPacket(clientID string) []byte {
-// 	protocolName := "MQTT"
-// 	flags := CLEAN_SESSION
-// 	keepAlive := KEEP_ALIVE
-//
-// 	// 可变头
-// 	vHeader := []byte{
-// 		byte(len(protocolName) >> 8), byte(len(protocolName)),
-// 	}
-// 	fmt.Println(vHeader)
-// 	vHeader = append(vHeader, []byte(protocolName)...)
-// 	vHeader = append(vHeader, 0x04) // 协议版本
-// 	vHeader = append(vHeader, byte(flags))
-// 	vHeader = append(vHeader, byte(keepAlive>>8), byte(keepAlive))
-// 	fmt.Println(vHeader)
-//
-// 	payload := []byte{
-// 		byte(len(clientID) >> 8), byte(len(clientID)),
-// 	}
-// 	fmt.Println("payload:", payload)
-// 	payload = append(payload, []byte(clientID)...)
-//
-// 	fullPacket := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
-// 	fullPacket = append(fullPacket, payload...)
-// 	return append([]byte{CONNECT << 4}, fullPacket...)
-// }
-
-// // 等待连接响应
-// func (c *MQTTClient) awaitConnectResponse() error {
-// 	fmt.Println(time.Now().UnixMilli())
-// 	header := make([]byte, 2)
-// 	if _, err := io.ReadFull(c.conn, header); err != nil {
-// 		return fmt.Errorf("read header: %w", err)
-// 	}
-// 	fmt.Println(time.Now().UnixMilli(), header)
-//
-// 	if header[0]>>4 != CONNACK {
-// 		return errors.New("invalid CONNACK packet")
-// 	}
-//
-// 	if header[1] != 2 {
-// 		return errors.New("invalid CONNACK remaining length")
-// 	}
-//
-// 	vHeader := make([]byte, 2)
-// 	if _, err := io.ReadFull(c.conn, vHeader); err != nil {
-// 		return fmt.Errorf("read vHeader: %w", err)
-// 	}
-//
-// 	if vHeader[1] != 0 {
-// 		return fmt.Errorf("connection refused with code %d", vHeader[1])
-// 	}
-//
-// 	return nil
-// }
-
-// // 从连接解码长度
-// func (c *MQTTClient) decodeLengthBytes() (int, error) {
-// 	multiplier := 1
-// 	length := 0
-// 	bytesRead := 0
-//
-// 	for bytesRead < 4 {
-// 		digitBuf := make([]byte, 1)
-// 		if _, err := io.ReadFull(c.conn, digitBuf); err != nil {
-// 			if err == io.EOF && bytesRead > 0 {
-// 				return 0, errors.New("unexpected EOF while reading length")
-// 			}
-// 			return 0, err
-// 		}
-//
-// 		bytesRead++
-// 		digit := digitBuf[0]
-//
-// 		length += int(digit&0x7F) * multiplier
-//
-// 		if digit&0x80 == 0 {
-// 			break
-// 		}
-//
-// 		multiplier *= 128
-// 		if multiplier > 128*128*128 {
-// 			return 0, errors.New("length too large")
-// 		}
-// 	}
-//
-// 	return length, nil
-// }
-//
-// // 等待订阅确认
-// func (c *MQTTClient) awaitSubAck(expectedID uint16) error {
-// 	timeout := time.After(5 * time.Second)
-//
-// 	select {
-// 	case packet := <-c.rx_buf:
-// 		if len(packet) < 3 {
-// 			return errors.New("invalid SUBACK packet")
-// 		}
-//
-// 		packetType := packet[0] >> 4
-// 		if packetType != SUBACK {
-// 			return fmt.Errorf("expected SUBACK, got packet type %d", packetType)
-// 		}
-//
-// 		pktID := binary.BigEndian.Uint16(packet[1:3])
-// 		if pktID != expectedID {
-// 			return fmt.Errorf("packet ID mismatch: expected %d, got %d", expectedID, pktID)
-// 		}
-//
-// 		if len(packet) < 4 {
-// 			return errors.New("missing return codes in SUBACK")
-// 		}
-//
-// 		for i, code := range packet[3:] {
-// 			switch code {
-// 			case 0x00, 0x01, 0x02:
-// 				// QoS等级有效
-// 			case 0x80:
-// 				return fmt.Errorf("subscription failed for topic #%d", i+1)
-// 			default:
-// 				return fmt.Errorf("invalid return code: 0x%x", code)
-// 			}
-// 		}
-//
-// 		return nil
-//
-// 	case <-timeout:
-// 		return errors.New("timeout waiting for SUBACK")
-// 	}
-// }
 
 // MQTT长度编码
 func encodeLength(length int) []byte {
