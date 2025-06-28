@@ -11,6 +11,7 @@ import (
 
 func main() {
 	// atoi()
+	atof()
 	// toLocaleLowerCase()
 	// join()
 	// format()
@@ -23,7 +24,7 @@ func main() {
 	// encode()
 	// foreach()
 	// toDouble()
-	trim()
+	// trim()
 	// toInt()
 	// base()
 	// _split()
@@ -143,6 +144,10 @@ func insertPoint() {
 	fmt.Println(bs[len(bs)-1])
 	fmt.Println(string(append(bs[:len(bs)-1], byte('.'), bs[len(bs)-1])))
 	// bs[:len(bs)-1]...,
+}
+
+func atof() {
+	fmt.Println(strconv.ParseFloat("23.3333", 64))
 }
 
 func atoi() {

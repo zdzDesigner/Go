@@ -17,15 +17,29 @@ type SUP struct {
 	user *User
 }
 
+type Common struct {
+	*User
+}
+type Common2 struct {
+	User
+}
+
 // Get ..
 func (u *User) Get() {
 	fmt.Println("user")
+  fmt.Println(u.Name)
 }
 
 // 紧急包含了User struct内容
 type Person User
 
 func main() {
+	common := Common{User: &User{Name: "xxx"}}
+	fmt.Println(common.Name)
+  common.Get()
+	common2 := Common2{User: User{Name: "xxx"}}
+	fmt.Println(common.Name)
+  common2.Get()
 
 	// (User{}).Get() // cannot call pointer method on User literalgo
 	u := User{}
@@ -48,5 +62,4 @@ func main() {
 	sp2.user.Name = "bb"
 	fmt.Println(sp2)
 	sp2.user.Get()
-
 }
