@@ -49,6 +49,7 @@ func vvv() {
 
 }
 
+
 func main() {
 	// 启动 FFmpeg 生成 RTP 流 !!! 注意空格数量
 	ffmpeg_args := "-re -i /home/zdz/temp/video/SampleVideo_1280x720_5mb.mp4 -c:v libx264 -profile:v baseline -preset ultrafast -tune zerolatency -an -f rtp rtp://127.0.0.1:5004?pkt_size=1200"
