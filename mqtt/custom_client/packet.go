@@ -164,7 +164,8 @@ func (p *Packet) unsubscribe(packet_id uint16, topic string) []byte {
 	return append([]byte{UNSUBSCRIBE<<4 | 0x02}, fullPacket...)
 }
 
-func (p *Packet) payload(header byte, payload []byte) (topic string, qos byte, start int, err error) {
+// 负载解析
+func (p *Packet) parsePayload(header byte, payload []byte) (topic string, qos byte, start int, err error) {
 	// 确保包格式正确
 	if len(payload) < 2 {
 		fmt.Println("Invalid PUBLISH packet - too short")

@@ -281,7 +281,7 @@ func (c *MQTTClient) producer() {
 
 // 处理PUBLISH消息
 func (c *MQTTClient) publishAck(header byte, payload []byte) {
-	topic, qos, start, err := c.packet.payload(header, payload)
+	topic, qos, start, err := c.packet.parsePayload(header, payload)
 	if err != nil {
 		return
 	}
