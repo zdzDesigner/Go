@@ -62,8 +62,8 @@ func main() {
 	defer client.cleanup()
 
 	// 连接到MQTTS代理
-	// if err := client.connect("broker.emqx.io:8883", "go-optimized-client"); err != nil {
-	if err := client.connect("172.16.40.51:19992", "go-optimized-client"); err != nil {
+	if err := client.connect("broker.emqx.io:8883", "go-optimized-client"); err != nil {
+	// if err := client.connect("172.16.40.51:19992", "go-optimized-client"); err != nil {
 		fmt.Println("Connection error:", err)
 		return
 	}
