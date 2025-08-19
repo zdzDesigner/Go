@@ -41,57 +41,58 @@ type MQTTClient struct {
 	conn      net.Conn
 	packet    *Packet
 	packet_id uint16
-	rx_buf    chan []byte
-	tx_buf    chan MQTTMsg
+	sub_buf   chan []byte
+	pub_buf   chan MQTTMsg
 }
 
 // ack_buf
 // pub_buf
 // read_buf
 // send_buf
-// rx_buf
-// tx_buf
+// sub_buf
+// pub_buf
 
 func main() {
 	client := &MQTTClient{
 		packet_id: 1,
 		packet:    &Packet{},
-		rx_buf:    make(chan []byte, 10),
-		tx_buf:    make(chan MQTTMsg, 10),
+		sub_buf:   make(chan []byte, 10),
+		pub_buf:   make(chan MQTTMsg, 10),
 	}
 	defer client.cleanup()
 
 	// 连接到MQTTS代理
-	// if err := client.connect("broker.emqx.io:8883", "go-optimized-client"); err != nil {
-	if err := client.connect("172.16.40.51:19992", "go-optimized-client"); err != nil {
+	// if err := client.connect("broker.emqx.io:8883", "go-optimized-client",true); err != nil {
+	// if err := client.connect("172.16.40.12:19992", "go-optimized-client",true); err != nil {
+	if err := client.connect("127.0.0.1:1883", "go-optimized-client", false); err != nil {
 		fmt.Println("Connection error:", err)
 		return
 	}
 	fmt.Println("Connected to MQTT broker via TLS")
 
-	go client.producer() // 启动消息接收器
-	go client.consumer() // 启动消息消费者
+	go client.receiver() // 启动消息接收器
+	go client.consumer() // 启动消息消费者, 防止阻塞
 
-	// topic := "opt/test"
-	topic := "app/ready/notify"
-	if err := client.subscribe(topic); err != nil {
+	// if err := client.subscribe(Topic{Name: TOPIC_READY, QOS: 1}); err != nil {
+	if err := client.subscribe(Topic{Name: APP_CUSTOM_NOTIFY, QOS: 1}); err != nil {
 		fmt.Println("Subscribe error:", err)
 		return
 	}
-	fmt.Printf("Subscribed to topic: %s\n", topic)
+	// fmt.Printf("Subscribed to topic_ready: %s\n", TOPIC_READY)
+	fmt.Printf("Subscribed to topic_ready: %s\n", APP_CUSTOM_NOTIFY)
 
 	// 发布测试消息
-	go func() {
-		for i := 0; i < 5; i++ {
-			msg := fmt.Sprintf("Message %d at %s", i, time.Now().Format("15:04:05"))
-			if err := client.publish(topic, msg); err != nil {
-				fmt.Println("Publish error:", err)
-			} else {
-				fmt.Println("Published:", msg)
-			}
-			time.Sleep(2 * time.Second)
-		}
-	}()
+	// go func() {
+	// 	for i := 0; i < 5; i++ {
+	// 		msg := fmt.Sprintf("Message %d at %s", i, time.Now().Format("15:04:05"))
+	// 		if err := client.publish(topic_ready, msg); err != nil {
+	// 			fmt.Println("Publish error:", err)
+	// 		} else {
+	// 			fmt.Println("Published:", msg)
+	// 		}
+	// 		time.Sleep(2 * time.Second)
+	// 	}
+	// }()
 
 	// 处理退出信号
 	sig := make(chan os.Signal, 1)
@@ -99,30 +100,38 @@ func main() {
 	<-sig
 
 	fmt.Println("\nDisconnecting...")
-	if err := client.unsubscribe(topic); err != nil {
+	// if err := client.unsubscribe(TOPIC_READY); err != nil {
+	if err := client.unsubscribe(APP_CUSTOM_NOTIFY); err != nil {
 		fmt.Println("Unsubscribe error:", err)
 	}
 	client.disconnect()
 }
 
 // 使用TLS连接到MQTT代理
-func (c *MQTTClient) connect(broker, clientID string) error {
-	tlsConfig := &tls.Config{
-		MinVersion:         tls.VersionTLS12,
-		ServerName:         "broker.emqx.io",
-		InsecureSkipVerify: true, // 仅用于测试
-	}
+func (c *MQTTClient) connect(broker, clientID string, istls bool) error {
+	if istls {
+		tlsConfig := &tls.Config{
+			MinVersion: tls.VersionTLS12,
+			ServerName: "broker.emqx.io",
+			// ServerName:         "127.0.0.1",
+			InsecureSkipVerify: true, // 仅用于测试
+		}
+		conn, err := tls.Dial("tcp", broker, tlsConfig)
+		if err != nil {
+			return fmt.Errorf("TLS connection error: %w", err)
+		}
 
-	conn, err := tls.Dial("tcp", broker, tlsConfig)
-	if err != nil {
-		return fmt.Errorf("TLS connection error: %w", err)
+		if err := conn.Handshake(); err != nil {
+			return fmt.Errorf("TLS handshake failed: %w", err)
+		}
+		c.conn = conn
+	} else {
+		conn, err := net.Dial("tcp", broker)
+		if err != nil {
+			return fmt.Errorf("TLS connection error: %w", err)
+		}
+		c.conn = conn
 	}
-
-	if err := conn.Handshake(); err != nil {
-		return fmt.Errorf("TLS handshake failed: %w", err)
-	}
-
-	c.conn = conn
 
 	// 构建并发送连接包
 	// connectPacket := c.createConnectPacket(clientID)
@@ -136,9 +145,10 @@ func (c *MQTTClient) connect(broker, clientID string) error {
 }
 
 // 订阅主题
-func (c *MQTTClient) subscribe(topic string) error {
+func (c *MQTTClient) subscribe(topic Topic) error {
 	packet_id := c.nextPacketID()
 	packet := c.packet.subcribe(packet_id, topic)
+	fmt.Println("packet:", packet)
 
 	if _, err := c.conn.Write(packet); err != nil {
 		return err
@@ -146,18 +156,18 @@ func (c *MQTTClient) subscribe(topic string) error {
 
 	timeout := time.After(5 * time.Second)
 	select {
-	case packet := <-c.rx_buf:
-		return c.packet.subcribeAck(packet, packet_id)
+	case packet := <-c.sub_buf:
+		return c.packet.subcribeAck(packet, packet_id) // 和subscribe相同的packet_id
 
 	case <-timeout:
 		return errors.New("timeout waiting for SUBACK")
 	}
-	// return c.awaitSubAck(packet_id)
 }
 
 // 发布消息
-func (c *MQTTClient) publish(topic, message string) error {
+func (c *MQTTClient) publish(topic Topic, message string) error {
 	packet := c.packet.publish(topic, message)
+	fmt.Println("publish packet:", packet)
 	_, err := c.conn.Write(packet)
 	return err
 }
@@ -190,15 +200,15 @@ func (c *MQTTClient) unsubscribe(topic string) error {
 		return err
 	}
 
-	return c.awaitUnsubAck(packet_id)
+	return c.unsubAck(packet_id)
 }
 
 // 等待取消订阅确认
-func (c *MQTTClient) awaitUnsubAck(expectedID uint16) error {
+func (c *MQTTClient) unsubAck(expectedID uint16) error {
 	timeout := time.After(5 * time.Second)
 
 	select {
-	case packet := <-c.rx_buf:
+	case packet := <-c.sub_buf:
 		if len(packet) < 3 {
 			return errors.New("invalid UNSUBACK packet")
 		}
@@ -234,7 +244,7 @@ func (c *MQTTClient) cleanup() {
 }
 
 // 消息处理器 - 核心路由
-func (c *MQTTClient) producer() {
+func (c *MQTTClient) receiver() {
 	for {
 		header := make([]byte, 1)
 		_, err := io.ReadFull(c.conn, header)
@@ -247,7 +257,6 @@ func (c *MQTTClient) producer() {
 			return
 		}
 
-		// remaining, err := c.decodeLengthBytes()
 		remaining, err := c.packet.remainLength(c.conn)
 		if err != nil {
 			fmt.Println("Length decode error:", err)
@@ -263,11 +272,12 @@ func (c *MQTTClient) producer() {
 			}
 		}
 
+		fmt.Println("packet_type:", packet_type, payload)
 		switch packet_type {
 		case PUBLISH:
 			c.publishAck(header[0], payload)
 		case SUBACK, UNSUBACK:
-			c.rx_buf <- append([]byte{header[0]}, payload...)
+			c.sub_buf <- append([]byte{header[0]}, payload...)
 		case PINGRESP:
 			// 不做特殊处理
 		case DISCONNECT:
@@ -294,7 +304,7 @@ func (c *MQTTClient) publishAck(header byte, payload []byte) {
 			return
 		}
 		message := string(payload[start:])
-		c.tx_buf <- MQTTMsg{topic: topic, message: message}
+		c.pub_buf <- MQTTMsg{topic: topic, message: message}
 
 	case 1: // QoS 1
 		if len(payload) < start+2 {
@@ -302,7 +312,7 @@ func (c *MQTTClient) publishAck(header byte, payload []byte) {
 			return
 		}
 		message := string(payload[start+2:])
-		c.tx_buf <- MQTTMsg{topic: topic, message: message}
+		c.pub_buf <- MQTTMsg{topic: topic, message: message}
 
 		id := binary.BigEndian.Uint16(payload[start:])
 		// 发送PUBACK响应
@@ -325,8 +335,25 @@ func (c *MQTTClient) publishAck(header byte, payload []byte) {
 
 // 消息消费者
 func (c *MQTTClient) consumer() {
-	for msg := range c.tx_buf {
+	ready_count := 0
+
+	for msg := range c.pub_buf {
 		fmt.Printf("> Received [%s]: %s\n", msg.topic, msg.message)
+		if msg.topic == TOPIC_READY && ready_count == 0 {
+			ready_count += 1
+			fmt.Println("============== topic ready ==========")
+			// if err := c.publish(Topic{Name: TOPIC_REMOTE_READY}, "client ready"); err != nil {
+			// 	fmt.Println("Publish error:", err)
+			// } else {
+			// 	fmt.Println("Published:", msg)
+			// }
+			if err := c.publish(Topic{Name: DEV_QUERY_VERSION}, ""); err != nil {
+				fmt.Println("Publish error:", err)
+			} else {
+				fmt.Println("Published:", msg)
+			}
+
+		}
 	}
 }
 

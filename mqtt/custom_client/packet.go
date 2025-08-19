@@ -16,15 +16,15 @@ func (p *Packet) connect(client_id string) []byte {
 	keepAlive := KEEP_ALIVE
 
 	// 可变头
-	vHeader := []byte{
+	var_header := []byte{
 		byte(len(protocolName) >> 8), byte(len(protocolName)),
 	}
-	fmt.Println(vHeader)
-	vHeader = append(vHeader, []byte(protocolName)...)
-	vHeader = append(vHeader, 0x04) // 协议版本
-	vHeader = append(vHeader, byte(flags))
-	vHeader = append(vHeader, byte(keepAlive>>8), byte(keepAlive))
-	fmt.Println(vHeader)
+	fmt.Println(var_header)
+	var_header = append(var_header, []byte(protocolName)...)
+	var_header = append(var_header, 0x04) // 协议版本
+	var_header = append(var_header, byte(flags))
+	var_header = append(var_header, byte(keepAlive>>8), byte(keepAlive))
+	fmt.Println(var_header)
 
 	payload := []byte{
 		byte(len(client_id) >> 8), byte(len(client_id)),
@@ -32,9 +32,9 @@ func (p *Packet) connect(client_id string) []byte {
 	fmt.Println("payload:", payload)
 	payload = append(payload, []byte(client_id)...)
 
-	fullPacket := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
-	fullPacket = append(fullPacket, payload...)
-	return append([]byte{CONNECT << 4}, fullPacket...)
+	full_packet := append(encodeLength(len(var_header)+len(payload)), var_header...)
+	full_packet = append(full_packet, payload...)
+	return append([]byte{CONNECT << 4}, full_packet...)
 }
 
 func (p *Packet) connectAck(conn net.Conn) error {
@@ -51,13 +51,13 @@ func (p *Packet) connectAck(conn net.Conn) error {
 		return errors.New("invalid CONNACK remaining length")
 	}
 
-	vHeader := make([]byte, 2)
-	if _, err := io.ReadFull(conn, vHeader); err != nil {
-		return fmt.Errorf("read vHeader: %w", err)
+	var_header := make([]byte, 2)
+	if _, err := io.ReadFull(conn, var_header); err != nil {
+		return fmt.Errorf("read var_header: %w", err)
 	}
 
-	if vHeader[1] != 0 {
-		return fmt.Errorf("connection refused with code %d", vHeader[1])
+	if var_header[1] != 0 {
+		return fmt.Errorf("connection refused with code %d", var_header[1])
 	}
 
 	return nil
@@ -96,20 +96,21 @@ func (p *Packet) remainLength(conn net.Conn) (int, error) {
 	return length, nil
 }
 
-func (p *Packet) subcribe(packet_id uint16, topic string) []byte {
-	topic_bytes := []byte(topic)
+// func (p *Packet) subcribe(packet_id uint16, topic string) []byte {
+func (p *Packet) subcribe(packet_id uint16, topic Topic) []byte {
+	topic_bytes := []byte(topic.Name)
 
-	vHeader := []byte{
-		byte(packet_id >> 8), byte(packet_id),
+	var_header := []byte{
+		byte(packet_id >> 8), byte(packet_id), // README.md(## Packet ID)
 	}
 
 	payload := []byte{
 		byte(len(topic_bytes) >> 8), byte(len(topic_bytes)),
 	}
 	payload = append(payload, topic_bytes...)
-	payload = append(payload, 0) // QoS 0
+	payload = append(payload, topic.QOS) // QoS 0
 
-	full_packet := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
+	full_packet := append(encodeLength(len(var_header)+len(payload)), var_header...)
 	full_packet = append(full_packet, payload...)
 	return append([]byte{SUBSCRIBE<<4 | 0x02}, full_packet...)
 }
@@ -150,7 +151,7 @@ func (p *Packet) subcribeAck(packet []byte, packet_id uint16) error {
 func (p *Packet) unsubscribe(packet_id uint16, topic string) []byte {
 	topicBytes := []byte(topic)
 
-	vHeader := []byte{
+	var_header := []byte{
 		byte(packet_id >> 8), byte(packet_id),
 	}
 
@@ -159,9 +160,9 @@ func (p *Packet) unsubscribe(packet_id uint16, topic string) []byte {
 	}
 	payload = append(payload, topicBytes...)
 
-	fullPacket := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
-	fullPacket = append(fullPacket, payload...)
-	return append([]byte{UNSUBSCRIBE<<4 | 0x02}, fullPacket...)
+	full_packet := append(encodeLength(len(var_header)+len(payload)), var_header...)
+	full_packet = append(full_packet, payload...)
+	return append([]byte{UNSUBSCRIBE<<4 | 0x02}, full_packet...)
 }
 
 // 负载解析
@@ -188,20 +189,24 @@ func (p *Packet) parsePayload(header byte, payload []byte) (topic string, qos by
 	return
 }
 
-func (p *Packet) publish(topic, message string) []byte {
-	topicBytes := []byte(topic)
-	msgBytes := []byte(message)
+func (p *Packet) publish(topic Topic, message string) []byte {
+	topic_bytes := []byte(topic.Name)
+	msg_bytes := []byte(message)
 
-	vHeader := []byte{
-		byte(len(topicBytes) >> 8), byte(len(topicBytes)),
+  // TODO:: 处理QOS/DUP/Retain
+	fixed_header := []byte{PUBLISH << 4}
+
+	// fmt.Println(len(topic_bytes), len(topic_bytes)>>8)
+	var_header := []byte{
+		byte(len(topic_bytes) >> 8), byte(len(topic_bytes)), // 长度, 因为占2个字节，所以>>8
 	}
-	vHeader = append(vHeader, topicBytes...)
+	var_header = append(var_header, topic_bytes...)
 
-	payload := msgBytes
+	payload := msg_bytes
 
-	fullPacket := append(encodeLength(len(vHeader)+len(payload)), vHeader...)
-	fullPacket = append(fullPacket, payload...)
-	return append([]byte{PUBLISH << 4}, fullPacket...)
+	full_packet := append(encodeLength(len(var_header)+len(payload)), var_header...)
+	full_packet = append(full_packet, payload...)
+	return append(fixed_header, full_packet...)
 }
 
 func (p *Packet) publishAck(packet_id uint16) []byte {

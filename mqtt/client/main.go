@@ -13,6 +13,13 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+const (
+	TOPIC_READY        string = "app/ready/notify"
+	APP_CUSTOM_NOTIFY  string = "app/custom/notify" // 设备发送通知事件
+	TOPIC_REMOTE_READY string = "remote/ready/notify"
+	DEV_QUERY_VERSION  string = "dev.query.version"
+)
+
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Println(client)
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
@@ -29,7 +36,8 @@ var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 			for {
 				time.Sleep(time.Millisecond * (time.Duration(600 + random(2000))))
 				count = count + 1
-				t := client.Publish("topic_get_val", 0, false, fmt.Sprintf("%d,xxxxxxxx:%d", id, count))
+				// t := client.Publish("topic_get_val", 0, false, fmt.Sprintf("%d,xxxxxxxx:%d", id, count))
+				t := client.Publish(APP_CUSTOM_NOTIFY, 1, false, fmt.Sprintf("%d,xxxxxxxx:%d", id, count))
 				res := <-t.Done()
 				fmt.Println("result:", res)
 			}
@@ -42,7 +50,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 func main() {
-	mqtt.DEBUG = log.New(os.Stdout, "[DEBUG] ", 0)
+	// mqtt.DEBUG = log.New(os.Stdout, "[DEBUG] ", 0)
 	mqtt.ERROR = log.New(os.Stdout, "[ERROR] ", 0)
 	// broker := "0.0.0.0"
 	broker := "127.0.0.1"

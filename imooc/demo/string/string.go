@@ -55,6 +55,7 @@ func _split() {
 	fmt.Println(strings.Split("", " "), strings.Split("", " ")[0])
 	fmt.Println(strings.Split("aaa bb   ccc", " "))
 	fmt.Println(strings.Split("aaa bb   ccc", " "))
+	strings.Index("aaa bb", "a")
 }
 
 func base() {
