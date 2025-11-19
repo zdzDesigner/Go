@@ -1,0 +1,5 @@
+[analyses]
+cgo=false          # 禁用 CGO 指针检查（最常见假阳性源）
+invalidpointer=false  # 额外禁用指针相关警告
+unusedparams=false    # 如果 CGO 参数被误报未用
+shadow=false          # 避免 C/Go 命名冲突假报
