@@ -20,7 +20,7 @@ func main() {
 
 	// 设置命令行参数
 	// -o: 指定输出文件名，默认为 "output.wav"
-	output := flag.String("o", "output.wav", "The path to the output WAV file.")
+	output := flag.String("o", "output.m4a", "The path to the output M4A file.")
 	flag.Parse()
 	// 获取所有非标志参数作为输入文件列表
 	inputs := flag.Args()
@@ -206,15 +206,15 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	if dec == nil {
 		return errors.New("查找解码器失败")
 	}
-	decCtx := astiav.AllocCodecContext(dec)
-	if decCtx == nil {
+	dec_ctx := astiav.AllocCodecContext(dec)
+	if dec_ctx == nil {
 		return errors.New("分配解码器上下文失败")
 	}
-	defer decCtx.Free()
-	if err = istream.CodecParameters().ToCodecContext(decCtx); err != nil {
+	defer dec_ctx.Free()
+	if err = istream.CodecParameters().ToCodecContext(dec_ctx); err != nil {
 		return fmt.Errorf("复制解码器参数失败: %w", err)
 	}
-	if err = decCtx.Open(dec, nil); err != nil {
+	if err = dec_ctx.Open(dec, nil); err != nil {
 		return fmt.Errorf("打开解码器上下文失败: %w", err)
 	}
 
@@ -223,17 +223,18 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	if enc == nil {
 		return errors.New("查找编码器失败")
 	}
-	encCtx := astiav.AllocCodecContext(enc)
-	if encCtx == nil {
+	enc_ctx := astiav.AllocCodecContext(enc)
+	if enc_ctx == nil {
 		return errors.New("分配编码器上下文失败")
 	}
-	defer encCtx.Free()
+	defer enc_ctx.Free()
 	// 编码器的参数必须与输出流保持一致
-	encCtx.SetSampleRate(ostream.CodecParameters().SampleRate())
-	encCtx.SetSampleFormat(ostream.CodecParameters().SampleFormat())
-	encCtx.SetChannelLayout(ostream.CodecParameters().ChannelLayout())
-	encCtx.SetTimeBase(astiav.NewRational(1, ostream.CodecParameters().SampleRate()))
-	if err = encCtx.Open(enc, nil); err != nil {
+	enc_ctx.SetBitRate(128000) // 设置比特率为 128kbps (128000 bits/second)。这个值会影响音质和文件大小。
+	enc_ctx.SetSampleRate(ostream.CodecParameters().SampleRate())
+	enc_ctx.SetSampleFormat(ostream.CodecParameters().SampleFormat())
+	enc_ctx.SetChannelLayout(ostream.CodecParameters().ChannelLayout())
+	enc_ctx.SetTimeBase(astiav.NewRational(1, ostream.CodecParameters().SampleRate()))
+	if err = enc_ctx.Open(enc, nil); err != nil {
 		return fmt.Errorf("打开编码器上下文失败: %w", err)
 	}
 
@@ -253,10 +254,10 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	// 配置源滤镜的参数，使其与解码器的输出匹配
 	buffersrcCtxParams := astiav.AllocBuffersrcFilterContextParameters()
 	defer buffersrcCtxParams.Free()
-	buffersrcCtxParams.SetChannelLayout(decCtx.ChannelLayout())
-	buffersrcCtxParams.SetSampleFormat(decCtx.SampleFormat())
-	buffersrcCtxParams.SetSampleRate(decCtx.SampleRate())
-	buffersrcCtxParams.SetTimeBase(decCtx.TimeBase())
+	buffersrcCtxParams.SetChannelLayout(dec_ctx.ChannelLayout())
+	buffersrcCtxParams.SetSampleFormat(dec_ctx.SampleFormat())
+	buffersrcCtxParams.SetSampleRate(dec_ctx.SampleRate())
+	buffersrcCtxParams.SetTimeBase(dec_ctx.TimeBase())
 	if err = buffersrcCtx.SetParameters(buffersrcCtxParams); err != nil {
 		return fmt.Errorf("设置源滤镜参数失败: %w", err)
 	}
@@ -285,7 +286,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	inputs.SetPadIdx(0)
 
 	// 定义滤镜链。`aformat`滤镜会自动处理采样率、样本格式和声道布局的转换。
-	filterStr := fmt.Sprintf("aformat=sample_fmts=%s:sample_rates=%d:channel_layouts=%s", encCtx.SampleFormat().Name(), encCtx.SampleRate(), encCtx.ChannelLayout().String())
+	filterStr := fmt.Sprintf("aformat=sample_fmts=%s:sample_rates=%d:channel_layouts=%s", enc_ctx.SampleFormat().Name(), enc_ctx.SampleRate(), enc_ctx.ChannelLayout().String())
 	log.Printf("正在使用滤镜图: %s", filterStr)
 
 	// 解析并配置滤镜图
@@ -318,14 +319,14 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 				return fmt.Errorf("从滤镜图获取帧失败: %w", err)
 			}
 			// 将处理后的帧送入编码器
-			if err := encCtx.SendFrame(frame); err != nil {
+			if err := enc_ctx.SendFrame(frame); err != nil {
 				return fmt.Errorf("向编码器发送帧失败: %w", err)
 			}
 			frame.Unref()
 			for {
 				// 从编码器获取编码后的数据包
 				outPkt := astiav.AllocPacket()
-				err := encCtx.ReceivePacket(outPkt)
+				err := enc_ctx.ReceivePacket(outPkt)
 				if err != nil {
 					outPkt.Free()
 					if errors.Is(err, astiav.ErrEagain) || errors.Is(err, astiav.ErrEof) {
@@ -334,7 +335,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 					return fmt.Errorf("从编码器接收数据包失败: %w", err)
 				}
 				// 写入数据包
-				if err := writePacket(outPkt, encCtx, octx, ostream, ptsOffset); err != nil {
+				if err := writePacket(outPkt, enc_ctx, octx, ostream, ptsOffset); err != nil {
 					outPkt.Free()
 					return err
 				}
@@ -355,13 +356,13 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 		}
 		if inPkt.StreamIndex() == istream.Index() {
 			// 将数据包送入解码器
-			if err = decCtx.SendPacket(inPkt); err != nil {
+			if err = dec_ctx.SendPacket(inPkt); err != nil {
 				return fmt.Errorf("向解码器发送数据包失败: %w", err)
 			}
 			inPkt.Unref()
 			for {
 				// 从解码器获取解码后的帧
-				err = decCtx.ReceiveFrame(frame)
+				err = dec_ctx.ReceiveFrame(frame)
 				if err != nil {
 					if errors.Is(err, astiav.ErrEagain) || errors.Is(err, astiav.ErrEof) {
 						break
@@ -382,11 +383,11 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 
 	// 5. 清空流水线中剩余的数据
 	// 清空解码器
-	if err = decCtx.SendPacket(nil); err != nil {
+	if err = dec_ctx.SendPacket(nil); err != nil {
 		return fmt.Errorf("清空解码器失败: %w", err)
 	}
 	for {
-		err = decCtx.ReceiveFrame(frame)
+		err = dec_ctx.ReceiveFrame(frame)
 		if err != nil {
 			if errors.Is(err, astiav.ErrEagain) || errors.Is(err, astiav.ErrEof) {
 				break
@@ -403,12 +404,12 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 		return err
 	}
 	// 清空编码器
-	if err = encCtx.SendFrame(nil); err != nil {
+	if err = enc_ctx.SendFrame(nil); err != nil {
 		return fmt.Errorf("清空编码器失败: %w", err)
 	}
 	for {
 		outPkt := astiav.AllocPacket()
-		err = encCtx.ReceivePacket(outPkt)
+		err = enc_ctx.ReceivePacket(outPkt)
 		if err != nil {
 			outPkt.Free()
 			if errors.Is(err, astiav.ErrEagain) || errors.Is(err, astiav.ErrEof) {
@@ -416,7 +417,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 			}
 			return fmt.Errorf("从编码器接收数据包失败: %w", err)
 		}
-		if err := writePacket(outPkt, encCtx, octx, ostream, ptsOffset); err != nil {
+		if err := writePacket(outPkt, enc_ctx, octx, ostream, ptsOffset); err != nil {
 			outPkt.Free()
 			return err
 		}
@@ -427,9 +428,9 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 }
 
 // writePacket 函数负责调整数据包的时间戳并将其写入输出文件。
-func writePacket(pkt *astiav.Packet, encCtx *astiav.CodecContext, octx *astiav.FormatContext, ostream *astiav.Stream, ptsOffset int64) error {
+func writePacket(pkt *astiav.Packet, enc_ctx *astiav.CodecContext, octx *astiav.FormatContext, ostream *astiav.Stream, ptsOffset int64) error {
 	// 从编码器的时间基转换到输出流的时间基
-	pkt.RescaleTs(encCtx.TimeBase(), ostream.TimeBase())
+	pkt.RescaleTs(enc_ctx.TimeBase(), ostream.TimeBase())
 	// 加上偏移量
 	pkt.SetPts(pkt.Pts() + ptsOffset)
 	pkt.SetDts(pkt.Dts() + ptsOffset)
@@ -443,4 +444,3 @@ func writePacket(pkt *astiav.Packet, encCtx *astiav.CodecContext, octx *astiav.F
 	}
 	return nil
 }
-
