@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # 设置 FFmpeg 库路径
-FFMPEG_LIB=/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output
+# FFMPEG_LIB=/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output
+FFMPEG_LIB=/home/zdz/Documents/Try/Go/Go/cgo/ffmpeg/lib/ffmpeg_output
 
 # 设置环境变量
 export CGO_CFLAGS="-I$FFMPEG_LIB/include"
