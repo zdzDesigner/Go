@@ -18,8 +18,11 @@ func main() {
 		log.Printf("ffmpeg log: %s", strings.TrimSpace(msg))
 	})
 
+	// 检查可用编码器
+	checkAvailableEncoders()
+
 	// 设置命令行参数
-	output := flag.String("o", "output.m4a", "The path to the output M4A file.")
+	output := flag.String("o", "output.m4a", "The path to the output file (supports M4A/MP3).")
 	flag.Parse()
 	inputs := flag.Args()
 
@@ -34,6 +37,60 @@ func main() {
 	}
 
 	log.Printf("成功将 %d 个文件拼接到 %s\n", len(inputs), *output)
+}
+
+// 检查可用编码器
+func checkAvailableEncoders() {
+	log.Println("检查可用编码器...")
+	
+	// 尝试获取 MP3 编码器
+	mp3Encoder := astiav.FindEncoder(astiav.CodecIDMp3)
+	if mp3Encoder != nil {
+		log.Println("✓ MP3 编码器可用")
+		formats := mp3Encoder.SampleFormats()
+		log.Printf("  - 支持的采样格式数量: %d", len(formats))
+		for i, format := range formats {
+			log.Printf("    %d. %s", i+1, format.Name())
+		}
+	} else {
+		log.Println("✗ MP3 编码器不可用")
+	}
+	
+	// 尝试获取 AAC 编码器
+	aacEncoder := astiav.FindEncoder(astiav.CodecIDAac)
+	if aacEncoder != nil {
+		log.Println("✓ AAC 编码器可用")
+		formats := aacEncoder.SampleFormats()
+		log.Printf("  - 支持的采样格式数量: %d", len(formats))
+		for i, format := range formats {
+			log.Printf("    %d. %s", i+1, format.Name())
+		}
+	} else {
+		log.Println("✗ AAC 编码器不可用")
+	}
+	
+	// 检查一些常见的音频编码器
+	commonEncoders := []struct {
+		id   astiav.CodecID
+		name string
+	}{
+		{astiav.CodecIDMp3, "MP3"},
+		{astiav.CodecIDAac, "AAC"},
+		{astiav.CodecIDOpus, "Opus"},
+		{astiav.CodecIDVorbis, "Vorbis"},
+		{astiav.CodecIDMp2, "MP2"},
+		{astiav.CodecIDFlac, "FLAC"},
+	}
+	
+	log.Println("其他常见音频编码器状态:")
+	for _, enc := range commonEncoders {
+		encoder := astiav.FindEncoder(enc.id)
+		if encoder != nil {
+			log.Printf("  ✓ %s 可用", enc.name)
+		} else {
+			log.Printf("  ✗ %s 不可用", enc.name)
+		}
+	}
 }
 
 func concatenate(inputPaths []string, outputPath string) (err error) {
@@ -73,10 +130,21 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 			return errors.New("创建输出流失败")
 		}
 
-		// 对于M4A输出，我们需要一个压缩编码器，如AAC
-		enc := astiav.FindEncoder(astiav.CodecIDAac)
+		// 检查是否请求MP3输出及编码器可用性
+		isMp3Request := strings.HasSuffix(strings.ToLower(outputPath), ".mp3")
+		mp3EncoderAvailable := astiav.FindEncoder(astiav.CodecIDMp3) != nil
+		
+		// 根据输出文件扩展名选择编码器
+		encoderID := getEncoderIDForOutputFile(outputPath)
+		
+		// 如果用户请求MP3但编码器不可用，提供清晰的错误信息
+		if isMp3Request && !mp3EncoderAvailable {
+			return fmt.Errorf("错误: 请求输出MP3格式，但MP3编码器不可用。请使用M4A格式或使用编译了MP3编码支持的FFmpeg库")
+		}
+		
+		enc := astiav.FindEncoder(encoderID)
 		if enc == nil {
-			return errors.New("找不到AAC编码器")
+			return fmt.Errorf("找不到编码器 ID %v", encoderID)
 		}
 
 		// 从输入流获取编码参数
@@ -88,11 +156,11 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 		}
 		defer encCtx.Free()
 
-		// For AAC, use standard sample rate that is well-supported (44100 or 48000)
+		// For MP3/AAC, use standard sample rate that is well-supported (44100 or 48000)
 		// Use 44100 for compatibility
 		encCtx.SetSampleRate(44100)
 		
-		// For AAC, we need to use supported formats
+		// For the encoder, we need to use supported formats
 		sampleFormats := enc.SampleFormats()
 		if len(sampleFormats) > 0 {
 			encCtx.SetSampleFormat(sampleFormats[0]) // Use the first supported sample format of the encoder
@@ -101,7 +169,7 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 			encCtx.SetSampleFormat(astiav.SampleFormatFltp)
 		}
 		
-		// For AAC, use a compatible channel layout based on the input
+		// For audio, use a compatible channel layout based on the input
 		inputChannelLayout := inputCodecParams.ChannelLayout()
 		if inputChannelLayout.Valid() && inputChannelLayout.Channels() > 0 {
 			// If input is mono, use mono; if stereo or more, use stereo
@@ -117,7 +185,12 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 		
 		encCtx.SetBitRate(inputCodecParams.BitRate()) // Use the same bit rate as input, or set a default if zero
 		if encCtx.BitRate() == 0 {
-			encCtx.SetBitRate(128000) // Set a default bit rate if the input doesn't have one
+			// 设置默认比特率：MP3通常使用128kbps或320kbps，AAC使用128kbps
+			if encoderID == astiav.CodecIDMp3 {
+				encCtx.SetBitRate(192000) // MP3通常使用更高的比特率获得更好质量
+			} else {
+				encCtx.SetBitRate(128000) // 默认AAC比特率
+			}
 		}
 		encCtx.SetTimeBase(astiav.NewRational(1, encCtx.SampleRate()))
 
@@ -246,7 +319,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	}
 	defer encCtx.Free()
 	
-	// For AAC encoder compatibility, use standard sample rate (44100)
+	// For MP3/AAC encoder compatibility, use standard sample rate (44100)
 	encCtx.SetSampleRate(44100)
 	
 	// Use encoder's supported sample format instead of the output stream's format
@@ -275,7 +348,13 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	// Use the bit rate from output stream, or a default if it's 0
 	encCtx.SetBitRate(ostream.CodecParameters().BitRate())
 	if encCtx.BitRate() == 0 {
-		encCtx.SetBitRate(128000) // Set a default bit rate if the output doesn't have one
+		// 根据输出编码器类型设置默认比特率
+		outputCodecID := ostream.CodecParameters().CodecID()
+		if outputCodecID == astiav.CodecIDMp3 {
+			encCtx.SetBitRate(192000) // MP3通常使用更高的比特率
+		} else {
+			encCtx.SetBitRate(128000) // 默认AAC比特率
+		}
 	}
 	encCtx.SetTimeBase(astiav.NewRational(1, encCtx.SampleRate()))
 	if octx.OutputFormat().Flags().Has(astiav.IOFormatFlagGlobalheader) {
@@ -496,4 +575,23 @@ func writePacket(pkt *astiav.Packet, encCtx *astiav.CodecContext, octx *astiav.F
 		log.Printf("警告: 写入交错帧失败: %v\n", err)
 	}
 	return nil
+}
+
+// 根据输出文件路径返回相应的编码器ID
+func getEncoderIDForOutputFile(outputPath string) astiav.CodecID {
+	if strings.HasSuffix(strings.ToLower(outputPath), ".mp3") {
+		// 检查MP3编码器是否可用，如果不可用则使用AAC作为替代
+		mp3Encoder := astiav.FindEncoder(astiav.CodecIDMp3)
+		if mp3Encoder != nil {
+			return astiav.CodecIDMp3
+		} else {
+			// MP3编码器不可用，使用AAC作为替代
+			return astiav.CodecIDAac
+		}
+	} else if strings.HasSuffix(strings.ToLower(outputPath), ".m4a") {
+		return astiav.CodecIDAac
+	} else {
+		// 默认使用AAC，因为M4A是更常见的默认格式
+		return astiav.CodecIDAac
+	}
 }
