@@ -62,11 +62,10 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 		inputFormatContext := astiav.AllocFormatContext()
 		defer inputFormatContext.Free() // 确保在出错时释放
 
+		// 使用 defer 确保在函数退出前关闭输入上下文
 		if err = inputFormatContext.OpenInput(inputPath, nil, nil); err != nil {
 			return fmt.Errorf("打开输入文件 %s 失败: %w", inputPath, err)
 		}
-
-		// 使用 defer 确保在函数退出前关闭输入上下文
 		defer inputFormatContext.CloseInput()
 
 		// 查找流信息

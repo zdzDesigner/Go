@@ -31,7 +31,12 @@ go run . -o output.wav ./assets/capgen_example.wav  ./assets/aigei_com.wav
 # ffmpeg -f concat -safe 0 -i ./assets/capgen_example.wav  -i ./assets/aigei_com.wav  -c copy output_ff.wav
 # ffmpeg  concat -safe 0 -i ./assets/aigei_com.wav  -i ./assets/aigei_com.wav  -c copy output_ff.wav
 #
-# ffmpeg -i ./assets/aigei_com.wav -i ./assets/aigei_com.wav -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1[outa]" -map "[outa]" output_ff.wav
 # ffmpeg -i ./assets/capgen_example.wav -i ./assets/aigei_com.wav -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1[outa]" -map "[outa]" output_ff.wav
+# 
+# ffmpeg -i ./assets/capgen_example.wav -i ./assets/aigei_com.wav -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1[a];[a]aformat=channel_layouts=mono[outa]" -map "[outa]" output_ff.wav
 
+
+ffmpeg -i ./assets/capgen_example.wav -i ./assets/aigei_com.wav \
+-filter_complex "[0:a][1:a]concat=n=2:v=0:a=1[a];[a]aformat=channel_layouts=mono[outa]" \
+-map "[outa]" output_ff.wav
 
