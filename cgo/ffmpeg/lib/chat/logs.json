@@ -1,415 +1,114 @@
 [
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 0,
     "type": "user",
-    "message": "@bit_stream_filtering/ 这个example 的功能",
-    "timestamp": "2025-11-19T14:14:58.154Z"
+    "message": "查看@lib/go-astiav@v0.38.0 源码, 修改@main.go 中的问题",
+    "timestamp": "2025-11-20T10:45:50.391Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 1,
     "type": "user",
-    "message": "@custom_io_demuxing/ 这个example 的功能",
-    "timestamp": "2025-11-19T14:20:06.756Z"
+    "message": "你可以执行./run.dev.sh",
+    "timestamp": "2025-11-20T10:46:49.621Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 2,
     "type": "user",
-    "message": "@custom_io_muxing/ 这个example 的功能",
-    "timestamp": "2025-11-19T14:25:21.021Z"
+    "message": "把以上聊天内容翻译成中文保存到@lib/AI/m4a_format.md 文件中",
+    "timestamp": "2025-11-20T11:02:27.282Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 3,
     "type": "user",
-    "message": "@demuxing_decoding/ 这个example 的功能",
-    "timestamp": "2025-11-19T14:30:11.718Z"
+    "message": "把以上全部聊天内容翻译成中文保存到@lib/AI/m4a_format.md 文件中",
+    "timestamp": "2025-11-20T11:04:52.242Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 4,
     "type": "user",
-    "message": "@filtering/ 这个example 的功能",
-    "timestamp": "2025-11-19T14:42:40.847Z"
+    "message": "把以上全部聊天内容(包括把错误和修正过程)翻译成中文保存到@lib/AI/m4a_format.md 文件中",
+    "timestamp": "2025-11-20T11:06:30.110Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 5,
     "type": "user",
-    "message": "@frame_data_manipulation/ 这个example 的功能",
-    "timestamp": "2025-11-19T14:46:32.086Z"
+    "message": "@main.go  编写转码为@output.mp3 的功能",
+    "timestamp": "2025-11-20T11:10:38.295Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 6,
     "type": "user",
-    "message": "@hardware_decoding_filtering/ 这个example 的功能",
-    "timestamp": "2025-11-19T14:58:04.870Z"
+    "message": "你可以运行 ./run.dev.sh",
+    "timestamp": "2025-11-20T11:21:39.207Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 7,
     "type": "user",
-    "message": "@bit_stream_filtering/ 这个example 的功能",
-    "timestamp": "2025-11-19T15:11:29.302Z"
+    "message": "为何mp3编码不可用",
+    "timestamp": "2025-11-20T11:25:07.366Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 8,
     "type": "user",
-    "message": "@hardware_decoding_filtering/ 这个example 的功能",
-    "timestamp": "2025-11-19T15:13:58.449Z"
+    "message": "已经重新编译了,为何mp3 还是出错",
+    "timestamp": "2025-11-20T11:41:04.567Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 9,
     "type": "user",
-    "message": "创建一joint 目录写一个拼接多个wav音频的功能",
-    "timestamp": "2025-11-19T15:17:36.300Z"
+    "message": "添加到代码中",
+    "timestamp": "2025-11-20T11:43:44.568Z"
   },
   {
-    "sessionId": "443e603e-09ba-43ec-b4e4-c50a2ecfa320",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 10,
     "type": "user",
-    "message": "/chat save go-astiav",
-    "timestamp": "2025-11-19T15:19:27.879Z"
+    "message": "WARNING: Option --enable-encoder=mp3 did not match anything\nconfig_components.h is unchanged\nlibavutil/avconfig.h is unchanged\nlibavfilter/filter_list.c is unchanged\nlibavcodec/codec_list.c is unchanged\nlibavcodec/parser_list.c is unchanged\nlibavcodec/bsf_list.c is unchanged\nlibavformat/demuxer_list.c is unchanged\nlibavformat/muxer_list.c is unchanged\nlibavdevice/indev_list.c is unchanged\nlibavdevice/outdev_list.c is unchanged\nlibavformat/protocol_list.c is unchanged\nffbuild/config.sh is unchanged",
+    "timestamp": "2025-11-20T11:46:50.043Z"
   },
   {
-    "sessionId": "32245ed4-0684-4545-81c4-e2d24cb10939",
-    "messageId": 0,
-    "type": "user",
-    "message": "/chat list",
-    "timestamp": "2025-11-19T15:21:24.886Z"
-  },
-  {
-    "sessionId": "32245ed4-0684-4545-81c4-e2d24cb10939",
-    "messageId": 1,
-    "type": "user",
-    "message": "/chat resume go-astiav",
-    "timestamp": "2025-11-19T15:24:23.654Z"
-  },
-  {
-    "sessionId": "32245ed4-0684-4545-81c4-e2d24cb10939",
-    "messageId": 2,
-    "type": "user",
-    "message": "/chat share /home/zdz/Documents/Try/Go/Go/cgo/ffmpeg/lib/examples/chat.json",
-    "timestamp": "2025-11-19T15:25:19.559Z"
-  },
-  {
-    "sessionId": "32245ed4-0684-4545-81c4-e2d24cb10939",
-    "messageId": 3,
-    "type": "user",
-    "message": "/chat share /home/zdz/Documents/Try/Go/Go/cgo/ffmpeg/lib/examples",
-    "timestamp": "2025-11-19T15:25:33.539Z"
-  },
-  {
-    "sessionId": "32245ed4-0684-4545-81c4-e2d24cb10939",
-    "messageId": 4,
-    "type": "user",
-    "message": "/chat share /home/zdz/Documents/Try/Go/Go/cgo/ffmpeg/lib/examples/chat.md",
-    "timestamp": "2025-11-19T15:25:40.983Z"
-  },
-  {
-    "sessionId": "32245ed4-0684-4545-81c4-e2d24cb10939",
-    "messageId": 5,
-    "type": "user",
-    "message": "/chat share /home/zdz/Documents/Try/Go/Go/cgo/ffmpeg/lib/examples/chat.md",
-    "timestamp": "2025-11-19T15:28:58.779Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 0,
-    "type": "user",
-    "message": "/chat list",
-    "timestamp": "2025-11-20T03:27:10.079Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 1,
-    "type": "user",
-    "message": "/chat resume go-astiav",
-    "timestamp": "2025-11-20T03:27:16.711Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 2,
-    "type": "user",
-    "message": "查看下 @/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/examples/joint/main.go  代码",
-    "timestamp": "2025-11-20T03:27:55.668Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 3,
-    "type": "user",
-    "message": "./main.go:95:18: outputStream.Codec undefined (type *astiav.Stream has no field or method Codec)\n./main.go:95:75: undefined: astiav.CodecFlagGlobalHeader\n./main.go:98:33: outputFormatContext.OpenIO undefined (type *astiav.FormatContext has no field or method OpenIO)\n错误",
-    "timestamp": "2025-11-20T03:29:22.414Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 4,
-    "type": "user",
-    "message": "➜  ffmpeg git:(feature/cgo) ✗ ./run.dev.sh \n# ffmpeg_demo \n./main.go:95:18: outputStream.Codec undefined (type *astiav.Stream has no field or method Codec) \n./main.go:95:75: undefined: astiav.CodecFlagGlobalHeader \n./main.go:98:33: outputFormatContext.OpenIO undefined (type *astiav.FormatContext has no field or method OpenIO) \n➜  ffmpeg git:(feature/cgo) ✗ ./run.dev.sh \n# ffmpeg_demo \n./main.go:95:18: outputStream.Codec undefined (type *astiav.Stream has no field or method Codec) \n./main.go:95:75: undefined: astiav.CodecFlagGlobalHeader \n./main.go:98:33: outputFormatContext.OpenIO undefined (type *astiav.FormatContext has no field or method OpenIO) \n➜  ffmpeg git:(feature/cgo) ✗ ./run.dev.sh \n2025/11/20 11:32:05 Processing input: /home/zdz/Downloads/capgen_example.wav \nSIGSEGV: segmentation violation \nPC=0x7f5b24fb64c4 m=0 sigcode=1 \nsignal arrived during cgo execution \ngoroutine 1 [syscall]: \nruntime.cgocall(0x53026c, 0xc00015fc50) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/cgocall.go:157 +0x4b fp=0xc00015fc28 sp=0xc00015fbf0 pc=0x40eecb \ngithub.com/asticode/go-astiav._Cfunc_avformat_write_header(0x2197940, 0x0) \n        _cgo_gotypes.go:5024 +0x4b fp=0xc00015fc50 sp=0xc00015fc28 pc=0x52720b \ngithub.com/asticode/go-astiav.(*FormatContext).WriteHeader.func1(0x555460?, 0x21b4a00?) \n        /home/zdz/go/pkg/mod/github.com/asticode/go-astiav@v0.38.0/format_context.go:311 +0x5d fp=0xc00015fc90 sp=0xc00015fc50 pc=0x5294fd \ngithub.com/asticode/go-astiav.(*FormatContext).WriteHeader(0x0?, 0x7ffeaa8fe5a1?) \n        /home/zdz/go/pkg/mod/github.com/asticode/go-astiav@v0.38.0/format_context.go:311 +0x1a fp=0xc00015fcb0 sp=0xc00015fc90 pc=0x52945a \nmain.concatenate({0xc00012c030, 0x2, 0x1?}, {0x7ffeaa8fe596?, 0xa?}) \n        /home/zdz/Documents/Try/Go/cgo/ffmpeg/main.go:94 +0xb2d fp=0xc00015fe58 sp=0xc00015fcb0 pc=0x52c92d \nmain.main() \n        /home/zdz/Documents/Try/Go/cgo/ffmpeg/main.go:31 +0x1b0 fp=0xc00015ff40 sp=0xc00015fe58 pc=0x52bc10 \nruntime.main() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:267 +0x2bb fp=0xc00015ffe0 sp=0xc00015ff40 pc=0x4426db \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc00015ffe8 sp=0xc00015ffe0 pc=0x470581 \ngoroutine 2 [force gc (idle)]: \nruntime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000054fa8 sp=0xc000054f88 pc=0x442b2e \nruntime.goparkunlock(...) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:404 \nruntime.forcegchelper() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:322 +0xb3 fp=0xc000054fe0 sp=0xc000054fa8 pc=0x4429b3 \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc000054fe8 sp=0xc000054fe0 pc=0x470581 \ncreated by runtime.init.6 in goroutine 1 \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:310 +0x1a \ngoroutine 3 [GC sweep wait]: \nruntime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000055778 sp=0xc000055758 pc=0x442b2e \nruntime.goparkunlock(...) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:404 \nruntime.bgsweep(0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgcsweep.go:280 +0x94 fp=0xc0000557c8 sp=0xc000055778 pc=0x42ed54 \nruntime.gcenable.func1() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgc.go:200 +0x25 fp=0xc0000557e0 sp=0xc0000557c8 pc=0x4240e5 \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc0000557e8 sp=0xc0000557e0 pc=0x470581 \ncreated by runtime.gcenable in goroutine 1 \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgc.go:200 +0x66 \ngoroutine 4 [GC scavenge wait]: \nruntime.gopark(0xc00007e000?, 0x5c5d90?, 0x1?, 0x0?, 0xc0000071e0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000055f70 sp=0xc000055f50 pc=0x442b2e \nruntime.goparkunlock(...) \nCC      libavformat/gxfenc.o \nCC      libavformat/h261dec.o \nCC      libavformat/h263dec.o \nCC      libavformat/h264dec.o \nCC      libavformat/hashenc.o \nCC      libavformat/hca.o \nCC      libavformat/hcom.o \nCC      libavformat/hdsenc.o \nCC      libavformat/hevc.o \nCC      libavformat/hevcdec.o \nCC      libavformat/hls.o \nCC      libavformat/hls_sample_encryption.o \nCC      libavformat/hlsenc.o \nCC      libavformat/hlsplaylist.o \nCC      libavformat/hlsproto.o \nCC      libavformat/hnm.o \nCC      libavformat/http.o \nCC      libavformat/httpauth.o \nCC      libavformat/iamf.o \nCC      libavformat/iamf_parse.o \nCC      libavformat/iamf_reader.o \nCC      libavformat/iamf_writer.o \nCC      libavformat/iamfdec.o \nCC      libavformat/iamfenc.o \nCC      libavformat/icecast.o \nCC      libavformat/icodec.o \nCC      libavformat/icoenc.o \nCC      libavformat/id3v1.o \nCC      libavformat/id3v2.o \nCC      libavformat/id3v2enc.o \nCC      libavformat/idcin.o \nCC      libavformat/idroqdec.o \nCC      libavformat/idroqenc.o \nCC      libavformat/iff.o \nCC      libavformat/ifv.o \nCC      libavformat/ilbc.o \nCC      libavformat/img2.o \nCC      libavformat/img2_alias_pix.o \nCC      libavformat/img2_brender_pix.o \nCC      libavformat/img2dec.o \nCC      libavformat/img2enc.o \nCC      libavformat/imx.o \nCC      libavformat/ingenientdec.o \nCC      libavformat/ip.o \nCC      libavformat/ipmovie.o \nlibavformat/img2enc.c: In function ‘write_packet’: \nlibavformat/img2enc.c:183:55: warning: ‘.tmp’ directive output may be truncated writing 4 bytes into a region of size between 1 and 1024 [-Wformat-truncation=] \n  183 |         snprintf(img->tmp[i], sizeof(img->tmp[i]), \"%s.tmp\", filename); \n      |                                                       ^~~~ \nIn file included from /usr/include/stdio.h:867, \n                 from ./libavutil/common.h:38, \n                 from ./libavutil/avutil.h:301, \n                 from ./libavutil/opt.h:31, \n                 from libavformat/img2enc.c:31: \n/usr/include/x86_64-linux-gnu/bits/stdio2.h:67:10: note: ‘__builtin___snprintf_chk’ output between 5 and 1028 bytes into a destination of size 1024 \n   67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1, \n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n   68 |        __bos (__s), __fmt, __va_arg_pack ()); \n      |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \nCC      libavformat/ipudec.o \nCC      libavformat/ircam.o \nCC      libavformat/ircamdec.o \nCC      libavformat/ircamenc.o \nCC      libavformat/isom.o \nCC      libavformat/isom_tags.o \nCC      libavformat/iss.o \nCC      libavformat/iv8.o \nCC      libavformat/ivfdec.o \nCC      libavformat/ivfenc.o \nCC      libavformat/jacosubdec.o \nCC      libavformat/jacosubenc.o \nCC      libavformat/jpegxl_anim_dec.o \nCC      libavformat/jvdec.o \nCC      libavformat/kvag.o \nCC      libavformat/lafdec.o \nCC      libavformat/latmenc.o \nCC      libavformat/lmlm4.o \nCC      libavformat/loasdec.o \nCC      libavformat/lrc.o \nCC      libavformat/lrcdec.o \nCC      libavformat/lrcenc.o \nCC      libavformat/luodatdec.o \nCC      libavformat/lvfdec.o \nCC      libavformat/lxfdec.o \nCC      libavformat/m4vdec.o \nCC      libavformat/matroska.o \nCC      libavformat/matroskadec.o \nCC      libavformat/matroskaenc.o \nCC      libavformat/mca.o \nCC      libavformat/mccdec.o \nCC      libavformat/md5proto.o \nCC      libavformat/metadata.o \nCC      libavformat/mgsts.o \nCC      libavformat/microdvddec.o \nCC      libavformat/microdvdenc.o \nCC      libavformat/mj2kdec.o \nCC      libavformat/mkvtimestamp_v2.o \nCC      libavformat/mlpdec.o \nCC      libavformat/mlvdec.o \nCC      libavformat/mm.o \nCC      libavformat/mmf.o \nCC      libavformat/mms.o \nCC      libavformat/mmsh.o \nCC      libavformat/mmst.o \nCC      libavformat/mods.o \nCC      libavformat/moflex.o \nCC      libavformat/mov.o \nCC      libavformat/mov_chan.o \nCC      libavformat/mov_esds.o \nCC      libavformat/movenc.o \nCC      libavformat/movenc_ttml.o \nCC      libavformat/movenccenc.o \nCC      libavformat/movenchint.o \nCC      libavformat/mp3dec.o \nCC      libavformat/mp3enc.o \nCC      libavformat/mpc.o \nCC      libavformat/mpc8.o \nCC      libavformat/mpeg.o \nCC      libavformat/mpegenc.o \nCC      libavformat/mpegts.o \nCC      libavformat/mpegtsenc.o \nlibavformat/matroskaenc.c: In function ‘mkv_write_trailer’: \nlibavformat/matroskaenc.c:3303:79: warning: ‘%012.9f’ directive output may be truncated writing between 12 and 320 bytes into a region of size between 8 and 14 [-Wformat-truncation=] \n 3303 |                 snprintf(duration_string, sizeof(duration_string), \"%02d:%02d:%012.9f\", \n      |                                                                               ^~~~~~~ \nIn file included from /usr/include/stdio.h:867, \n                 from libavformat/avio.h:30, \n                 from libavformat/av1.h:26, \n                 from libavformat/matroskaenc.c:26: \n/usr/include/x86_64-linux-gnu/bits/stdio2.h:67:10: note: ‘__builtin___snprintf_chk’ output between 19 and 333 bytes into a destination of size 20 \n   67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1, \n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n   68 |        __bos (__s), __fmt, __va_arg_pack ()); \n      |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \nCC      libavformat/mpegvideodec.o \nCC      libavformat/mpjpeg.o \nCC      libavformat/mpjpegdec.o \nCC      libavformat/mpl2dec.o \nCC      libavformat/mpsubdec.o \nCC      libavformat/msf.o \nCC      libavformat/msnwc_tcp.o \nCC      libavformat/mspdec.o \nCC      libavformat/mtaf.o \nCC      libavformat/mtv.o \nCC      libavformat/musx.o \nCC      libavformat/mux.o \nCC      libavformat/mux_utils.o \nCC      libavformat/mvdec.o \nCC      libavformat/mvi.o \nCC      libavformat/mxf.o \nCC      libavformat/mxfdec.o \nCC      libavformat/mxfenc.o \nCC      libavformat/mxg.o \nCC      libavformat/ncdec.o \nCC      libavformat/network.o \nCC      libavformat/nistspheredec.o \nCC      libavformat/nspdec.o \nCC      libavformat/nsvdec.o \nCC      libavformat/nullenc.o \nCC      libavformat/nut.o \nCC      libavformat/nutdec.o \nCC      libavformat/nutenc.o \nCC      libavformat/nuv.o \nCC      libavformat/oggdec.o \nCC      libavformat/oggenc.o \nCC      libavformat/oggparsecelt.o \nCC      libavformat/oggparsedirac.o \nCC      libavformat/oggparseflac.o \nCC      libavformat/oggparseogm.o \nCC      libavformat/oggparseopus.o \nCC      libavformat/oggparseskeleton.o \nCC      libavformat/oggparsespeex.o \nCC      libavformat/oggparsetheora.o \nCC      libavformat/oggparsevorbis.o \nCC      libavformat/oggparsevp8.o \nCC      libavformat/oma.o \nCC      libavformat/omadec.o \nCC      libavformat/omaenc.o \nCC      libavformat/options.o \nCC      libavformat/os_support.o \nCC      libavformat/osq.o \nCC      libavformat/paf.o \nCC      libavformat/pcm.o \nCC      libavformat/pcmdec.o \nCC      libavformat/pcmenc.o \nCC      libavformat/pdvdec.o \nCC      libavformat/pjsdec.o \nCC      libavformat/pmpdec.o \nCC      libavformat/pp_bnk.o \nCC      libavformat/prompeg.o \nCC      libavformat/psxstr.o \nCC      libavformat/pva.o \nCC      libavformat/pvfdec.o \nCC      libavformat/qcp.o \nCC      libavformat/qoadec.o \nCC      libavformat/qtpalette.o \nCC      libavformat/r3d.o \nCC      libavformat/rawdec.o \nCC      libavformat/rawenc.o \nCC      libavformat/rawutils.o \nCC      libavformat/rawvideodec.o \nCC      libavformat/rcwtenc.o \nCC      libavformat/rdt.o \nCC      libavformat/realtextdec.o \nCC      libavformat/redspark.o \nCC      libavformat/replaygain.o \nCC      libavformat/riff.o \nCC      libavformat/riffdec.o \nCC      libavformat/riffenc.o \nCC      libavformat/rka.o \nCC      libavformat/rl2.o \nCC      libavformat/rm.o \nCC      libavformat/rmdec.o \nCC      libavformat/rmenc.o \nCC      libavformat/rpl.o \nCC      libavformat/rsd.o \nCC      libavformat/rso.o \nCC      libavformat/rsodec.o \nCC      libavformat/rsoenc.o \nCC      libavformat/rtmpdigest.o \nCC      libavformat/rtmphttp.o \nCC      libavformat/rtmppkt.o \nCC      libavformat/rtmpproto.o \nCC      libavformat/rtp.o \nCC      libavformat/rtpdec.o \nCC      libavformat/rtpdec_ac3.o \nCC      libavformat/rtpdec_amr.o \nCC      libavformat/rtpdec_asf.o \nCC      libavformat/rtpdec_dv.o \nCC      libavformat/rtpdec_g726.o \nCC      libavformat/rtpdec_h261.o \nCC      libavformat/rtpdec_h263.o \nCC      libavformat/rtpdec_h263_rfc2190.o \nCC      libavformat/rtpdec_h264.o \nCC      libavformat/rtpdec_hevc.o \nlibavformat/rtmpproto.c: In function ‘send_invoke_response’: \nlibavformat/rtmpproto.c:2000:51: warning: ‘ is now published’ directive output may be truncated writing 17 bytes into a region of size between 1 and 128 [-Wformat-truncation=] \n 2000 |         snprintf(statusmsg, sizeof(statusmsg), \"%s is now published\", filename); \n      |                                                   ^~~~~~~~~~~~~~~~~ \nIn file included from /usr/include/stdio.h:867, \n                 from ./libavutil/common.h:38, \n                 from ./libavcodec/bytestream.h:30, \n                 from libavformat/rtmpproto.c:29: \n/usr/include/x86_64-linux-gnu/bits/stdio2.h:67:10: note: ‘__builtin___snprintf_chk’ output between 18 and 145 bytes into a destination of size 128 \n   67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1, \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:404 \nruntime.(*scavengerState).park(0x6c4aa0) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgcscavenge.go:425 +0x49 fp=0xc000055fa0 sp=0xc000055f70 pc=0x42c5e9 \nruntime.bgscavenge(0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgcscavenge.go:653 +0x3c fp=0xc000055fc8 sp=0xc000055fa0 pc=0x42cb7c \nruntime.gcenable.func2() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgc.go:201 +0x25 fp=0xc000055fe0 sp=0xc000055fc8 pc=0x424085 \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc000055fe8 sp=0xc000055fe0 pc=0x470581 \ncreated by runtime.gcenable in goroutine 1 \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgc.go:201 +0xa5 \ngoroutine 18 [finalizer wait]: \nruntime.gopark(0x578140?, 0x100443c01?, 0x0?, 0x0?, 0x44ace5?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000054628 sp=0xc000054608 pc=0x442b2e \nruntime.runfinq() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mfinal.go:193 +0x107 fp=0xc0000547e0 sp=0xc000054628 pc=0x423167 \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc0000547e8 sp=0xc0000547e0 pc=0x470581 \ncreated by runtime.createfing in goroutine 1 \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mfinal.go:163 +0x3d \nrax    0x0 \nrbx    0x46464952 \nrcx    0x2d \nrdx    0x7f5b25122420 \nrdi    0x0 \nrsi    0x52 \nrbp    0x0 \nrsp    0x7ffeaa8fd988 \nr8     0x0 \nr9     0xffffffcc \nr10    0x2199e80 \nr11    0x7 \nr12    0x0 \nr13    0x6c5160 \nr14    0xc0000061a0 \nr15    0x10 \nrip    0x7f5b24fb64c4 \nrflags 0x10206 \ncs     0x33 \nfs     0x0 \ngs     0x0 \nexit status 2 \n错误",
-    "timestamp": "2025-11-20T03:33:04.042Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 5,
-    "type": "user",
-    "message": "mpeg git:(feature/cgo) ✗ ./run.dev.sh \n# ffmpeg_demo \n./main.go:95:18: outputStream.Codec undefined (type *astiav.Stream has no field or method Codec) \n./main.go:95:75: undefined: astiav.CodecFlagGlobalHeader \n./main.go:98:33: outputFormatContext.OpenIO undefined (type *astiav.FormatContext has no field or method OpenIO) \n➜  ffmpeg git:(feature/cgo) ✗ ./run.dev.sh \n# ffmpeg_demo \n./main.go:95:18: outputStream.Codec undefined (type *astiav.Stream has no field or method Codec) \n./main.go:95:75: undefined: astiav.CodecFlagGlobalHeader \n./main.go:98:33: outputFormatContext.OpenIO undefined (type *astiav.FormatContext has no field or method OpenIO) \n➜  ffmpeg git:(feature/cgo) ✗ ./run.dev.sh \n2025/11/20 11:32:05 Processing input: /home/zdz/Downloads/capgen_example.wav \nSIGSEGV: segmentation violation \nPC=0x7f5b24fb64c4 m=0 sigcode=1 \nsignal arrived during cgo execution \ngoroutine 1 [syscall]: \nruntime.cgocall(0x53026c, 0xc00015fc50) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/cgocall.go:157 +0x4b fp=0xc00015fc28 sp=0xc00015fbf0 pc=0x40eecb \ngithub.com/asticode/go-astiav._Cfunc_avformat_write_header(0x2197940, 0x0) \n        _cgo_gotypes.go:5024 +0x4b fp=0xc00015fc50 sp=0xc00015fc28 pc=0x52720b \ngithub.com/asticode/go-astiav.(*FormatContext).WriteHeader.func1(0x555460?, 0x21b4a00?) \n        /home/zdz/go/pkg/mod/github.com/asticode/go-astiav@v0.38.0/format_context.go:311 +0x5d fp=0xc00015fc90 sp=0xc00015fc50 pc=0x5294fd \ngithub.com/asticode/go-astiav.(*FormatContext).WriteHeader(0x0?, 0x7ffeaa8fe5a1?) \n        /home/zdz/go/pkg/mod/github.com/asticode/go-astiav@v0.38.0/format_context.go:311 +0x1a fp=0xc00015fcb0 sp=0xc00015fc90 pc=0x52945a \nmain.concatenate({0xc00012c030, 0x2, 0x1?}, {0x7ffeaa8fe596?, 0xa?}) \n        /home/zdz/Documents/Try/Go/cgo/ffmpeg/main.go:94 +0xb2d fp=0xc00015fe58 sp=0xc00015fcb0 pc=0x52c92d \nmain.main() \n        /home/zdz/Documents/Try/Go/cgo/ffmpeg/main.go:31 +0x1b0 fp=0xc00015ff40 sp=0xc00015fe58 pc=0x52bc10 \nruntime.main() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:267 +0x2bb fp=0xc00015ffe0 sp=0xc00015ff40 pc=0x4426db \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc00015ffe8 sp=0xc00015ffe0 pc=0x470581 \ngoroutine 2 [force gc (idle)]: \nruntime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000054fa8 sp=0xc000054f88 pc=0x442b2e \nruntime.goparkunlock(...) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:404 \nruntime.forcegchelper() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:322 +0xb3 fp=0xc000054fe0 sp=0xc000054fa8 pc=0x4429b3 \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc000054fe8 sp=0xc000054fe0 pc=0x470581 \ncreated by runtime.init.6 in goroutine 1 \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:310 +0x1a \ngoroutine 3 [GC sweep wait]: \nruntime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000055778 sp=0xc000055758 pc=0x442b2e \nruntime.goparkunlock(...) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:404 \nruntime.bgsweep(0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgcsweep.go:280 +0x94 fp=0xc0000557c8 sp=0xc000055778 pc=0x42ed54 \nruntime.gcenable.func1() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgc.go:200 +0x25 fp=0xc0000557e0 sp=0xc0000557c8 pc=0x4240e5 \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc0000557e8 sp=0xc0000557e0 pc=0x470581 \ncreated by runtime.gcenable in goroutine 1 \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgc.go:200 +0x66 \ngoroutine 4 [GC scavenge wait]: \nruntime.gopark(0xc00007e000?, 0x5c5d90?, 0x1?, 0x0?, 0xc0000071e0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000055f70 sp=0xc000055f50 pc=0x442b2e \nruntime.goparkunlock(...) \nCC      libavformat/gxfenc.o \nCC      libavformat/h261dec.o \nCC      libavformat/h263dec.o \nCC      libavformat/h264dec.o \nCC      libavformat/hashenc.o \nCC      libavformat/hca.o \nCC      libavformat/hcom.o \nCC      libavformat/hdsenc.o \nCC      libavformat/hevc.o \nCC      libavformat/hevcdec.o \nCC      libavformat/hls.o \nCC      libavformat/hls_sample_encryption.o \nCC      libavformat/hlsenc.o \nCC      libavformat/hlsplaylist.o \nCC      libavformat/hlsproto.o \nCC      libavformat/hnm.o \nCC      libavformat/http.o \nCC      libavformat/httpauth.o \nCC      libavformat/iamf.o \nCC      libavformat/iamf_parse.o \nCC      libavformat/iamf_reader.o \nCC      libavformat/iamf_writer.o \nCC      libavformat/iamfdec.o \nCC      libavformat/iamfenc.o \nCC      libavformat/icecast.o \nCC      libavformat/icodec.o \nCC      libavformat/icoenc.o \nCC      libavformat/id3v1.o \nCC      libavformat/id3v2.o \nCC      libavformat/id3v2enc.o \nCC      libavformat/idcin.o \nCC      libavformat/idroqdec.o \nCC      libavformat/idroqenc.o \nCC      libavformat/iff.o \nCC      libavformat/ifv.o \nCC      libavformat/ilbc.o \nCC      libavformat/img2.o \nCC      libavformat/img2_alias_pix.o \nCC      libavformat/img2_brender_pix.o \nCC      libavformat/img2dec.o \nCC      libavformat/img2enc.o \nCC      libavformat/imx.o \nCC      libavformat/ingenientdec.o \nCC      libavformat/ip.o \nCC      libavformat/ipmovie.o \nlibavformat/img2enc.c: In function ‘write_packet’: \nlibavformat/img2enc.c:183:55: warning: ‘.tmp’ directive output may be truncated writing 4 bytes into a region of size between 1 and 1024 [-Wformat-truncation=] \n  183 |         snprintf(img->tmp[i], sizeof(img->tmp[i]), \"%s.tmp\", filename); \n      |                                                       ^~~~ \nIn file included from /usr/include/stdio.h:867, \n                 from ./libavutil/common.h:38, \n                 from ./libavutil/avutil.h:301, \n                 from ./libavutil/opt.h:31, \n                 from libavformat/img2enc.c:31: \n/usr/include/x86_64-linux-gnu/bits/stdio2.h:67:10: note: ‘__builtin___snprintf_chk’ output between 5 and 1028 bytes into a destination of size 1024 \n   67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1, \n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n   68 |        __bos (__s), __fmt, __va_arg_pack ()); \n      |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \nCC      libavformat/ipudec.o \nCC      libavformat/ircam.o \nCC      libavformat/ircamdec.o \nCC      libavformat/ircamenc.o \nCC      libavformat/isom.o \nCC      libavformat/isom_tags.o \nCC      libavformat/iss.o \nCC      libavformat/iv8.o \nCC      libavformat/ivfdec.o \nCC      libavformat/ivfenc.o \nCC      libavformat/jacosubdec.o \nCC      libavformat/jacosubenc.o \nCC      libavformat/jpegxl_anim_dec.o \nCC      libavformat/jvdec.o \nCC      libavformat/kvag.o \nCC      libavformat/lafdec.o \nCC      libavformat/latmenc.o \nCC      libavformat/lmlm4.o \nCC      libavformat/loasdec.o \nCC      libavformat/lrc.o \nCC      libavformat/lrcdec.o \nCC      libavformat/lrcenc.o \nCC      libavformat/luodatdec.o \nCC      libavformat/lvfdec.o \nCC      libavformat/lxfdec.o \nCC      libavformat/m4vdec.o \nCC      libavformat/matroska.o \nCC      libavformat/matroskadec.o \nCC      libavformat/matroskaenc.o \nCC      libavformat/mca.o \nCC      libavformat/mccdec.o \nCC      libavformat/md5proto.o \nCC      libavformat/metadata.o \nCC      libavformat/mgsts.o \nCC      libavformat/microdvddec.o \nCC      libavformat/microdvdenc.o \nCC      libavformat/mj2kdec.o \nCC      libavformat/mkvtimestamp_v2.o \nCC      libavformat/mlpdec.o \nCC      libavformat/mlvdec.o \nCC      libavformat/mm.o \nCC      libavformat/mmf.o \nCC      libavformat/mms.o \nCC      libavformat/mmsh.o \nCC      libavformat/mmst.o \nCC      libavformat/mods.o \nCC      libavformat/moflex.o \nCC      libavformat/mov.o \nCC      libavformat/mov_chan.o \nCC      libavformat/mov_esds.o \nCC      libavformat/movenc.o \nCC      libavformat/movenc_ttml.o \nCC      libavformat/movenccenc.o \nCC      libavformat/movenchint.o \nCC      libavformat/mp3dec.o \nCC      libavformat/mp3enc.o \nCC      libavformat/mpc.o \nCC      libavformat/mpc8.o \nCC      libavformat/mpeg.o \nCC      libavformat/mpegenc.o \nCC      libavformat/mpegts.o \nCC      libavformat/mpegtsenc.o \nlibavformat/matroskaenc.c: In function ‘mkv_write_trailer’: \nlibavformat/matroskaenc.c:3303:79: warning: ‘%012.9f’ directive output may be truncated writing between 12 and 320 bytes into a region of size between 8 and 14 [-Wformat-truncation=] \n 3303 |                 snprintf(duration_string, sizeof(duration_string), \"%02d:%02d:%012.9f\", \n      |                                                                               ^~~~~~~ \nIn file included from /usr/include/stdio.h:867, \n                 from libavformat/avio.h:30, \n                 from libavformat/av1.h:26, \n                 from libavformat/matroskaenc.c:26: \n/usr/include/x86_64-linux-gnu/bits/stdio2.h:67:10: note: ‘__builtin___snprintf_chk’ output between 19 and 333 bytes into a destination of size 20 \n   67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1, \n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n   68 |        __bos (__s), __fmt, __va_arg_pack ()); \n      |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \nCC      libavformat/mpegvideodec.o \nCC      libavformat/mpjpeg.o \nCC      libavformat/mpjpegdec.o \nCC      libavformat/mpl2dec.o \nCC      libavformat/mpsubdec.o \nCC      libavformat/msf.o \nCC      libavformat/msnwc_tcp.o \nCC      libavformat/mspdec.o \nCC      libavformat/mtaf.o \nCC      libavformat/mtv.o \nCC      libavformat/musx.o \nCC      libavformat/mux.o \nCC      libavformat/mux_utils.o \nCC      libavformat/mvdec.o \nCC      libavformat/mvi.o \nCC      libavformat/mxf.o \nCC      libavformat/mxfdec.o \nCC      libavformat/mxfenc.o \nCC      libavformat/mxg.o \nCC      libavformat/ncdec.o \nCC      libavformat/network.o \nCC      libavformat/nistspheredec.o \nCC      libavformat/nspdec.o \nCC      libavformat/nsvdec.o \nCC      libavformat/nullenc.o \nCC      libavformat/nut.o \nCC      libavformat/nutdec.o \nCC      libavformat/nutenc.o \nCC      libavformat/nuv.o \nCC      libavformat/oggdec.o \nCC      libavformat/oggenc.o \nCC      libavformat/oggparsecelt.o \nCC      libavformat/oggparsedirac.o \nCC      libavformat/oggparseflac.o \nCC      libavformat/oggparseogm.o",
-    "timestamp": "2025-11-20T03:37:13.731Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 6,
-    "type": "user",
-    "message": "/chat      mpeg git:(feature/cgo) ✗ ./run.dev.sh \n# ffmpeg_demo \n./main.go:95:18: outputStream.Codec undefined (type *astiav.Stream has no field or method Codec) \n./main.go:95:75: undefined: astiav.CodecFlagGlobalHeader \n./main.go:98:33: outputFormatContext.OpenIO undefined (type *astiav.FormatContext has no field or method OpenIO) \n➜  ffmpeg git:(feature/cgo) ✗ ./run.dev.sh \n# ffmpeg_demo \n./main.go:95:18: outputStream.Codec undefined (type *astiav.Stream has no field or method Codec) \n./main.go:95:75: undefined: astiav.CodecFlagGlobalHeader \n./main.go:98:33: outputFormatContext.OpenIO undefined (type *astiav.FormatContext has no field or method OpenIO) \n➜  ffmpeg git:(feature/cgo) ✗ ./run.dev.sh \n2025/11/20 11:32:05 Processing input: /home/zdz/Downloads/capgen_example.wav \nSIGSEGV: segmentation violation \nPC=0x7f5b24fb64c4 m=0 sigcode=1 \nsignal arrived during cgo execution \ngoroutine 1 [syscall]: \nruntime.cgocall(0x53026c, 0xc00015fc50) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/cgocall.go:157 +0x4b fp=0xc00015fc28 sp=0xc00015fbf0 pc=0x40eecb \ngithub.com/asticode/go-astiav._Cfunc_avformat_write_header(0x2197940, 0x0) \n        _cgo_gotypes.go:5024 +0x4b fp=0xc00015fc50 sp=0xc00015fc28 pc=0x52720b \ngithub.com/asticode/go-astiav.(*FormatContext).WriteHeader.func1(0x555460?, 0x21b4a00?) \n        /home/zdz/go/pkg/mod/github.com/asticode/go-astiav@v0.38.0/format_context.go:311 +0x5d fp=0xc00015fc90 sp=0xc00015fc50 pc=0x5294fd \ngithub.com/asticode/go-astiav.(*FormatContext).WriteHeader(0x0?, 0x7ffeaa8fe5a1?) \n        /home/zdz/go/pkg/mod/github.com/asticode/go-astiav@v0.38.0/format_context.go:311 +0x1a fp=0xc00015fcb0 sp=0xc00015fc90 pc=0x52945a \nmain.concatenate({0xc00012c030, 0x2, 0x1?}, {0x7ffeaa8fe596?, 0xa?}) \n        /home/zdz/Documents/Try/Go/cgo/ffmpeg/main.go:94 +0xb2d fp=0xc00015fe58 sp=0xc00015fcb0 pc=0x52c92d \nmain.main() \n        /home/zdz/Documents/Try/Go/cgo/ffmpeg/main.go:31 +0x1b0 fp=0xc00015ff40 sp=0xc00015fe58 pc=0x52bc10 \nruntime.main() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:267 +0x2bb fp=0xc00015ffe0 sp=0xc00015ff40 pc=0x4426db \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc00015ffe8 sp=0xc00015ffe0 pc=0x470581 \ngoroutine 2 [force gc (idle)]: \nruntime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000054fa8 sp=0xc000054f88 pc=0x442b2e \nruntime.goparkunlock(...) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:404 \nruntime.forcegchelper() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:322 +0xb3 fp=0xc000054fe0 sp=0xc000054fa8 pc=0x4429b3 \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc000054fe8 sp=0xc000054fe0 pc=0x470581 \ncreated by runtime.init.6 in goroutine 1 \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:310 +0x1a \ngoroutine 3 [GC sweep wait]: \nruntime.gopark(0x0?, 0x0?, 0x0?, 0x0?, 0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000055778 sp=0xc000055758 pc=0x442b2e \nruntime.goparkunlock(...) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:404 \nruntime.bgsweep(0x0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgcsweep.go:280 +0x94 fp=0xc0000557c8 sp=0xc000055778 pc=0x42ed54 \nruntime.gcenable.func1() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgc.go:200 +0x25 fp=0xc0000557e0 sp=0xc0000557c8 pc=0x4240e5 \nruntime.goexit() \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/asm_amd64.s:1650 +0x1 fp=0xc0000557e8 sp=0xc0000557e0 pc=0x470581 \ncreated by runtime.gcenable in goroutine 1 \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/mgc.go:200 +0x66 \ngoroutine 4 [GC scavenge wait]: \nruntime.gopark(0xc00007e000?, 0x5c5d90?, 0x1?, 0x0?, 0xc0000071e0?) \n        /home/zdz/mnt/Application/Go/go1.21.3/src/runtime/proc.go:398 +0xce fp=0xc000055f70 sp=0xc000055f50 pc=0x442b2e \nruntime.goparkunlock(...) \nCC      libavformat/gxfenc.o \nCC      libavformat/h261dec.o \nCC      libavformat/h263dec.o \nCC      libavformat/h264dec.o \nCC      libavformat/hashenc.o \nCC      libavformat/hca.o \nCC      libavformat/hcom.o \nCC      libavformat/hdsenc.o \nCC      libavformat/hevc.o \nCC      libavformat/hevcdec.o \nCC      libavformat/hls.o \nCC      libavformat/hls_sample_encryption.o \nCC      libavformat/hlsenc.o \nCC      libavformat/hlsplaylist.o \nCC      libavformat/hlsproto.o \nCC      libavformat/hnm.o \nCC      libavformat/http.o \nCC      libavformat/httpauth.o \nCC      libavformat/iamf.o \nCC      libavformat/iamf_parse.o \nCC      libavformat/iamf_reader.o \nCC      libavformat/iamf_writer.o \nCC      libavformat/iamfdec.o \nCC      libavformat/iamfenc.o \nCC      libavformat/icecast.o \nCC      libavformat/icodec.o \nCC      libavformat/icoenc.o \nCC      libavformat/id3v1.o \nCC      libavformat/id3v2.o \nCC      libavformat/id3v2enc.o \nCC      libavformat/idcin.o \nCC      libavformat/idroqdec.o \nCC      libavformat/idroqenc.o \nCC      libavformat/iff.o \nCC      libavformat/ifv.o \nCC      libavformat/ilbc.o \nCC      libavformat/img2.o \nCC      libavformat/img2_alias_pix.o \nCC      libavformat/img2_brender_pix.o \nCC      libavformat/img2dec.o \nCC      libavformat/img2enc.o \nCC      libavformat/imx.o \nCC      libavformat/ingenientdec.o \nCC      libavformat/ip.o \nCC      libavformat/ipmovie.o \nlibavformat/img2enc.c: In function ‘write_packet’: \nlibavformat/img2enc.c:183:55: warning: ‘.tmp’ directive output may be truncated writing 4 bytes into a region of size between 1 and 1024 [-Wformat-truncation=] \n  183 |         snprintf(img->tmp[i], sizeof(img->tmp[i]), \"%s.tmp\", filename); \n      |                                                       ^~~~ \nIn file included from /usr/include/stdio.h:867, \n                 from ./libavutil/common.h:38, \n                 from ./libavutil/avutil.h:301, \n                 from ./libavutil/opt.h:31, \n                 from libavformat/img2enc.c:31: \n/usr/include/x86_64-linux-gnu/bits/stdio2.h:67:10: note: ‘__builtin___snprintf_chk’ output between 5 and 1028 bytes into a destination of size 1024 \n   67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1, \n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n   68 |        __bos (__s), __fmt, __va_arg_pack ()); \n      |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \nCC      libavformat/ipudec.o \nCC      libavformat/ircam.o \nCC      libavformat/ircamdec.o \nCC      libavformat/ircamenc.o \nCC      libavformat/isom.o \nCC      libavformat/isom_tags.o \nCC      libavformat/iss.o \nCC      libavformat/iv8.o \nCC      libavformat/ivfdec.o \nCC      libavformat/ivfenc.o \nCC      libavformat/jacosubdec.o \nCC      libavformat/jacosubenc.o \nCC      libavformat/jpegxl_anim_dec.o \nCC      libavformat/jvdec.o \nCC      libavformat/kvag.o \nCC      libavformat/lafdec.o \nCC      libavformat/latmenc.o \nCC      libavformat/lmlm4.o \nCC      libavformat/loasdec.o \nCC      libavformat/lrc.o \nCC      libavformat/lrcdec.o \nCC      libavformat/lrcenc.o \nCC      libavformat/luodatdec.o \nCC      libavformat/lvfdec.o \nCC      libavformat/lxfdec.o \nCC      libavformat/m4vdec.o \nCC      libavformat/matroska.o \nCC      libavformat/matroskadec.o \nCC      libavformat/matroskaenc.o \nCC      libavformat/mca.o \nCC      libavformat/mccdec.o \nCC      libavformat/md5proto.o \nCC      libavformat/metadata.o \nCC      libavformat/mgsts.o \nCC      libavformat/microdvddec.o \nCC      libavformat/microdvdenc.o \nCC      libavformat/mj2kdec.o \nCC      libavformat/mkvtimestamp_v2.o \nCC      libavformat/mlpdec.o \nCC      libavformat/mlvdec.o \nCC      libavformat/mm.o \nCC      libavformat/mmf.o \nCC      libavformat/mms.o \nCC      libavformat/mmsh.o \nCC      libavformat/mmst.o \nCC      libavformat/mods.o \nCC      libavformat/moflex.o \nCC      libavformat/mov.o \nCC      libavformat/mov_chan.o \nCC      libavformat/mov_esds.o \nCC      libavformat/movenc.o \nCC      libavformat/movenc_ttml.o \nCC      libavformat/movenccenc.o \nCC      libavformat/movenchint.o \nCC      libavformat/mp3dec.o \nCC      libavformat/mp3enc.o \nCC      libavformat/mpc.o \nCC      libavformat/mpc8.o \nCC      libavformat/mpeg.o \nCC      libavformat/mpegenc.o \nCC      libavformat/mpegts.o \nCC      libavformat/mpegtsenc.o \nlibavformat/matroskaenc.c: In function ‘mkv_write_trailer’: \nlibavformat/matroskaenc.c:3303:79: warning: ‘%012.9f’ directive output may be truncated writing between 12 and 320 bytes into a region of size between 8 and 14 [-Wformat-truncation=] \n 3303 |                 snprintf(duration_string, sizeof(duration_string), \"%02d:%02d:%012.9f\", \n      |                                                                               ^~~~~~~ \nIn file included from /usr/include/stdio.h:867, \n                 from libavformat/avio.h:30, \n                 from libavformat/av1.h:26, \n                 from libavformat/matroskaenc.c:26: \n/usr/include/x86_64-linux-gnu/bits/stdio2.h:67:10: note: ‘__builtin___snprintf_chk’ output between 19 and 333 bytes into a destination of size 20 \n   67 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1, \n      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n   68 |        __bos (__s), __fmt, __va_arg_pack ()); \n      |        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \nCC      libavformat/mpegvideodec.o \nCC      libavformat/mpjpeg.o \nCC      libavformat/mpjpegdec.o \nCC      libavformat/mpl2dec.o \nCC      libavformat/mpsubdec.o \nCC      libavformat/msf.o \nCC      libavformat/msnwc_tcp.o \nCC      libavformat/mspdec.o \nCC      libavformat/mtaf.o \nCC      libavformat/mtv.o \nCC      libavformat/musx.o \nCC      libavformat/mux.o \nCC      libavformat/mux_utils.o \nCC      libavformat/mvdec.o \nCC      libavformat/mvi.o \nCC      libavformat/mxf.o \nCC      libavformat/mxfdec.o \nCC      libavformat/mxfenc.o \nCC      libavformat/mxg.o \nCC      libavformat/ncdec.o \nCC      libavformat/network.o \nCC      libavformat/nistspheredec.o \nCC      libavformat/nspdec.o \nCC      libavformat/nsvdec.o \nCC      libavformat/nullenc.o \nCC      libavformat/nut.o \nCC      libavformat/nutdec.o \nCC      libavf",
-    "timestamp": "2025-11-20T03:38:01.531Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 7,
-    "type": "user",
-    "message": "./main.go:96:53: not enough arguments in call to astiav.OpenIOContext\n        have (string, astiav.IOContextFlag)\n        want (string, astiav.IOContextFlags, *astiav.IOInterrupter, *astiav.Dictionary)\n错误",
-    "timestamp": "2025-11-20T03:38:24.686Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 8,
-    "type": "user",
-    "message": "原音频就是135k ,两个音频拼接输出的 output.wav 也是135k ，不正确",
-    "timestamp": "2025-11-20T03:45:10.279Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 9,
-    "type": "user",
-    "message": "./main.go:152:56: undefined: astiav.AVTimeBaseQ",
-    "timestamp": "2025-11-20T03:55:10.423Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 10,
-    "type": "user",
-    "message": "拼接后的声音有问题",
-    "timestamp": "2025-11-20T04:01:29.005Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 11,
     "type": "user",
-    "message": "2025/11/20 12:08:31 Processing input: ./assets/capgen_example.wav\n2025/11/20 12:08:31 Processing input: ./assets/aigei_com.wav\n2025/11/20 12:08:31 Error during concatenation: input file ./assets/aigei_com.wav has incompatible audio parameters. Expected SampleRate=8000, SampleFormat=u8, ChannelLayout=1 channels, but got SampleRate=0, SampleFormat=, ChannelLayout=0 channels\nexit status 1",
-    "timestamp": "2025-11-20T04:08:59.133Z"
+    "message": "grep -r \"mp3\" libavcodec/ | grep -i encoder\nlibavcodec/Makefile:OBJS-$(CONFIG_LIBMP3LAME_ENCODER)         += libmp3lame.o\nlibavcodec/mfenc.c:    // MS mp3 encoder MFT. The idea for the workaround is taken from NAudio.\nlibavcodec/mfenc.c:MF_ENCODER(AUDIO, mp3,         MP3, NULL, AFMTS, ACAPS);\nlibavcodec/libmp3lame.c:    .class_name = \"libmp3lame encoder\",\nlibavcodec/libmp3lame.c:const FFCodec ff_libmp3lame_encoder = {\nlibavcodec/allcodecs.c:extern const FFCodec ff_libmp3lame_encoder;\nlibavcodec/allcodecs.c:extern const FFCodec ff_mp3_mf_encoder;\nlibavcodec/codec_list.c:    &ff_libmp3lame_encoder,",
+    "timestamp": "2025-11-20T11:49:48.673Z"
   },
   {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 12,
     "type": "user",
-    "message": "2025/11/20 12:10:19 Processing input: ./assets/capgen_example.wav\n2025/11/20 12:10:19 Found 1 streams in ./assets/capgen_example.wav:\n2025/11/20 12:10:19   - Stream #0: MediaType=audio, SampleRate=8000, SampleFormat=u8, ChannelLayout=1 channels, CodecID=pcm_u8\n2025/11/20 12:10:19 Processing input: ./assets/aigei_com.wav\n2025/11/20 12:10:19 Found 1 streams in ./assets/aigei_com.wav:\n2025/11/20 12:10:19   - Stream #0: MediaType=audio, SampleRate=44100, SampleFormat=s16, ChannelLayout=1 channels, CodecID=pcm_s16le\n2025/11/20 12:10:19 Error during concatenation: input file ./assets/aigei_com.wav has incompatible audio parameters. Expected SampleRate=8000, SampleFormat=u8, ChannelLayout=1 channels, but got SampleRate=0, SampleFormat=, ChannelLayout=0 channels\nexit status 1",
-    "timestamp": "2025-11-20T04:10:26.236Z"
+    "message": "这个--enable-version3  是什么",
+    "timestamp": "2025-11-20T11:51:15.778Z"
   },
   {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 13,
     "type": "user",
-    "message": "2025/11/20 12:14:04 Processing input: ./assets/capgen_example.wav\n2025/11/20 12:14:04 Found 1 streams in ./assets/capgen_example.wav:\n2025/11/20 12:14:04   - Stream #0: MediaType=audio, SampleRate=8000, SampleFormat=u8, ChannelLayout=1 channels, CodecID=pcm_u8\n2025/11/20 12:14:04 Processing input: ./assets/aigei_com.wav\n2025/11/20 12:14:04 Found 1 streams in ./assets/aigei_com.wav:\n2025/11/20 12:14:04   - Stream #0: MediaType=audio, SampleRate=44100, SampleFormat=s16, ChannelLayout=1 channels, CodecID=pcm_s16le\n2025/11/20 12:14:04 Error during concatenation: input file ./assets/aigei_com.wav has incompatible audio parameters. Expected SampleRate=8000, SampleFormat=u8, ChannelLayout=1 channels, but got SampleRate=44100, SampleFormat=s16, ChannelLayout=1 channels\nexit status 1",
-    "timestamp": "2025-11-20T04:14:23.878Z"
+    "message": "/chat list",
+    "timestamp": "2025-11-20T11:58:31.403Z"
   },
   {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 14,
     "type": "user",
-    "message": "继续",
-    "timestamp": "2025-11-20T04:15:34.333Z"
+    "message": "/chat save ffmpeg_mp3",
+    "timestamp": "2025-11-20T11:59:02.513Z"
   },
   {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
+    "sessionId": "ef746e26-cac8-4ee2-9ef1-ba80a4c96519",
     "messageId": 15,
     "type": "user",
-    "message": "./main.go:85:10: goto end jumps over declaration of durationAV at ./main.go:138:14\n./main.go:90:10: goto end jumps over declaration of durationAV at ./main.go:138:14\n./main.go:99:11: goto end jumps over declaration of durationAV at ./main.go:138:14\n./main.go:106:10: goto end jumps over declaration of durationAV at ./main.go:138:14\n./main.go:112:10: goto end jumps over declaration of durationAV at ./main.go:138:14\n./main.go:125:11: goto end jumps over declaration of durationAV at ./main.go:138:14\n./main.go:132:11: goto end jumps over declaration of durationAV at ./main.go:138:14\n./main.go:192:16: assignment mismatch: 2 variables but astiav.FindDecoder returns 1 value\n./main.go:209:16: assignment mismatch: 2 variables but astiav.FindEncoder returns 1 value\n./main.go:218:9: encCtx.SetSampleFmt undefined (type *astiav.CodecContext has no field or method SetSampleFmt)\n./main.go:218:9: too many errors",
-    "timestamp": "2025-11-20T04:21:32.857Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 16,
-    "type": "user",
-    "message": "./main.go:280:6: syntax error: unexpected if, expected expression\n./main.go:318:2: syntax error: non-declaration statement outside function body",
-    "timestamp": "2025-11-20T04:27:06.277Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 17,
-    "type": "user",
-    "message": "# ffmpeg_demo\n./main.go:342:4: syntax error: unexpected if, expected expression\n./main.go:371:2: syntax error: non-declaration statement outside function body",
-    "timestamp": "2025-11-20T04:33:48.215Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 18,
-    "type": "user",
-    "message": "./main.go:222:31: encCtx.SampleFmt undefined (type *astiav.CodecContext has no field or method SampleFmt)\n./main.go:225:17: undefined: astiav.NewFilterGraphParseArgs\n./main.go:226:27: decCtx.SampleFmt undefined (type *astiav.CodecContext has no field or method SampleFmt)\n./main.go:231:40: not enough arguments in call to filterGraph.Parse\n        have (string, unknown type)\n        want (string, *astiav.FilterInOut, *astiav.FilterInOut)\n./main.go:320:24: filterGraph.Buffersrc undefined (type *astiav.FilterGraph has no field or method Buffersrc)\n./main.go:328:25: filterGraph.Buffersink undefined (type *astiav.FilterGraph has no field or method Buffersink)",
-    "timestamp": "2025-11-20T05:37:08.345Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 19,
-    "type": "user",
-    "message": "./main.go:225:35: filterGraph.NewFilterContext undefined (type *astiav.FilterGraph has no field or method NewFilterContext)\n./main.go:225:76: undefined: astiav.FilterArgs\n./main.go:236:36: filterGraph.NewFilterContext undefined (type *astiav.FilterGraph has no field or method NewFilterContext)\n./main.go:247:50: undefined: astiav.NewChannelLayouts\n./main.go:281:15: f.BestEffortTimestamp undefined (type *astiav.Frame has no field or method BestEffortTimestamp)",
-    "timestamp": "2025-11-20T05:43:54.570Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 20,
-    "type": "user",
-    "message": "你需要看下当前项目使用的go-astiav的源码吗 ？",
-    "timestamp": "2025-11-20T05:52:36.269Z"
-  },
-  {
-    "sessionId": "d227461e-3191-4d82-b24f-1a5bace09d79",
-    "messageId": 21,
-    "type": "user",
-    "message": "/chat save go-astiav2",
-    "timestamp": "2025-11-20T07:09:51.646Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 0,
-    "type": "user",
     "message": "/chat list",
-    "timestamp": "2025-11-20T07:13:08.719Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 1,
-    "type": "user",
-    "message": "/chat resume go-astiav2",
-    "timestamp": "2025-11-20T07:13:14.570Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 2,
-    "type": "user",
-    "message": "@lib/go-astiav@v0.38.0/  这里是 go-astiav 的源码, 分析完可以看下 @main.go  这个文件",
-    "timestamp": "2025-11-20T07:14:38.962Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 3,
-    "type": "user",
-    "message": "@main.go 再次修改下",
-    "timestamp": "2025-11-20T07:45:39.865Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 4,
-    "type": "user",
-    "message": "./main.go:253:41: buffersinkCtx.FilterContext().Options undefined (type *astiav.FilterContext has no field or method Options)",
-    "timestamp": "2025-11-20T07:51:41.416Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 5,
-    "type": "user",
-    "message": "@main.go 整理下代码, 添加详细的中文注释",
-    "timestamp": "2025-11-20T07:57:29.390Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 6,
-    "type": "user",
-    "message": "@main.go 我优化了下代码",
-    "timestamp": "2025-11-20T08:28:02.919Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 7,
-    "type": "user",
-    "message": "@main.go 中添加了  defer inputFormatContext.Free() // 确保在出错时释放",
-    "timestamp": "2025-11-20T08:32:22.106Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 8,
-    "type": "user",
-    "message": "defer inputFormatContext.Free() 为何不能放在外层， areas 是什么 ？",
-    "timestamp": "2025-11-20T08:53:06.734Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 9,
-    "type": "user",
-    "message": "for i, inputPath := range inputPaths {\nlog.Printf(\"正在处理输入文件: %s\\n\", inputPath)\n\n// 为当前输入文件分配格式上下文\ninputFormatContext := astiav.AllocFormatContext()\ndefer inputFormatContext.Free() // 确保在出错时释放\n\nif err = inputFormatContext.OpenInput(inputPath, nil, nil); err != nil {\nreturn fmt.Errorf(\"打开输入文件 %s 失败: %w\", inputPath, err)\n}\n....",
-    "timestamp": "2025-11-20T08:56:04.023Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 10,
-    "type": "user",
-    "message": "如何设置比特率",
-    "timestamp": "2025-11-20T09:01:44.277Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 11,
-    "type": "user",
-    "message": "如何设置比特率",
-    "timestamp": "2025-11-20T09:04:01.261Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 12,
-    "type": "user",
-    "message": "为何没有效果",
-    "timestamp": "2025-11-20T09:07:40.043Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 13,
-    "type": "user",
-    "message": "2025/11/20 17:13:58 ffmpeg log: Unable to choose an output format for 'output.w4a'; use a standard extension for the filename or specify the format manually.\n2025/11/20 17:13:58 拼接过程中发生错误: 分配输出格式上下文失败: Invalid argument",
-    "timestamp": "2025-11-20T09:14:28.212Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 14,
-    "type": "user",
-    "message": "更改为m4a后 astiav.AllocOutputFormatContext 出错了",
-    "timestamp": "2025-11-20T09:21:35.609Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 15,
-    "type": "user",
-    "message": "too many arguments in call to astiav.FindOutputFormat\n   have (string, string, string)\n   want (string) [WrongArgCount]",
-    "timestamp": "2025-11-20T09:30:39.811Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 16,
-    "type": "user",
-    "message": "./main.go:65:3: istream declared and not used",
-    "timestamp": "2025-11-20T09:36:41.434Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 17,
-    "type": "user",
-    "message": "./main.go:15:2: undefined: areas\n./main.go:17:2: undefined: areas\n./main.go:65:3: istream declared and not used",
-    "timestamp": "2025-11-20T09:57:16.256Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 18,
-    "type": "user",
-    "message": "/chat list",
-    "timestamp": "2025-11-20T10:02:44.858Z"
-  },
-  {
-    "sessionId": "f0a9d7df-6bcb-4113-a2de-27e6078182bd",
-    "messageId": 19,
-    "type": "user",
-    "message": "/chat save go-astiav3",
-    "timestamp": "2025-11-20T10:02:57.882Z"
+    "timestamp": "2025-11-20T11:59:08.405Z"
   }
 ]
