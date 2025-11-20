@@ -22,7 +22,7 @@ else
 fi
 
 # 测试 MP3 输出（会失败，因为编码器不可用）
-echo -e "\n测试 MP3 输出（预计失败）..."
+echo -e "\n测试 MP3 输出"
 if go run . -o output_test.mp3 ./assets/capgen_example.wav ./assets/aigei_com.wav; then
     echo "✓ MP3 输出成功"
     ls -lh output_test.mp3
