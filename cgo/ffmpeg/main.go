@@ -20,7 +20,7 @@ func main() {
 
 	// 设置命令行参数
 	// -o: 指定输出文件名，默认为 "output.wav"
-	output := flag.String("o", "output.m4a", "The path to the output M4A file.")
+	output := flag.String("o", "output.wav", "The path to the output WAV file.")
 	flag.Parse()
 	// 获取所有非标志参数作为输入文件列表
 	inputs := flag.Args()
