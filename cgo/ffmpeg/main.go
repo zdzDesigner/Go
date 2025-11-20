@@ -12,9 +12,9 @@ import (
 
 func main() {
 	// 设置FFmpeg的日志级别为Info
-	areas.SetLogLevel(astiav.LogLevelInfo)
+	astiav.SetLogLevel(astiav.LogLevelInfo)
 	// 设置日志回调函数，用于打印FFmpeg的内部日志
-	areas.SetLogCallback(func(c astiav.Classer, l astiav.LogLevel, fmt, msg string) {
+	astiav.SetLogCallback(func(c astiav.Classer, l astiav.LogLevel, fmt, msg string) {
 		log.Printf("ffmpeg log: %s", strings.TrimSpace(msg))
 	})
 
@@ -55,8 +55,8 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 	// 2. 仅用第一个文件来设置输出流的参数
 	if len(inputPaths) > 0 {
 		firstInputPath := inputPaths[0]
-	
-ictx, err := openInput(firstInputPath)
+
+		ictx, err := openInput(firstInputPath)
 		if err != nil {
 			return err
 		}
@@ -79,17 +79,46 @@ ictx, err := openInput(firstInputPath)
 			return errors.New("找不到AAC编码器")
 		}
 
+		// 从输入流获取编码参数
+		inputCodecParams := istream.CodecParameters()
+		
 		encCtx := astiav.AllocCodecContext(enc)
 		if encCtx == nil {
 			return errors.New("分配编码器上下文失败")
 		}
 		defer encCtx.Free()
 
-		// 设置编码器参数
-		encCtx.SetSampleRate(44100) // 推荐使用一个标准采样率，如44100
-		encCtx.SetSampleFormat(enc.SampleFormats()[0])
-		encCtx.SetChannelLayout(astiav.ChannelLayoutStereo) // 推荐使用标准声道布局，如立体声
-		encCtx.SetBitRate(128000)
+		// For AAC, use standard sample rate that is well-supported (44100 or 48000)
+		// Use 44100 for compatibility
+		encCtx.SetSampleRate(44100)
+		
+		// For AAC, we need to use supported formats
+		sampleFormats := enc.SampleFormats()
+		if len(sampleFormats) > 0 {
+			encCtx.SetSampleFormat(sampleFormats[0]) // Use the first supported sample format of the encoder
+		} else {
+			// Default to FLTP if no specific format is provided
+			encCtx.SetSampleFormat(astiav.SampleFormatFltp)
+		}
+		
+		// For AAC, use a compatible channel layout based on the input
+		inputChannelLayout := inputCodecParams.ChannelLayout()
+		if inputChannelLayout.Valid() && inputChannelLayout.Channels() > 0 {
+			// If input is mono, use mono; if stereo or more, use stereo
+			if inputChannelLayout.Channels() == 1 {
+				encCtx.SetChannelLayout(astiav.ChannelLayoutMono)
+			} else {
+				encCtx.SetChannelLayout(astiav.ChannelLayoutStereo)
+			}
+		} else {
+			// Default to stereo if input channel layout is invalid
+			encCtx.SetChannelLayout(astiav.ChannelLayoutStereo)
+		}
+		
+		encCtx.SetBitRate(inputCodecParams.BitRate()) // Use the same bit rate as input, or set a default if zero
+		if encCtx.BitRate() == 0 {
+			encCtx.SetBitRate(128000) // Set a default bit rate if the input doesn't have one
+		}
 		encCtx.SetTimeBase(astiav.NewRational(1, encCtx.SampleRate()))
 
 		if outputFormat.Flags().Has(astiav.IOFormatFlagGlobalheader) {
@@ -125,8 +154,8 @@ ictx, err := openInput(firstInputPath)
 	// 5. 循环处理所有文件
 	for _, inputPath := range inputPaths {
 		log.Printf("正在处理输入文件: %s\n", inputPath)
-	
-ictx, err := openInput(inputPath)
+
+		ictx, err := openInput(inputPath)
 		if err != nil {
 			log.Printf("警告: 打开 %s 失败: %v, 跳过此文件。", inputPath, err)
 			continue
@@ -135,16 +164,16 @@ ictx, err := openInput(inputPath)
 		istream, err := findAudioStream(ictx)
 		if err != nil {
 			log.Printf("警告: 在 %s 中未找到音频流: %v, 跳过此文件。", inputPath, err)
-		
-ictx.CloseInput()
+
+			ictx.CloseInput()
 			continue
 		}
 
 		// 总是进行转码，以确保所有片段都符合输出流的格式
 		err = transcodeAndMux(outputFormatContext, outputStream, ictx, istream, ptsOffset)
 		if err != nil {
-		
-ictx.CloseInput()
+
+			ictx.CloseInput()
 			return fmt.Errorf("处理 %s 时出错: %w", inputPath, err)
 		}
 
@@ -155,8 +184,8 @@ ictx.CloseInput()
 		} else {
 			log.Printf("警告: 无法确定 %s 的时长。下一个文件的时间戳可能不正确。", inputPath)
 		}
-	
-ictx.CloseInput()
+
+		ictx.CloseInput()
 	}
 
 	if err = outputFormatContext.WriteTrailer(); err != nil {
@@ -216,10 +245,38 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 		return errors.New("分配编码器上下文失败")
 	}
 	defer encCtx.Free()
-	encCtx.SetSampleRate(ostream.CodecParameters().SampleRate())
-	encCtx.SetSampleFormat(ostream.CodecParameters().SampleFormat())
-	encCtx.SetChannelLayout(ostream.CodecParameters().ChannelLayout())
-	encCtx.SetBitRate(128000)
+	
+	// For AAC encoder compatibility, use standard sample rate (44100)
+	encCtx.SetSampleRate(44100)
+	
+	// Use encoder's supported sample format instead of the output stream's format
+	sampleFormats := enc.SampleFormats()
+	if len(sampleFormats) > 0 {
+		encCtx.SetSampleFormat(sampleFormats[0]) // Use the first supported sample format of the encoder
+	} else {
+		// Default to the output stream's format if no specific format is provided by encoder
+		encCtx.SetSampleFormat(ostream.CodecParameters().SampleFormat())
+	}
+	
+	// Use output codec parameters' channel layout if valid, otherwise default to stereo
+	outputChannelLayout := ostream.CodecParameters().ChannelLayout()
+	if outputChannelLayout.Valid() && outputChannelLayout.Channels() > 0 {
+		// If output is mono, use mono; if stereo or more, use stereo
+		if outputChannelLayout.Channels() == 1 {
+			encCtx.SetChannelLayout(astiav.ChannelLayoutMono)
+		} else {
+			encCtx.SetChannelLayout(astiav.ChannelLayoutStereo)
+		}
+	} else {
+		// Default to stereo if output channel layout is invalid
+		encCtx.SetChannelLayout(astiav.ChannelLayoutStereo)
+	}
+	
+	// Use the bit rate from output stream, or a default if it's 0
+	encCtx.SetBitRate(ostream.CodecParameters().BitRate())
+	if encCtx.BitRate() == 0 {
+		encCtx.SetBitRate(128000) // Set a default bit rate if the output doesn't have one
+	}
 	encCtx.SetTimeBase(astiav.NewRational(1, encCtx.SampleRate()))
 	if octx.OutputFormat().Flags().Has(astiav.IOFormatFlagGlobalheader) {
 		encCtx.SetFlags(encCtx.Flags().Add(astiav.CodecContextFlagGlobalHeader))
@@ -240,8 +297,10 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	if err != nil {
 		return fmt.Errorf("创建源滤镜上下文失败: %w", err)
 	}
+
 	buffersrcCtxParams := astiav.AllocBuffersrcFilterContextParameters()
 	defer buffersrcCtxParams.Free()
+
 	buffersrcCtxParams.SetChannelLayout(decCtx.ChannelLayout())
 	buffersrcCtxParams.SetSampleFormat(decCtx.SampleFormat())
 	buffersrcCtxParams.SetSampleRate(decCtx.SampleRate())
@@ -271,7 +330,35 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	inputs.SetFilterContext(buffersinkCtx.FilterContext())
 	inputs.SetPadIdx(0)
 
-	filterStr := fmt.Sprintf("aformat=sample_fmts=%s:sample_rates=%d:channel_layouts=%s", encCtx.SampleFormat().Name(), encCtx.SampleRate(), encCtx.ChannelLayout().String())
+	// Ensure the filter uses formats compatible with the encoder
+	encSampleFormat := encCtx.SampleFormat()
+	encChannelLayout := encCtx.ChannelLayout()
+	encSampleRate := encCtx.SampleRate()
+	
+	// Use the channels count instead of the layout string representation for channel_layouts
+	channelLayoutStr := fmt.Sprintf("aformat=sample_fmts=%s:sample_rates=%d", encSampleFormat.Name(), encSampleRate)
+	// Only add channel layout filter if valid
+	if encChannelLayout.Valid() && encChannelLayout.Channels() > 0 {
+		channelCount := encChannelLayout.Channels()
+		if channelCount == 1 {
+			channelLayoutStr += ":channel_layouts=mono"
+		} else if channelCount == 2 {
+			channelLayoutStr += ":channel_layouts=stereo"
+		} else {
+			// For multi-channel audio, we might need to map to standard layouts or just use channel count
+			channelLayoutStr += ":channel_layouts=stereo" // Default to stereo for compatibility
+		}
+	}
+	
+	// Calculate the target frame size based on the encoder's frame size
+	frameSize := encCtx.FrameSize()
+	if frameSize <= 0 {
+		// Default AAC frame size if not specified
+		frameSize = 1024
+	}
+	
+	// Add filters to ensure proper frame sizing for encoder
+	filterStr := fmt.Sprintf("%s,aresample=async=1:first_pts=0,asetnsamples=n=%d:p=0", channelLayoutStr, frameSize)
 	log.Printf("正在使用滤镜图: %s", filterStr)
 
 	if err = filterGraph.Parse(filterStr, inputs, outputs); err != nil {

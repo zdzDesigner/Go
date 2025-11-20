@@ -23,7 +23,7 @@ export LD_LIBRARY_PATH="$FFMPEG_LIB/lib:$LD_LIBRARY_PATH"  # 运行时库路径
 # go run . -o output.wav /home/zdz/Downloads/capgen_example.wav  /home/zdz/Downloads/capgen_example.wav
 
 # go run . -o output.wav ./assets/capgen_example.wav  ./assets/aigei_com.wav
-go run . -o output.w4a ./assets/capgen_example.wav  ./assets/aigei_com.wav
+go run . -o output.m4a ./assets/capgen_example.wav  ./assets/aigei_com.wav
 
 
 # ffmpeg -f concat -safe 0 -i ./assets/capgen_example.wav  -i ./assets/aigei_com.wav  -c copy output_ff.wav
@@ -38,3 +38,6 @@ go run . -o output.w4a ./assets/capgen_example.wav  ./assets/aigei_com.wav
 # -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1[a];[a]aformat=channel_layouts=mono[outa]" \
 # -map "[outa]" output_ff.wav
 
+
+
+# ./gemini/tmp/df1c52d5454219c65e54dd32d59518c3a7ad2f42c4f2f65e422d14dd8a9131f9
