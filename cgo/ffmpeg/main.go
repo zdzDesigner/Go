@@ -45,7 +45,6 @@ func main() {
 // 如果不一致，则自动进行转码（transcode）以统一格式。
 func concatenate(inputPaths []string, outputPath string) (err error) {
 	// 为输出文件分配一个格式上下文（FormatContext）
-	// var outputFormatContext *astiav.FormatContext
 	outputFormatContext, err := astiav.AllocOutputFormatContext(nil, "", outputPath)
 	if err != nil {
 		return fmt.Errorf("分配输出格式上下文失败: %w", err)
@@ -61,15 +60,17 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 
 		// 为当前输入文件分配格式上下文
 		inputFormatContext := astiav.AllocFormatContext()
-		defer inputFormatContext.Free()
-		// 打开输入文件
-		if inputFormatContext.OpenInput(inputPath, nil, nil) != nil {
+		defer inputFormatContext.Free() // 确保在出错时释放
+
+		if err = inputFormatContext.OpenInput(inputPath, nil, nil); err != nil {
 			return fmt.Errorf("打开输入文件 %s 失败: %w", inputPath, err)
 		}
+
+		// 使用 defer 确保在函数退出前关闭输入上下文
 		defer inputFormatContext.CloseInput()
 
 		// 查找流信息
-		if inputFormatContext.FindStreamInfo(nil) != nil {
+		if err = inputFormatContext.FindStreamInfo(nil); err != nil {
 			return fmt.Errorf("查找 %s 的流信息失败: %w", inputPath, err)
 		}
 
@@ -97,14 +98,15 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 			}
 
 			// 将第一个输入流的编解码器参数复制到输出流
-			if currentInputStream.CodecParameters().Copy(outputStream.CodecParameters()) != nil {
+			if err = currentInputStream.CodecParameters().Copy(outputStream.CodecParameters()); err != nil {
 				return fmt.Errorf("复制编解码器参数失败: %w", err)
 			}
 			outputStream.CodecParameters().SetCodecTag(0) // WAV格式通常不需要特定的编解码器标签
 
 			// 如果输出格式需要文件I/O（而不是像网络流那样），则打开文件
 			if !outputFormatContext.OutputFormat().Flags().Has(astiav.IOFormatFlagNofile) {
-				ioCtx, err := astiav.OpenIOContext(outputPath, astiav.NewIOContextFlags(astiav.IOContextFlagWrite), nil, nil)
+				var ioCtx *astiav.IOContext
+				ioCtx, err = astiav.OpenIOContext(outputPath, astiav.NewIOContextFlags(astiav.IOContextFlagWrite), nil, nil)
 				if err != nil {
 					return fmt.Errorf("为 %s 打开IO上下文失败: %w", outputPath, err)
 				}
@@ -112,7 +114,7 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 			}
 
 			// 写入输出文件的文件头
-			if outputFormatContext.WriteHeader(nil) != nil {
+			if err = outputFormatContext.WriteHeader(nil); err != nil {
 				return fmt.Errorf("写入文件头失败: %w", err)
 			}
 
@@ -123,9 +125,6 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 			outParams := outputStream.CodecParameters()
 			inParams := currentInputStream.CodecParameters()
 
-			fmt.Println("outParams.SampleRate():", outParams.SampleRate())
-			fmt.Println("outParams.SampleFormat():", outParams.SampleFormat())
-			fmt.Println("outParams.ChannelLayout():", outParams.ChannelLayout())
 			if outParams.SampleRate() == inParams.SampleRate() &&
 				outParams.SampleFormat() == inParams.SampleFormat() &&
 				outParams.ChannelLayout().Equal(inParams.ChannelLayout()) {
@@ -157,7 +156,7 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 	}
 
 	// 所有文件处理完毕后，写入输出文件的文件尾
-	if outputFormatContext.WriteTrailer() != nil {
+	if err = outputFormatContext.WriteTrailer(); err != nil {
 		return fmt.Errorf("写入文件尾失败: %w", err)
 	}
 
@@ -192,7 +191,7 @@ func remux(octx *astiav.FormatContext, ictx *astiav.FormatContext, ostream *asti
 			pkt.SetPos(-1) // 重置位置信息
 
 			// 将处理后的数据包写入输出文件
-			if octx.WriteInterleavedFrame(pkt) != nil {
+			if err = octx.WriteInterleavedFrame(pkt); err != nil {
 				log.Printf("警告: 写入交错帧失败: %v\n", err)
 			}
 		}
@@ -208,17 +207,15 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	if dec == nil {
 		return errors.New("查找解码器失败")
 	}
-
 	decCtx := astiav.AllocCodecContext(dec)
 	if decCtx == nil {
 		return errors.New("分配解码器上下文失败")
 	}
 	defer decCtx.Free()
-
-	if istream.CodecParameters().ToCodecContext(decCtx) != nil {
+	if err = istream.CodecParameters().ToCodecContext(decCtx); err != nil {
 		return fmt.Errorf("复制解码器参数失败: %w", err)
 	}
-	if decCtx.Open(dec, nil) != nil {
+	if err = decCtx.Open(dec, nil); err != nil {
 		return fmt.Errorf("打开解码器上下文失败: %w", err)
 	}
 
@@ -237,7 +234,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	encCtx.SetSampleFormat(ostream.CodecParameters().SampleFormat())
 	encCtx.SetChannelLayout(ostream.CodecParameters().ChannelLayout())
 	encCtx.SetTimeBase(astiav.NewRational(1, ostream.CodecParameters().SampleRate()))
-	if encCtx.Open(enc, nil) != nil {
+	if err = encCtx.Open(enc, nil); err != nil {
 		return fmt.Errorf("打开编码器上下文失败: %w", err)
 	}
 
@@ -293,10 +290,10 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	log.Printf("正在使用滤镜图: %s", filterStr)
 
 	// 解析并配置滤镜图
-	if filterGraph.Parse(filterStr, inputs, outputs) != nil {
+	if err = filterGraph.Parse(filterStr, inputs, outputs); err != nil {
 		return fmt.Errorf("解析滤镜图失败: %w", err)
 	}
-	if filterGraph.Configure() != nil {
+	if err = filterGraph.Configure(); err != nil {
 		return fmt.Errorf("配置滤镜图失败: %w", err)
 	}
 
@@ -309,7 +306,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	// processAndWrite 是一个辅助闭包，处理从解码->滤镜->编码->写入的完整流程
 	processAndWrite := func(f *astiav.Frame) error {
 		// 将帧送入滤镜图
-		if buffersrcCtx.AddFrame(f, astiav.NewBuffersrcFlags()) != nil {
+		if err := buffersrcCtx.AddFrame(f, astiav.NewBuffersrcFlags()); err != nil {
 			return fmt.Errorf("向滤镜图添加帧失败: %w", err)
 		}
 		for {
@@ -359,7 +356,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 		}
 		if inPkt.StreamIndex() == istream.Index() {
 			// 将数据包送入解码器
-			if decCtx.SendPacket(inPkt) != nil {
+			if err = decCtx.SendPacket(inPkt); err != nil {
 				return fmt.Errorf("向解码器发送数据包失败: %w", err)
 			}
 			inPkt.Unref()
@@ -374,7 +371,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 				}
 				frame.SetPts(frame.Pts()) // 确保PTS有效
 				// 处理并写入帧
-				if processAndWrite(frame) != nil {
+				if err = processAndWrite(frame); err != nil {
 					return err
 				}
 				frame.Unref()
@@ -397,17 +394,17 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 			}
 			return fmt.Errorf("从解码器接收帧失败: %w", err)
 		}
-		if processAndWrite(frame) != nil {
+		if err = processAndWrite(frame); err != nil {
 			return err
 		}
 		frame.Unref()
 	}
 	// 清空滤镜图
-	if processAndWrite(nil) != nil {
+	if err = processAndWrite(nil); err != nil {
 		return err
 	}
 	// 清空编码器
-	if encCtx.SendFrame(nil) != nil {
+	if err = encCtx.SendFrame(nil); err != nil {
 		return fmt.Errorf("清空编码器失败: %w", err)
 	}
 	for {
@@ -420,7 +417,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 			}
 			return fmt.Errorf("从编码器接收数据包失败: %w", err)
 		}
-		if writePacket(outPkt, encCtx, octx, ostream, ptsOffset) != nil {
+		if err := writePacket(outPkt, encCtx, octx, ostream, ptsOffset); err != nil {
 			outPkt.Free()
 			return err
 		}
@@ -447,3 +444,4 @@ func writePacket(pkt *astiav.Packet, encCtx *astiav.CodecContext, octx *astiav.F
 	}
 	return nil
 }
+
