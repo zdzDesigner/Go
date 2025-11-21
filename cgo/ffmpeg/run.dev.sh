@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# FFMPEG_LIB=/home/zdz/Documents/Try/Go/Go/cgo/ffmpeg/lib/ffmpeg_output
-FFMPEG_LIB=/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output
+# MAIN_DIR=$(cd $(dirname "$0");cd ..;pwd)
+MAIN_DIR=$(cd $(dirname "$0");pwd)
+# echo $MAIN_DIR
+
+FFMPEG_LIB=$MAIN_DIR/lib/ffmpeg_output
+# FFMPEG_LIB=/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output
 
 # export CGO_CFLAGS="-I/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/include"
 # export CGO_LDFLAGS="-L/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib"
@@ -25,6 +29,8 @@ export LD_LIBRARY_PATH="$FFMPEG_LIB/lib:$LD_LIBRARY_PATH"  # 运行时库路径
 # go run . -o output.wav ./assets/capgen_example.wav  ./assets/aigei_com.wav
 # go run . -o output.m4a ./assets/capgen_example.wav  ./assets/aigei_com.wav
 go run . -o output.mp3 ./assets/capgen_example.wav  ./assets/aigei_com.wav
+# CGO_ENABLED=1 go build -ldflags="-linkmode external -extldflags '-static'"
+# CGO_ENABLED=1 go build .
 
 
 # ffmpeg -f concat -safe 0 -i ./assets/capgen_example.wav  -i ./assets/aigei_com.wav  -c copy output_ff.wav

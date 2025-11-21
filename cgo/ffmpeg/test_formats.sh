@@ -1,7 +1,8 @@
 #!/bin/bash
 
+MAIN_DIR=$(cd $(dirname "$0");pwd)
 # 设置 FFmpeg 库路径
-FFMPEG_LIB=/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output
+FFMPEG_LIB=$MAIN_DIR/lib/ffmpeg_output
 
 # 设置环境变量
 export CGO_CFLAGS="-I$FFMPEG_LIB/include"
@@ -21,7 +22,7 @@ else
 fi
 
 # 测试 MP3 输出（会失败，因为编码器不可用）
-echo -e "\n测试 MP3 输出（预计失败）..."
+echo -e "\n测试 MP3 输出..."
 if go run . -o output_test.mp3 ./assets/capgen_example.wav ./assets/aigei_com.wav; then
     echo "✓ MP3 输出成功"
     ls -lh output_test.mp3
