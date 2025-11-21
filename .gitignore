@@ -8,3 +8,4 @@ cameras/static/hls/*
 
 
 cgo/ffmpeg/lib/ffmpeg_output
+ffmpeg-concat
