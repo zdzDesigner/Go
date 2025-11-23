@@ -15,3 +15,75 @@
 
   我们需要在 go build 命令中添加一个链接器标志（ldflag）来设置 rpath。对于你的项目结构，这个命令看起来像这样：
 
+
+
+
+
+
+
+
+
+
+
+## LD_DEBUG
+
+➜  ffmpeg git:(feature/build) ✗ LD_DEBUG=libs ./ffmpeg-concat 2>&1 | grep "libavcodec" 
+    365588:     find library=libavcodec.so.61 [0]; searching 
+    365588:       trying file=tls/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=tls/haswell/libavcodec.so.61 
+    365588:       trying file=tls/x86_64/libavcodec.so.61 
+    365588:       trying file=tls/libavcodec.so.61 
+    365588:       trying file=haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=haswell/libavcodec.so.61 
+    365588:       trying file=x86_64/libavcodec.so.61 
+    365588:       trying file=libavcodec.so.61 
+    365588:       trying file=/home/zdz/Documents/Speech/meeting/aimt-heming/packages/ffi/TestFFI/tls/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/home/zdz/Documents/Speech/meeting/aimt-heming/packages/ffi/TestFFI/tls/haswell/libavcodec.so.61 
+    365588:       trying file=/home/zdz/Documents/Speech/meeting/aimt-heming/packages/ffi/TestFFI/tls/x86_64/libavcodec.so.61 
+    365588:       trying file=/home/zdz/Documents/Speech/meeting/aimt-heming/packages/ffi/TestFFI/tls/libavcodec.so.61 
+    365588:       trying file=/home/zdz/Documents/Speech/meeting/aimt-heming/packages/ffi/TestFFI/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/home/zdz/Documents/Speech/meeting/aimt-heming/packages/ffi/TestFFI/haswell/libavcodec.so.61 
+    365588:       trying file=/home/zdz/Documents/Speech/meeting/aimt-heming/packages/ffi/TestFFI/x86_64/libavcodec.so.61 
+    365588:       trying file=/home/zdz/Documents/Speech/meeting/aimt-heming/packages/ffi/TestFFI/libavcodec.so.61 
+    365588:       trying file='/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib'/tls/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file='/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib'/tls/haswell/libavcodec.so.61 
+    365588:       trying file='/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib'/tls/x86_64/libavcodec.so.61 
+    365588:       trying file='/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib'/tls/libavcodec.so.61 
+    365588:       trying file='/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib'/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file='/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib'/haswell/libavcodec.so.61 
+    365588:       trying file='/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib'/x86_64/libavcodec.so.61 
+    365588:       trying file='/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib'/libavcodec.so.61 
+    365588:       trying file=/lib/x86_64-linux-gnu/tls/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/lib/x86_64-linux-gnu/tls/haswell/libavcodec.so.61 
+    365588:       trying file=/lib/x86_64-linux-gnu/tls/x86_64/libavcodec.so.61 
+    365588:       trying file=/lib/x86_64-linux-gnu/tls/libavcodec.so.61 
+    365588:       trying file=/lib/x86_64-linux-gnu/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/lib/x86_64-linux-gnu/haswell/libavcodec.so.61 
+    365588:       trying file=/lib/x86_64-linux-gnu/x86_64/libavcodec.so.61 
+    365588:       trying file=/lib/x86_64-linux-gnu/libavcodec.so.61 
+    365588:       trying file=/usr/lib/x86_64-linux-gnu/tls/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/usr/lib/x86_64-linux-gnu/tls/haswell/libavcodec.so.61 
+    365588:       trying file=/usr/lib/x86_64-linux-gnu/tls/x86_64/libavcodec.so.61 
+    365588:       trying file=/usr/lib/x86_64-linux-gnu/tls/libavcodec.so.61 
+    365588:       trying file=/usr/lib/x86_64-linux-gnu/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/usr/lib/x86_64-linux-gnu/haswell/libavcodec.so.61 
+    365588:       trying file=/usr/lib/x86_64-linux-gnu/x86_64/libavcodec.so.61 
+    365588:       trying file=/usr/lib/x86_64-linux-gnu/libavcodec.so.61 
+    365588:       trying file=/lib/tls/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/lib/tls/haswell/libavcodec.so.61 
+    365588:       trying file=/lib/tls/x86_64/libavcodec.so.61 
+    365588:       trying file=/lib/tls/libavcodec.so.61 
+    365588:       trying file=/lib/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/lib/haswell/libavcodec.so.61 
+    365588:       trying file=/lib/x86_64/libavcodec.so.61 
+    365588:       trying file=/lib/libavcodec.so.61 
+    365588:       trying file=/usr/lib/tls/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/usr/lib/tls/haswell/libavcodec.so.61 
+    365588:       trying file=/usr/lib/tls/x86_64/libavcodec.so.61 
+    365588:       trying file=/usr/lib/tls/libavcodec.so.61 
+    365588:       trying file=/usr/lib/haswell/x86_64/libavcodec.so.61 
+    365588:       trying file=/usr/lib/haswell/libavcodec.so.61 
+    365588:       trying file=/usr/lib/x86_64/libavcodec.so.61 
+    365588:       trying file=/usr/lib/libavcodec.so.61 
+./ffmpeg-concat: error while loading shared libraries: libavcodec.so.61: cannot open shared object file: No such file or directory 
+
