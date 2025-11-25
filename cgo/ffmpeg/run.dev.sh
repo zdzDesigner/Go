@@ -30,20 +30,12 @@ export LD_LIBRARY_PATH="$FFMPEG_LIB/lib:$LD_LIBRARY_PATH"  # 运行时库路径
 # go run . -o output.m4a ./assets/capgen_example.wav  ./assets/aigei_com.wav
 # go run . -o output.mp3 ./assets/capgen_example.wav  ./assets/aigei_com.wav
 
-# 使用 rpath 构建可执行文件（使用绝对路径进行最终诊断）
-echo "正在构建（使用绝对路径 rpath）..."
-CGO_ENABLED=1 go build -ldflags="-linkmode=external -extldflags=-Wl,-rpath,'/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib'" -o ffmpeg-concat .
-
-echo ""
-echo "构建完成！"
-echo "这一个版本使用了绝对路径rpath。请尝试直接运行 ./ffmpeg-concat"
-
 # 构建后运行示例:
 # ./ffmpeg-concat -o output.mp3 ./assets/capgen_example.wav ./assets/aigei_com.wav
 
 # CGO_ENABLED=1 go build -ldflags="-linkmode external -extldflags '-static'"
 # CGO_ENABLED=1 go build .
-
+CGO_ENABLED=1 go build -ldflags="-linkmode=external -extldflags=-Wl,-rpath,\$ORIGIN/lib/ffmpeg_output/lib" -o ffmpeg-concat .
 
 # ffmpeg -f concat -safe 0 -i ./assets/capgen_example.wav  -i ./assets/aigei_com.wav  -c copy output_ff.wav
 # ffmpeg  concat -safe 0 -i ./assets/aigei_com.wav  -i ./assets/aigei_com.wav  -c copy output_ff.wav
