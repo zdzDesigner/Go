@@ -6,9 +6,60 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"sync"
 
 	"github.com/asticode/go-astiav"
 )
+
+// ProgressInfo 存储合成进度信息
+// 这个结构体可以被外部调用者用来获取当前的合成进度
+// 包含了总体进度百分比、当前处理的文件名和已处理的文件数量
+
+type ProgressInfo struct {
+	TotalProgress  float64 // 总体进度百分比 (0-100)
+	CurrentFile    string  // 当前正在处理的文件名
+	ProcessedFiles int     // 已处理的文件数量
+	TotalFiles     int     // 总文件数量
+}
+
+// progressTracker 用于跟踪和更新合成进度
+// 包含了进度信息和同步锁，确保在多线程环境下的安全访问
+
+var (
+	progressTracker = struct {
+		info ProgressInfo
+		mu   sync.RWMutex
+	}{}
+)
+
+// GetCurrentProgress 返回当前的合成进度信息
+// 这是一个公共接口，允许外部代码获取合成过程的实时进度
+// 返回值是一个ProgressInfo结构体，包含了总体进度、当前处理的文件等信息
+
+func GetCurrentProgress() ProgressInfo {
+	progressTracker.mu.RLock()
+	defer progressTracker.mu.RUnlock()
+	return progressTracker.info
+}
+
+// updateProgress 更新进度信息
+// 这个内部函数用于在处理过程中更新进度信息
+// 参数包括当前处理的文件名、已处理的文件数量和总文件数量
+
+func updateProgress(currentFile string, processedFiles, totalFiles int) {
+	progressTracker.mu.Lock()
+	defer progressTracker.mu.Unlock()
+	
+	progressTracker.info.CurrentFile = currentFile
+	progressTracker.info.ProcessedFiles = processedFiles
+	progressTracker.info.TotalFiles = totalFiles
+	
+	// 计算总体进度百分比
+	if totalFiles > 0 {
+		// 假设每个文件的处理时间大致相同，按文件数量计算进度
+		progressTracker.info.TotalProgress = float64(processedFiles) / float64(totalFiles) * 100
+	}
+}
 
 func main() {
 	// 设置FFmpeg的日志级别为Info
@@ -31,6 +82,9 @@ func main() {
 		log.Println("使用方法: go run . -o <输出文件> <输入文件1> <输入文件2> ...")
 		return
 	}
+
+	// 初始化进度信息
+	updateProgress("", 0, len(inputs))
 
 	if err := concatenate(inputs, *output); err != nil {
 		log.Fatalf("拼接过程中发生错误: %v", err)
@@ -225,8 +279,10 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 	}
 
 	// 5. 循环处理所有文件
-	for _, inputPath := range inputPaths {
+	for i, inputPath := range inputPaths {
 		log.Printf("正在处理输入文件: %s\n", inputPath)
+		// 更新进度信息
+		updateProgress(inputPath, i, len(inputPaths))
 
 		ictx, err := openInput(inputPath)
 		if err != nil {
@@ -260,6 +316,9 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 
 		ictx.CloseInput()
 	}
+
+	// 处理完成，更新进度为100%
+	updateProgress("", len(inputPaths), len(inputPaths))
 
 	if err = outputFormatContext.WriteTrailer(); err != nil {
 		return fmt.Errorf("写入文件尾失败: %w", err)
