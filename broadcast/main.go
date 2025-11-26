@@ -17,6 +17,7 @@ const (
 	// 定义广播地址。255.255.255.255 是一个特殊的地址，
 	// 代表当前局域网的所有主机。
 	BROADCAST_IP = "255.255.255.255"
+	// BROADCAST_IP = "169.254.203.226"
 )
 
 func main() {
@@ -101,7 +102,8 @@ func sendBroadcasts() {
 	// 无限循环，周期性地发送消息。
 	for {
 		// 准备要发送的消息。
-		message := "\"request\": \"remotekey.discovery\""
+		message := "{\"request\":\"remotekey.discovery\"}"
+		// message := "{\"request\":\"dev.discovery\"}"
 
 		// 将消息写入连接，发送出去。
 		_, err := conn.Write([]byte(message))
