@@ -10,7 +10,7 @@ import (
 	"github.com/asticode/go-astiav"
 )
 
-func main() {
+func cli() {
 	// 设置FFmpeg的日志级别为Info
 	astiav.SetLogLevel(astiav.LogLevelInfo)
 	// 设置日志回调函数，用于打印FFmpeg的内部日志
@@ -32,9 +32,9 @@ func main() {
 		return
 	}
 
-	if err := concatenate(inputs, *output); err != nil {
-		log.Fatalf("拼接过程中发生错误: %v", err)
-	}
+	// if err := concatenate(inputs, *output); err != nil {
+	// 	log.Fatalf("拼接过程中发生错误: %v", err)
+	// }
 
 	log.Printf("成功将 %d 个文件拼接到 %s\n", len(inputs), *output)
 }
@@ -657,6 +657,8 @@ func TestJointWithProgress() {
 }
 
 // 为了方便单独运行测试，可以添加一个main函数的替代入口
-func mainTest() {
+func main() {
+	fmt.Println("TestJointWithProgress")
+	checkAvailableEncoders()
 	TestJointWithProgress()
 }

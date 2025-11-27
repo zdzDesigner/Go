@@ -33,9 +33,25 @@ export LD_LIBRARY_PATH="$FFMPEG_LIB/lib:$LD_LIBRARY_PATH"  # 运行时库路径
 # 构建后运行示例:
 # ./ffmpeg-concat -o output.mp3 ./assets/capgen_example.wav ./assets/aigei_com.wav
 
-# CGO_ENABLED=1 go build -ldflags="-linkmode external -extldflags '-static'"
-# CGO_ENABLED=1 go build .
-CGO_ENABLED=1 go build -ldflags="-linkmode=external -extldflags=-Wl,-rpath,\$ORIGIN/lib/ffmpeg_output/lib" -o ffmpeg-concat .
+
+## build ===============
+# CGO_ENABLED=1 go build -ldflags="-linkmode=external -extldflags=-Wl,-rpath,\$ORIGIN/lib/ffmpeg_output/lib" -o ffmpeg-concat .
+
+
+go run .
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ffmpeg -f concat -safe 0 -i ./assets/capgen_example.wav  -i ./assets/aigei_com.wav  -c copy output_ff.wav
 # ffmpeg  concat -safe 0 -i ./assets/aigei_com.wav  -i ./assets/aigei_com.wav  -c copy output_ff.wav
