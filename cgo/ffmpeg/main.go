@@ -6,60 +6,9 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"sync"
 
 	"github.com/asticode/go-astiav"
 )
-
-// ProgressInfo 存储合成进度信息
-// 这个结构体可以被外部调用者用来获取当前的合成进度
-// 包含了总体进度百分比、当前处理的文件名和已处理的文件数量
-
-type ProgressInfo struct {
-	TotalProgress  float64 // 总体进度百分比 (0-100)
-	CurrentFile    string  // 当前正在处理的文件名
-	ProcessedFiles int     // 已处理的文件数量
-	TotalFiles     int     // 总文件数量
-}
-
-// progressTracker 用于跟踪和更新合成进度
-// 包含了进度信息和同步锁，确保在多线程环境下的安全访问
-
-var (
-	progressTracker = struct {
-		info ProgressInfo
-		mu   sync.RWMutex
-	}{}
-)
-
-// GetCurrentProgress 返回当前的合成进度信息
-// 这是一个公共接口，允许外部代码获取合成过程的实时进度
-// 返回值是一个ProgressInfo结构体，包含了总体进度、当前处理的文件等信息
-
-func GetCurrentProgress() ProgressInfo {
-	progressTracker.mu.RLock()
-	defer progressTracker.mu.RUnlock()
-	return progressTracker.info
-}
-
-// updateProgress 更新进度信息
-// 这个内部函数用于在处理过程中更新进度信息
-// 参数包括当前处理的文件名、已处理的文件数量和总文件数量
-
-func updateProgress(currentFile string, processedFiles, totalFiles int) {
-	progressTracker.mu.Lock()
-	defer progressTracker.mu.Unlock()
-	
-	progressTracker.info.CurrentFile = currentFile
-	progressTracker.info.ProcessedFiles = processedFiles
-	progressTracker.info.TotalFiles = totalFiles
-	
-	// 计算总体进度百分比
-	if totalFiles > 0 {
-		// 假设每个文件的处理时间大致相同，按文件数量计算进度
-		progressTracker.info.TotalProgress = float64(processedFiles) / float64(totalFiles) * 100
-	}
-}
 
 func main() {
 	// 设置FFmpeg的日志级别为Info
@@ -83,9 +32,6 @@ func main() {
 		return
 	}
 
-	// 初始化进度信息
-	updateProgress("", 0, len(inputs))
-
 	if err := concatenate(inputs, *output); err != nil {
 		log.Fatalf("拼接过程中发生错误: %v", err)
 	}
@@ -93,10 +39,34 @@ func main() {
 	log.Printf("成功将 %d 个文件拼接到 %s\n", len(inputs), *output)
 }
 
+// ProgressCallback 定义进度回调函数类型
+type ProgressCallback func(progress int, currentFile string, fileIndex int, totalFiles int) error
+
+// Joint 合并多个音频文件到指定输出文件，并支持进度回调
+func Joint(inputs []string, output string, progressCallback ProgressCallback) {
+	// 设置FFmpeg的日志级别为Info
+	astiav.SetLogLevel(astiav.LogLevelInfo)
+	// 设置日志回调函数，用于打印FFmpeg的内部日志
+	astiav.SetLogCallback(func(c astiav.Classer, l astiav.LogLevel, fmt, msg string) {
+		log.Printf("ffmpeg log: %s", strings.TrimSpace(msg))
+	})
+
+	if err := concatenate(inputs, output, progressCallback); err != nil {
+		log.Fatalf("拼接过程中发生错误: %v", err)
+	}
+
+	log.Printf("成功将 %d 个文件拼接到 %s\n", len(inputs), output)
+}
+
+// 无进度回调版本的Joint函数，保持向后兼容
+func JointWithoutProgress(inputs []string, output string) {
+	Joint(inputs, output, nil)
+}
+
 // 检查可用编码器
 func checkAvailableEncoders() {
 	log.Println("检查可用编码器...")
-	
+
 	// 尝试获取 MP3 编码器
 	mp3Encoder := astiav.FindEncoder(astiav.CodecIDMp3)
 	if mp3Encoder != nil {
@@ -109,7 +79,7 @@ func checkAvailableEncoders() {
 	} else {
 		log.Println("✗ MP3 编码器不可用")
 	}
-	
+
 	// 尝试获取 AAC 编码器
 	aacEncoder := astiav.FindEncoder(astiav.CodecIDAac)
 	if aacEncoder != nil {
@@ -122,7 +92,7 @@ func checkAvailableEncoders() {
 	} else {
 		log.Println("✗ AAC 编码器不可用")
 	}
-	
+
 	// 检查一些常见的音频编码器
 	commonEncoders := []struct {
 		id   astiav.CodecID
@@ -135,7 +105,7 @@ func checkAvailableEncoders() {
 		{astiav.CodecIDMp2, "MP2"},
 		{astiav.CodecIDFlac, "FLAC"},
 	}
-	
+
 	log.Println("其他常见音频编码器状态:")
 	for _, enc := range commonEncoders {
 		encoder := astiav.FindEncoder(enc.id)
@@ -147,7 +117,7 @@ func checkAvailableEncoders() {
 	}
 }
 
-func concatenate(inputPaths []string, outputPath string) (err error) {
+func concatenate(inputPaths []string, outputPath string, progressCallback ProgressCallback) (err error) {
 	// 1. 为输出文件分配一个格式上下文，并让FFmpeg根据文件名推断格式
 	outputFormatContext, err := astiav.AllocOutputFormatContext(nil, "", outputPath)
 	if err != nil {
@@ -187,15 +157,15 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 		// 检查是否请求MP3输出及编码器可用性
 		isMp3Request := strings.HasSuffix(strings.ToLower(outputPath), ".mp3")
 		mp3EncoderAvailable := astiav.FindEncoder(astiav.CodecIDMp3) != nil
-		
+
 		// 根据输出文件扩展名选择编码器
 		encoderID := getEncoderIDForOutputFile(outputPath)
-		
+
 		// 如果用户请求MP3但编码器不可用，提供清晰的错误信息
 		if isMp3Request && !mp3EncoderAvailable {
 			return fmt.Errorf("错误: 请求输出MP3格式，但MP3编码器不可用。请使用M4A格式或使用编译了MP3编码支持的FFmpeg库")
 		}
-		
+
 		enc := astiav.FindEncoder(encoderID)
 		if enc == nil {
 			return fmt.Errorf("找不到编码器 ID %v", encoderID)
@@ -203,7 +173,7 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 
 		// 从输入流获取编码参数
 		inputCodecParams := istream.CodecParameters()
-		
+
 		encCtx := astiav.AllocCodecContext(enc)
 		if encCtx == nil {
 			return errors.New("分配编码器上下文失败")
@@ -213,7 +183,7 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 		// For MP3/AAC, use standard sample rate that is well-supported (44100 or 48000)
 		// Use 44100 for compatibility
 		encCtx.SetSampleRate(44100)
-		
+
 		// For the encoder, we need to use supported formats
 		sampleFormats := enc.SampleFormats()
 		if len(sampleFormats) > 0 {
@@ -222,7 +192,7 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 			// Default to FLTP if no specific format is provided
 			encCtx.SetSampleFormat(astiav.SampleFormatFltp)
 		}
-		
+
 		// For audio, use a compatible channel layout based on the input
 		inputChannelLayout := inputCodecParams.ChannelLayout()
 		if inputChannelLayout.Valid() && inputChannelLayout.Channels() > 0 {
@@ -236,7 +206,7 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 			// Default to stereo if input channel layout is invalid
 			encCtx.SetChannelLayout(astiav.ChannelLayoutStereo)
 		}
-		
+
 		encCtx.SetBitRate(inputCodecParams.BitRate()) // Use the same bit rate as input, or set a default if zero
 		if encCtx.BitRate() == 0 {
 			// 设置默认比特率：MP3通常使用128kbps或320kbps，AAC使用128kbps
@@ -281,8 +251,14 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 	// 5. 循环处理所有文件
 	for i, inputPath := range inputPaths {
 		log.Printf("正在处理输入文件: %s\n", inputPath)
-		// 更新进度信息
-		updateProgress(inputPath, i, len(inputPaths))
+
+		// 更新进度
+		if progressCallback != nil {
+			progress := int(float64(i) / float64(len(inputPaths)) * 90) // 预留10%给最后的处理
+			if err := progressCallback(progress, inputPath, i+1, len(inputPaths)); err != nil {
+				return fmt.Errorf("进度回调错误: %w", err)
+			}
+		}
 
 		ictx, err := openInput(inputPath)
 		if err != nil {
@@ -316,9 +292,6 @@ func concatenate(inputPaths []string, outputPath string) (err error) {
 
 		ictx.CloseInput()
 	}
-
-	// 处理完成，更新进度为100%
-	updateProgress("", len(inputPaths), len(inputPaths))
 
 	if err = outputFormatContext.WriteTrailer(); err != nil {
 		return fmt.Errorf("写入文件尾失败: %w", err)
@@ -377,10 +350,10 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 		return errors.New("分配编码器上下文失败")
 	}
 	defer encCtx.Free()
-	
+
 	// For MP3/AAC encoder compatibility, use standard sample rate (44100)
 	encCtx.SetSampleRate(44100)
-	
+
 	// Use encoder's supported sample format instead of the output stream's format
 	sampleFormats := enc.SampleFormats()
 	if len(sampleFormats) > 0 {
@@ -389,7 +362,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 		// Default to the output stream's format if no specific format is provided by encoder
 		encCtx.SetSampleFormat(ostream.CodecParameters().SampleFormat())
 	}
-	
+
 	// Use output codec parameters' channel layout if valid, otherwise default to stereo
 	outputChannelLayout := ostream.CodecParameters().ChannelLayout()
 	if outputChannelLayout.Valid() && outputChannelLayout.Channels() > 0 {
@@ -403,7 +376,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 		// Default to stereo if output channel layout is invalid
 		encCtx.SetChannelLayout(astiav.ChannelLayoutStereo)
 	}
-	
+
 	// Use the bit rate from output stream, or a default if it's 0
 	encCtx.SetBitRate(ostream.CodecParameters().BitRate())
 	if encCtx.BitRate() == 0 {
@@ -472,7 +445,7 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 	encSampleFormat := encCtx.SampleFormat()
 	encChannelLayout := encCtx.ChannelLayout()
 	encSampleRate := encCtx.SampleRate()
-	
+
 	// Use the channels count instead of the layout string representation for channel_layouts
 	channelLayoutStr := fmt.Sprintf("aformat=sample_fmts=%s:sample_rates=%d", encSampleFormat.Name(), encSampleRate)
 	// Only add channel layout filter if valid
@@ -487,14 +460,14 @@ func transcodeAndMux(octx *astiav.FormatContext, ostream *astiav.Stream, ictx *a
 			channelLayoutStr += ":channel_layouts=stereo" // Default to stereo for compatibility
 		}
 	}
-	
+
 	// Calculate the target frame size based on the encoder's frame size
 	frameSize := encCtx.FrameSize()
 	if frameSize <= 0 {
 		// Default AAC frame size if not specified
 		frameSize = 1024
 	}
-	
+
 	// Add filters to ensure proper frame sizing for encoder
 	filterStr := fmt.Sprintf("%s,aresample=async=1:first_pts=0,asetnsamples=n=%d:p=0", channelLayoutStr, frameSize)
 	log.Printf("正在使用滤镜图: %s", filterStr)
@@ -653,4 +626,37 @@ func getEncoderIDForOutputFile(outputPath string) astiav.CodecID {
 		// 默认使用AAC，因为M4A是更常见的默认格式
 		return astiav.CodecIDAac
 	}
+}
+
+// TestJointWithProgress 测试带有进度回调的Joint函数
+func TestJointWithProgress() {
+	// 从assets目录中选择几个音频文件进行测试
+	assetsDir := "/home/zdz/Documents/Try/Go/cgo/ffmpeg/assets"
+	inputFiles := []string{
+		assetsDir + "/1_01bd5489.wav",
+		assetsDir + "/1_0f532653.wav",
+		assetsDir + "/1_0fc9f340.wav",
+	}
+	outputFile := "test_output.m4a"
+
+	// 定义进度回调函数
+	progressCallback := func(progress int, currentFile string, fileIndex int, totalFiles int) error {
+		// 打印进度信息
+		log.Printf("进度: %d%%, 当前文件: %s (%d/%d)", progress, currentFile, fileIndex, totalFiles)
+		// 可以在这里添加更多的进度处理逻辑，如更新UI等
+		return nil
+	}
+
+	log.Println("开始测试Joint函数(带进度回调)...")
+	log.Printf("将 %d 个文件合并到 %s\n", len(inputFiles), outputFile)
+
+	// 调用带进度回调的Joint函数
+	Joint(inputFiles, outputFile, progressCallback)
+
+	log.Println("测试完成!")
+}
+
+// 为了方便单独运行测试，可以添加一个main函数的替代入口
+func mainTest() {
+	TestJointWithProgress()
 }
