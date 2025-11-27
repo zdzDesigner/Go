@@ -4,7 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"path/filepath"
 	"strings"
 
 	"github.com/asticode/go-astiav"
@@ -656,9 +658,60 @@ func TestJointWithProgress() {
 	log.Println("测试完成!")
 }
 
+// 批量处理assets目录下所有1_xxxx.wav文件并转换为mp3格式
+func BatchConvert1WavToMp3() {
+	// 设置FFmpeg的日志级别为Info
+	astiav.SetLogLevel(astiav.LogLevelInfo)
+	// 设置日志回调函数，用于打印FFmpeg的内部日志
+	astiav.SetLogCallback(func(c astiav.Classer, l astiav.LogLevel, fmt, msg string) {
+		log.Printf("ffmpeg log: %s", strings.TrimSpace(msg))
+	})
+
+	// 检查可用编码器
+	checkAvailableEncoders()
+
+	// 定义assets目录路径
+	assetsDir := "/home/zdz/Documents/Try/Go/cgo/ffmpeg/assets"
+	outputFile := "batch_output.mp3"
+
+	// 收集所有以"1_"开头的.wav文件
+	inputFiles := []string{}
+
+	// 遍历assets目录下的文件
+	files, err := ioutil.ReadDir(assetsDir)
+	if err != nil {
+		log.Fatalf("读取assets目录失败: %v", err)
+	}
+
+	for _, file := range files {
+		// 检查文件名是否以"1_"开头且以".wav"结尾
+		if !file.IsDir() && strings.HasPrefix(file.Name(), "1_") && strings.HasSuffix(strings.ToLower(file.Name()), ".wav") {
+			inputFiles = append(inputFiles, filepath.Join(assetsDir, file.Name()))
+		}
+	}
+
+	if len(inputFiles) == 0 {
+		log.Println("未找到符合条件的1_xxxx.wav文件")
+		return
+	}
+
+	log.Printf("找到 %d 个1_xxxx.wav文件，准备转换为mp3格式\n", len(inputFiles))
+
+	// 定义进度回调函数
+	progressCallback := func(progress int, currentFile string, fileIndex int, totalFiles int) error {
+		// 打印进度信息
+		log.Printf("进度: %d%%, 当前文件: %s (%d/%d)", progress, filepath.Base(currentFile), fileIndex, totalFiles)
+		return nil
+	}
+
+	// 调用带进度回调的Joint函数进行转换
+	Joint(inputFiles, outputFile, progressCallback)
+
+	log.Printf("成功将 %d 个1_xxxx.wav文件转换为 %s\n", len(inputFiles), outputFile)
+}
+
 // 为了方便单独运行测试，可以添加一个main函数的替代入口
 func main() {
-	fmt.Println("TestJointWithProgress")
-	checkAvailableEncoders()
-	TestJointWithProgress()
+	fmt.Println("BatchConvert1WavToMp3")
+	BatchConvert1WavToMp3()
 }
