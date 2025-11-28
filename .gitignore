@@ -3,12 +3,18 @@ trocli
 .zip
 .gradle
 .so
+so
+*.so.*
+*.so.**.*
 build
 cameras/static/hls/*
 
-
+node_modules
 cgo/ffmpeg/lib/ffmpeg_output
+wails/cgo/release
+wails/cgo/windows_release
 wails/cgo/lib/ffmpeg_output
+dist
 ffmpeg-concat
 *.mp3
 *.m4a

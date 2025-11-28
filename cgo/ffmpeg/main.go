@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -712,6 +713,10 @@ func BatchConvert1WavToMp3() {
 
 // 为了方便单独运行测试，可以添加一个main函数的替代入口
 func main() {
+	// os.Setenv("LD_LIBRARY_PATH", "/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/lib/:"+os.Getenv("LD_LIBRARY_PATH"))
+
+  fmt.Println(os.Getenv("LD_LIBRARY_PATH"))
+
 	fmt.Println("BatchConvert1WavToMp3")
-	BatchConvert1WavToMp3()
+	// BatchConvert1WavToMp3()
 }
