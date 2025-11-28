@@ -8,6 +8,7 @@ cameras/static/hls/*
 
 
 cgo/ffmpeg/lib/ffmpeg_output
+wails/cgo/lib/ffmpeg_output
 ffmpeg-concat
 *.mp3
 *.m4a
