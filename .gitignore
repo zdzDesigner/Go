@@ -3,7 +3,7 @@ trocli
 .zip
 .gradle
 .so
-.deb
+*.*.deb
 *.so.*
 *.so.**.*
 build
