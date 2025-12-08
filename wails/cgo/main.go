@@ -1,6 +1,7 @@
 package main
 
 import (
+	"changeme/audio"
 	"embed"
 
 	"github.com/wailsapp/wails/v2"
@@ -13,7 +14,7 @@ var assets embed.FS
 
 func main() {
 	// Create an instance of the app structure
-	BatchConvert1WavToMp3()
+  audio.BatchConvert1WavToMp3()
 	app := NewApp()
 
 	// Create application with options
