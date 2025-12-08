@@ -718,5 +718,5 @@ func main() {
   fmt.Println(os.Getenv("LD_LIBRARY_PATH"))
 
 	fmt.Println("BatchConvert1WavToMp3")
-	// BatchConvert1WavToMp3()
+	BatchConvert1WavToMp3()
 }

@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strings"
 	"syscall"
 
 	"golang.org/x/sys/unix"
@@ -56,6 +57,10 @@ func listenForBroadcasts() {
 			fmt.Println("错误：读取数据失败:", err)
 			continue
 		}
-		fmt.Printf("从 %s 接收到广播: %s\n", remoteAddr, string(buffer[:n]))
+		res := string(buffer[:n])
+		if strings.Index(res, "remotekey") > -1 || strings.Index(res, "localkey") > -1{
+			fmt.Printf("从 %s 接收到广播: %s\n", remoteAddr, res)
+		}
+		// fmt.Printf("从 %s 接收到广播: %s\n", remoteAddr, res)
 	}
 }
