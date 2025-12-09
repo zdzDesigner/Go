@@ -5,6 +5,7 @@ MAIN_DIR=$(cd $(dirname "$0");pwd)
 # echo $MAIN_DIR
 
 FFMPEG_LIB=$MAIN_DIR/lib/ffmpeg_output
+# FFMPEG_LIB=./lib/ffmpeg_output
 # FFMPEG_LIB=/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output
 
 # export CGO_CFLAGS="-I/home/zdz/Documents/Try/Go/cgo/ffmpeg/lib/ffmpeg_output/include"
@@ -29,6 +30,8 @@ export LD_LIBRARY_PATH="$FFMPEG_LIB/lib:$LD_LIBRARY_PATH"  # 运行时库路径
 # go run . -o output.wav ./assets/capgen_example.wav  ./assets/aigei_com.wav
 # go run . -o output.m4a ./assets/capgen_example.wav  ./assets/aigei_com.wav
 # go run . -o output.mp3 ./assets/capgen_example.wav  ./assets/aigei_com.wav
+#
+# -o /home/zdz/Documents/Try/Go/cgo/ffmpeg/assets/capgen_example.wav /home/zdz/Documents/Try/Go/cgo/ffmpeg/assets/aigei_com.wav
 
 
 # 使用 rpath 构建可执行文件（使用绝对路径进行最终诊断）
