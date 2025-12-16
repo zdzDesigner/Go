@@ -105,6 +105,8 @@ func handleConnection(conn net.Conn, config *ssh.ServerConfig) {
 
 		// 处理通道内的子系统请求
 		go func(in <-chan *ssh.Request) {
+			defer channel.Close()
+			
 			for req := range in {
 				// 检查是否为 SFTP 子系统请求
 				// Payload[4:] 跳过前 4 字节的长度字段
@@ -315,4 +317,3 @@ func (w *rateLimitedWriterAt) WriteAt(p []byte, off int64) (n int, err error) {
 	// 执行实际的文件写入
 	return w.f.WriteAt(p, off)
 }
-
