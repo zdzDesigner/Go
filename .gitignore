@@ -19,3 +19,4 @@ dist
 ffmpeg-concat
 *.mp3
 *.m4a
+sftp_server
