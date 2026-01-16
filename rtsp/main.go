@@ -260,7 +260,7 @@ func main() {
 
 	startWebSocketServer(h264Writer)
 
-	rtspURL := "rtsp://172.16.40.9:554/live" // Adjust this to your actual RTSP stream URL
+	rtspURL := "rtsp://172.16.40.9:554" // Adjust this to your actual RTSP stream URL
 	// Common formats: "rtsp://ip:port/", "rtsp://ip:port/stream", "rtsp://ip:port/live.sdp"
 
 	u, err := base.ParseURL(rtspURL)
@@ -295,6 +295,7 @@ func main() {
 	c.OnPacketRTPAny(func(medi *description.Media, ffmt format.Format, pkt *rtp.Packet) {
 		frame := h264Writer.processRTPPacket(pkt)
 		if frame != nil {
+      fmt.Println(frame)
 			h264Writer.broadcastFrame(frame)
 		}
 	})
