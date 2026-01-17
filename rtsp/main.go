@@ -185,8 +185,8 @@ func (w *H264Writer) broadcastFrame(frame *H264Frame) {
 		if client.conn != nil {
 			data, _ := json.Marshal(frame)
 			if len(frame.Data) > 4 {
-				naluType := frame.Data[4] & 0x1F
-				log.Printf("Sending frame: NALU type=%d, isKey=%v, dataLen=%d", naluType, frame.IsKey, len(frame.Data))
+				// naluType := frame.Data[4] & 0x1F
+				// log.Printf("Sending frame: NALU type=%d, isKey=%v, dataLen=%d", naluType, frame.IsKey, len(frame.Data))
 			}
 			if err := client.conn.WriteMessage(websocket.BinaryMessage, data); err != nil {
 				log.Printf("Error sending frame to client %s: %v", client.clientID, err)
@@ -254,7 +254,7 @@ func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
 	// =============================================================================
 	naluType := payload[0] & 0x1F // 后7位
 	nal := payload[0] & 0x60      // 保留NRI位，用于重组
-	log.Println("naluType:", naluType)
+	// log.Println("naluType:", naluType)
 
 	// 处理Fu-A分片
 	// =============================================================================
