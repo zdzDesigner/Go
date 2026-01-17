@@ -278,10 +278,15 @@ func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
 		}
 
 		fuHeader := payload[1]
-		isStart := fuHeader&0x80 != 0 // S位: 第一个分片
-		isEnd := fuHeader&0x40 != 0   // E位: 最后一个分片
-		nalType := fuHeader & 0x1F    // 原始NALU类型
+		isStart := fuHeader&0x80 != 0    // S位: 第一个分片
+		isEnd := fuHeader&0x40 != 0      // E位: 最后一个分片
+		nalType := fuHeader & 0x1F       // 原始NALU类型
+		isreserved := fuHeader&0x20 != 0 // R 位，必须为 0
 		// log.Println("Fu-A nalType:", isStart, isEnd, nalType)
+		if isreserved {
+			log.Println("FU-A invalid: reserved bit != 0, discarding")
+			return nil
+		}
 
 		// 重组NALU头: NRI位 + 原始类型
 		reconstructed := []byte{nal | nalType}
@@ -292,13 +297,17 @@ func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
 
 			if isEnd {
 				// 单分片NALU (既start又end)
-				w.pending = append(w.pending, payload[2:]...)
+				// w.pending = append(w.pending, payload[2:]...)
 				if nalType == 7 {
 					w.sps = make([]byte, len(w.pending))
 					copy(w.sps, w.pending)
 				} else if nalType == 8 {
 					w.pps = make([]byte, len(w.pending))
 					copy(w.pps, w.pending)
+				} else {
+					frame := w.buildFrame(w.pending)
+					w.pending = nil
+					return frame
 				}
 				w.pending = nil
 				return nil
@@ -395,11 +404,9 @@ func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
 // - 3字节: [00 00 01] - 备选
 //
 // 这里统一使用4字节起始码
-// =============================================================================
 func (w *H264Writer) buildFrame(data []byte) *H264Frame {
 	// 提取NALU类型
 	nalType := data[0] & 0x1F
-
 	// 判断是否为关键帧
 	// =============================================================================
 	// 关键帧 (IDR, Instantaneous Decoder Refresh):
@@ -413,8 +420,6 @@ func (w *H264Writer) buildFrame(data []byte) *H264Frame {
 	// - 压缩率更高，但依赖性也更高
 	// =============================================================================
 	isKey := nalType == 5
-
-	// 生成时间戳
 	timestamp := w.getTimestamp()
 
 	// 添加4字节起始码
@@ -423,7 +428,20 @@ func (w *H264Writer) buildFrame(data []byte) *H264Frame {
 	// 但Web端解码需要起始码来识别NALU边界
 	// 添加 [00 00 00 01] 作为起始码
 	// =============================================================================
-	frameData := append([]byte{0x00, 0x00, 0x00, 0x01}, data...)
+	startCode := []byte{0x00, 0x00, 0x00, 0x01}
+	frameData := make([]byte, 0)
+
+	// 对于关键帧，附加 SPS 和 PPS（如果存在）
+	if isKey && len(w.sps) > 0 && len(w.pps) > 0 {
+		frameData = append(frameData, startCode...)
+		frameData = append(frameData, w.sps...)
+		frameData = append(frameData, startCode...)
+		frameData = append(frameData, w.pps...)
+	}
+
+	// 附加 Slice NALU
+	frameData = append(frameData, startCode...)
+	frameData = append(frameData, data...)
 
 	// 调试日志: 打印前10个字节和NALU类型
 	if len(data) > 10 {

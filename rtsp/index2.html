@@ -199,7 +199,7 @@
         if (h264Data.length > 4) {
           const naluHeader = h264Data[4];
           const naluType = naluHeader & 0x1f;
-          console.log({ naluType });
+          // console.log({ naluType });
 
           if (naluType === 7) {
             if (!savedSPS) console.log("收到 SPS");
@@ -233,13 +233,13 @@
             data: h264Data, // 直接发送 Annex B 数据 (00 00 00 01 ...)
           });
 
-          // try {
-          //   currentDecoder.decode(chunk);
-          // } catch (err) {
-          //   console.error("decode 调用失败:", err);
-          //   // 出错时重置配置状态，尝试恢复
-          //   isDecoderConfigured = false;
-          // }
+          try {
+            currentDecoder.decode(chunk);
+          } catch (err) {
+            console.error("decode 调用失败:", err);
+            // 出错时重置配置状态，尝试恢复
+            isDecoderConfigured = false;
+          }
         }
       };
     </script>
