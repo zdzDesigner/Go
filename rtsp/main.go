@@ -9,13 +9,12 @@
 //
 // 数据流程:
 //
-//  [RTSP流] --RTP--> [gortsplib] --回调--> [processRTPPacket] 
-//      |                                            |
-//      | 解析NALU类型                               提取SPS/PPS
-//      | 处理分片(Fu-A)                             |
-//      v                                            v
-//  [H264Frame] --JSON序列化--> [WebSocket] --Base64--> [Web前端]
-//
+//	[RTSP流] --RTP--> [gortsplib] --回调--> [processRTPPacket]
+//	    |                                            |
+//	    | 解析NALU类型                               提取SPS/PPS
+//	    | 处理分片(Fu-A)                             |
+//	    v                                            v
+//	[H264Frame] --JSON序列化--> [WebSocket] --Base64--> [Web前端]
 //
 // 关键概念:
 //
@@ -35,7 +34,8 @@
 //   - isEnd=true: 最后一个分片
 //
 // WebSocket消息格式:
-//   {"data": "Base64编码的视频数据", "timestamp": 微秒时间戳, "is_key": 是否关键帧}
+//
+//	{"data": "Base64编码的视频数据", "timestamp": 微秒时间戳, "is_key": 是否关键帧}
 //
 // =============================================================================
 package main
@@ -73,11 +73,13 @@ import (
 // - IsKey: 是否为关键帧(IDR帧)
 //
 // 消息示例:
-// {
-//   "data": "AAAAAUGa7knhDyZTAl/68374odTt1V9UuOJBMcL1trrwXZdtyom//dQdis1H98i7r7ewt/l6pp3B073bcUYJ4GkjLro...",
-//   "timestamp": 1234567890,
-//   "is_key": true
-// }
+//
+//	{
+//	  "data": "AAAAAUGa7knhDyZTAl/68374odTt1V9UuOJBMcL1trrwXZdtyom//dQdis1H98i7r7ewt/l6pp3B073bcUYJ4GkjLro...",
+//	  "timestamp": 1234567890,
+//	  "is_key": true
+//	}
+//
 // =============================================================================
 type H264Frame struct {
 	Data      []byte `json:"data"`
@@ -97,13 +99,13 @@ type H264Frame struct {
 // 线程安全: 使用sync.Mutex保护所有成员变量
 // =============================================================================
 type H264Writer struct {
-	mu             sync.Mutex             // 互斥锁，保护共享数据
+	mu             sync.Mutex                  // 互斥锁，保护共享数据
 	clients        map[string]*WebSocketClient // WebSocket客户端映射
-	pending        []byte                 // Fu-A分片累积缓冲区
-	firstTimestamp uint32                 // 起始时间戳(用于计算相对时间)
-	startTime      time.Time              // 起始时间
-	sps            []byte                 // 序列参数集 (Sequence Parameter Set)
-	pps            []byte                 // 图像参数集 (Picture Parameter Set)
+	pending        []byte                      // Fu-A分片累积缓冲区
+	firstTimestamp uint32                      // 起始时间戳(用于计算相对时间)
+	startTime      time.Time                   // 起始时间
+	sps            []byte                      // 序列参数集 (Sequence Parameter Set)
+	pps            []byte                      // 图像参数集 (Picture Parameter Set)
 }
 
 // WebSocketClient 表示一个连接的WebSocket客户端
@@ -207,20 +209,20 @@ func (w *H264Writer) broadcastFrame(frame *H264Frame) {
 //
 // 1. 提取RTP负载 (payload)
 // 2. 检查NALU类型:
-//    - Fu-A分片 (type=28): 需要重组
-//    - 完整NALU (type=1-12): 直接处理
-//    - SPS (type=7): 缓存，不广播
-//    - PPS (type=8): 缓存，不广播
-//    - 其他: 忽略
+//   - Fu-A分片 (type=28): 需要重组
+//   - 完整NALU (type=1-12): 直接处理
+//   - SPS (type=7): 缓存，不广播
+//   - PPS (type=8): 缓存，不广播
+//   - 其他: 忽略
 //
 // 3. Fu-A分片处理:
-//    - isStart=true: 开始新的分片
-//    - isStart=false, isEnd=false: 中间分片，累积
-//    - isEnd=true: 最后一个分片，完成重组
+//   - isStart=true: 开始新的分片
+//   - isStart=false, isEnd=false: 中间分片，累积
+//   - isEnd=true: 最后一个分片，完成重组
 //
 // 4. 重组完成后:
-//    - 如果是SPS/PPS: 缓存到writer.sps/writer.pps
-//    - 如果是视频帧: 调用buildFrame()构建H264Frame
+//   - 如果是SPS/PPS: 缓存到writer.sps/writer.pps
+//   - 如果是视频帧: 调用buildFrame()构建H264Frame
 //
 // 注意: 此函数在持有互斥锁的情况下调用
 // =============================================================================
@@ -250,8 +252,9 @@ func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
 	// type=8: PPS (Picture Parameter Set)
 	// type=28: FU-A (分片单元)
 	// =============================================================================
-	naluType := payload[0] & 0x1F
-	nal := payload[0] & 0x60 // 保留NRI位，用于重组
+	naluType := payload[0] & 0x1F // 后7位
+	nal := payload[0] & 0x60      // 保留NRI位，用于重组
+	log.Println("naluType:", naluType)
 
 	// 处理Fu-A分片
 	// =============================================================================
@@ -275,9 +278,10 @@ func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
 		}
 
 		fuHeader := payload[1]
-		isStart := fuHeader&0x80 != 0  // S位: 第一个分片
-		isEnd := fuHeader&0x40 != 0    // E位: 最后一个分片
-		nalType := fuHeader & 0x1F     // 原始NALU类型
+		isStart := fuHeader&0x80 != 0 // S位: 第一个分片
+		isEnd := fuHeader&0x40 != 0   // E位: 最后一个分片
+		nalType := fuHeader & 0x1F    // 原始NALU类型
+		// log.Println("Fu-A nalType:", isStart, isEnd, nalType)
 
 		// 重组NALU头: NRI位 + 原始类型
 		reconstructed := []byte{nal | nalType}
@@ -423,7 +427,7 @@ func (w *H264Writer) buildFrame(data []byte) *H264Frame {
 
 	// 调试日志: 打印前10个字节和NALU类型
 	if len(data) > 10 {
-		log.Printf("BuildFrame input: first bytes = %v, NALU type = %d", data[:10], nalType)
+		// log.Printf("BuildFrame input: first bytes = %v, NALU type = %d", data[:10], nalType)
 	}
 
 	// 构建输出帧

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WebCodecs H.264 WebSocket Player (Fixed Annex B)</title>
+    <style>
+      body {
+        background: #1a1a1a;
+        color: #fff;
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        height: 100vh;
+        overflow: hidden;
+      }
+      canvas {
+        background: #000;
+        border: 1px solid #333;
+        max-width: 100%;
+        max-height: 80vh;
+      }
+      .status {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #aaa;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>WebCodecs 实时视频流 (Annex B 模式)</h2>
+    <canvas id="videoCanvas" width="640" height="480"></canvas>
+    <div id="status" class="status">等待连接...</div>
+
+    <script>
+      const canvas = document.getElementById("videoCanvas");
+      const ctx = canvas.getContext("2d");
+      const statusDiv = document.getElementById("status");
+
+      // ==========================================
+      // 全局变量配置
+      // ==========================================
+      let decoder = null;
+      let isDecoderConfigured = false;
+      let savedSPS = null;
+      let savedPPS = null;
+
+      // H.264 Codec 字符串
+      // High Profile Level 3.1
+      const DEFAULT_CODEC = "avc1.64001F";
+
+      // ==========================================
+      // 辅助：处理时间戳 (确保是微秒)
+      // ==========================================
+      function getMicroseconds(ts) {
+        // 如果时间戳非常小（小于 10000），可能是毫秒，需要 * 1000
+        if (ts < 10000) {
+          return ts * 1000;
+        }
+        // 如果时间戳非常大（大于 1e16，即纳秒），需要 / 1000
+        // 1秒 = 1,000,000 微秒 = 1,000,000,000 纳秒
+        if (ts > 1e16) {
+          return ts / 1000;
+        }
+        // 否则假设已经是微秒
+        return ts;
+      }
+
+      // ==========================================
+      // 1. 初始化/重建 VideoDecoder
+      // ==========================================
+      function ensureDecoderReady() {
+        if (decoder && decoder.state === "closed") {
+          console.warn("⚠️ 检测到 Decoder 已关闭，准备重建...");
+          decoder = null;
+          isDecoderConfigured = false;
+        }
+
+        if (!decoder) {
+          decoder = new VideoDecoder({
+            output: (frame) => {
+              if (
+                canvas.width !== frame.displayWidth ||
+                canvas.height !== frame.displayHeight
+              ) {
+                canvas.width = frame.displayWidth;
+                canvas.height = frame.displayHeight;
+                console.log(`画布尺寸更新: ${canvas.width}x${canvas.height}`);
+              }
+              ctx.drawImage(frame, 0, 0);
+              frame.close();
+            },
+            error: (e) => {
+              console.error("❌ VideoDecoder 内部错误:", e);
+              statusDiv.innerText = "解码错误: " + e.message;
+              // 如果是因为配置问题，强制重置
+              isDecoderConfigured = false;
+            },
+          });
+          console.log("✅ 新的 VideoDecoder 已创建");
+        }
+        return decoder;
+      }
+
+      // ==========================================
+      // 2. 尝试配置解码器 (修复版：不使用 description)
+      // ==========================================
+      async function tryConfigureDecoder(currentDecoder) {
+        if (isDecoderConfigured) return true;
+
+        // 如果还没收到 SPS/PPS，我们也可以尝试直接配置 codec，
+        // 但为了稳妥，这里依然等待 SPS，确保流是活的。
+        if (!savedSPS || !savedPPS) {
+          statusDiv.innerText = "等待 SPS/PPS 配置信息...";
+          return false;
+        }
+
+        try {
+          // 核心修复：
+          // 对于 Annex B 格式（带起始码 00 00 00 01）的流，通常不需要 description。
+          // 浏览器会自动从码流中解析 SPS/PPS。
+          // 我们只需要指定 codec 字符串。
+
+          const config = {
+            codec: DEFAULT_CODEC,
+            // 注意：这里没有 description 属性！
+            optimizeForLatency: true,
+          };
+
+          // 检查支持情况
+          const support = await VideoDecoder.isConfigSupported(config);
+          if (!support.supported) {
+            console.error("浏览器不支持该配置:", config);
+            statusDiv.innerText = "浏览器不支持该配置 (请检查 Codec 字符串)";
+            return false;
+          }
+
+          await currentDecoder.configure(config);
+          isDecoderConfigured = true;
+          statusDiv.innerText = "解码器配置成功 (Annex B 自动模式)";
+          console.log("🚀 解码器配置成功", config);
+          return true;
+        } catch (e) {
+          console.error("配置失败:", e);
+          statusDiv.innerText = "解码器配置失败: " + e.message;
+          return false;
+        }
+      }
+
+      // ==========================================
+      // 3. WebSocket 连接与主循环
+      // ==========================================
+      const wsUrl = "ws://localhost:8080/ws";
+      const socket = new WebSocket(wsUrl);
+      socket.binaryType = "arraybuffer";
+
+      socket.onopen = () => {
+        statusDiv.innerText = "WebSocket 已连接";
+      };
+
+      socket.onclose = () => {
+        statusDiv.innerText = "连接已断开";
+        isDecoderConfigured = false;
+      };
+
+      socket.onerror = (err) => {
+        console.error("WebSocket 错误:", err);
+      };
+
+      socket.onmessage = async (event) => {
+        // --- A. 解析 JSON ---
+        let jsonMsg;
+        try {
+          const textDecoder = new TextDecoder();
+          const jsonString = textDecoder.decode(event.data);
+          jsonMsg = JSON.parse(jsonString);
+        } catch (e) {
+          console.error("JSON 解析失败", e);
+          return;
+        }
+
+        // --- B. Base64 转 Uint8Array ---
+        let h264Data;
+        try {
+          const binaryString = window.atob(jsonMsg.data);
+          const len = binaryString.length;
+          h264Data = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            h264Data[i] = binaryString.charCodeAt(i);
+          }
+        } catch (e) {
+          console.error("Base64 解码失败", e);
+          return;
+        }
+
+        // --- C. 解析 NALU (仅用于收集 SPS/PPS) ---
+        if (h264Data.length > 4) {
+          const naluHeader = h264Data[4];
+          const naluType = naluHeader & 0x1f;
+          console.log({ naluType });
+
+          if (naluType === 7) {
+            if (!savedSPS) console.log("收到 SPS");
+            savedSPS = h264Data;
+          } else if (naluType === 8) {
+            if (!savedPPS) console.log("收到 PPS");
+            savedPPS = h264Data;
+          }
+        }
+
+        // --- D. 确保 Decoder 准备就绪 ---
+        const currentDecoder = ensureDecoderReady();
+
+        // 尝试配置
+        const configSuccess = await tryConfigureDecoder(currentDecoder);
+        if (!configSuccess) {
+          // 如果还没配置好，这帧数据丢弃或暂存（这里简单丢弃）
+          return;
+        }
+
+        // --- E. 解码 ---
+        if (isDecoderConfigured && currentDecoder.state === "configured") {
+          const chunkType = jsonMsg.is_key ? "key" : "delta";
+
+          // 修正时间戳
+          const timestamp = getMicroseconds(jsonMsg.timestamp);
+
+          const chunk = new EncodedVideoChunk({
+            type: chunkType,
+            timestamp: timestamp,
+            data: h264Data, // 直接发送 Annex B 数据 (00 00 00 01 ...)
+          });
+
+          // try {
+          //   currentDecoder.decode(chunk);
+          // } catch (err) {
+          //   console.error("decode 调用失败:", err);
+          //   // 出错时重置配置状态，尝试恢复
+          //   isDecoderConfigured = false;
+          // }
+        }
+      };
+    </script>
+  </body>
+</html>
