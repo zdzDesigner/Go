@@ -116,10 +116,10 @@ func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
 	}
 
 	if naluType == 7 {
-		w.sps = payload[1:]
+		w.sps = payload
 	}
 	if naluType == 8 {
-		w.pps = payload[1:]
+		w.pps = payload
 	}
 
 	return nil
@@ -131,8 +131,10 @@ func (w *H264Writer) buildFrame(data []byte) *H264Frame {
 
 	timestamp := w.getTimestamp()
 
+	frameData := append([]byte{0x00, 0x00, 0x00, 0x01}, data...)
+
 	return &H264Frame{
-		Data:      data,
+		Data:      frameData,
 		Timestamp: timestamp,
 		IsKey:     isKey,
 	}
@@ -175,24 +177,24 @@ func startWebSocketServer(h264Writer *H264Writer) {
 		h264Writer.mu.Lock()
 		currentTime := uint64(time.Now().UnixNano() / 1000)
 		if len(h264Writer.sps) > 0 {
-			spsData := append([]byte{0x00, 0x00, 0x00, 0x01, 0x67}, h264Writer.sps...)
+			spsData := append([]byte{0x00, 0x00, 0x00, 0x01}, h264Writer.sps...)
 			configMsg, _ := json.Marshal(H264Frame{
 				Data:      spsData,
 				Timestamp: currentTime,
 				IsKey:     true,
 			})
 			conn.WriteMessage(websocket.BinaryMessage, configMsg)
-			log.Printf("Sent SPS to client %s", clientID)
+			log.Printf("Sent SPS to client %s, length: %d", clientID, len(spsData))
 		}
 		if len(h264Writer.pps) > 0 {
-			ppsData := append([]byte{0x00, 0x00, 0x00, 0x01, 0x68}, h264Writer.pps...)
+			ppsData := append([]byte{0x00, 0x00, 0x00, 0x01}, h264Writer.pps...)
 			configMsg, _ := json.Marshal(H264Frame{
 				Data:      ppsData,
 				Timestamp: currentTime,
 				IsKey:     true,
 			})
 			conn.WriteMessage(websocket.BinaryMessage, configMsg)
-			log.Printf("Sent PPS to client %s", clientID)
+			log.Printf("Sent PPS to client %s, length: %d", clientID, len(ppsData))
 		}
 		h264Writer.mu.Unlock()
 
@@ -267,7 +269,8 @@ func main() {
 
 	startWebSocketServer(h264Writer)
 
-	rtspURL := "rtsp://172.16.40.9:554" // Adjust this to your actual RTSP stream URL
+	// rtspURL := "rtsp://172.16.40.9:554" // Adjust this to your actual RTSP stream URL
+	rtspURL := "rtsp://localhost:8554/live" // Adjust this to your actual RTSP stream URL
 	// Common formats: "rtsp://ip:port/", "rtsp://ip:port/stream", "rtsp://ip:port/live.sdp"
 
 	u, err := base.ParseURL(rtspURL)
