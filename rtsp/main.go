@@ -1,4 +1,43 @@
-// Package main contains an RTSP client with WebSocket/H264 streaming.
+// =============================================================================
+// RTSP客户端转WebSocket/H264流媒体服务器
+// =============================================================================
+//
+// 功能概述:
+// 1. 连接到RTSP视频流 (如 rtsp://localhost:8554/live)
+// 2. 接收RTP数据包并解析H.264视频帧
+// 3. 通过WebSocket向Web前端传输H.264数据
+//
+// 数据流程:
+//
+//  [RTSP流] --RTP--> [gortsplib] --回调--> [processRTPPacket] 
+//      |                                            |
+//      | 解析NALU类型                               提取SPS/PPS
+//      | 处理分片(Fu-A)                             |
+//      v                                            v
+//  [H264Frame] --JSON序列化--> [WebSocket] --Base64--> [Web前端]
+//
+//
+// 关键概念:
+//
+// RTP (Real-time Transport Protocol):
+//   - 用于传输实时音视频数据的网络协议
+//   - 每个RTP包包含一个H.264 NALU或其分片
+//
+// H.264 NALU (Network Abstraction Layer Unit):
+//   - H.264视频流的基本传输单元
+//   - 类型: SPS(7), PPS(8), IDR(5), P帧(1)等
+//   - 可能通过Fu-A分片传输大数据NALU
+//
+// Fu-A (Fragmentation Unit Type A):
+//   - 当NALU大小超过MTU时使用分片
+//   - 每个分片包含: Fu-Indicator + Fu-Header + 片段数据
+//   - isStart=true: 第一个分片
+//   - isEnd=true: 最后一个分片
+//
+// WebSocket消息格式:
+//   {"data": "Base64编码的视频数据", "timestamp": 微秒时间戳, "is_key": 是否关键帧}
+//
+// =============================================================================
 package main
 
 import (
@@ -20,40 +59,122 @@ import (
 	"github.com/pion/rtp"
 )
 
+// =============================================================================
+// 数据结构定义
+// =============================================================================
+
+// H264Frame 定义WebSocket传输的视频帧结构
+// =============================================================================
+// 传输到Web前端的JSON消息格式
+//
+// 字段说明:
+// - Data: H.264 NALU数据，包含起始码 [00 00 00 01]
+// - Timestamp: 时间戳(微秒)，用于视频同步
+// - IsKey: 是否为关键帧(IDR帧)
+//
+// 消息示例:
+// {
+//   "data": "AAAAAUGa7knhDyZTAl/68374odTt1V9UuOJBMcL1trrwXZdtyom//dQdis1H98i7r7ewt/l6pp3B073bcUYJ4GkjLro...",
+//   "timestamp": 1234567890,
+//   "is_key": true
+// }
+// =============================================================================
 type H264Frame struct {
 	Data      []byte `json:"data"`
 	Timestamp uint64 `json:"timestamp"`
 	IsKey     bool   `json:"is_key"`
 }
 
+// H264Writer 管理H.264视频流的写入和分发
+// =============================================================================
+// 核心数据结构，负责:
+//
+// 1. 维护WebSocket客户端列表
+// 2. 缓存SPS/PPS参数集
+// 3. 处理RTP分片重组
+// 4. 广播视频帧到所有客户端
+//
+// 线程安全: 使用sync.Mutex保护所有成员变量
+// =============================================================================
 type H264Writer struct {
-	mu             sync.Mutex
-	clients        map[string]*WebSocketClient
-	pending        []byte
-	firstTimestamp uint32
-	startTime      time.Time
-	sps            []byte
-	pps            []byte
+	mu             sync.Mutex             // 互斥锁，保护共享数据
+	clients        map[string]*WebSocketClient // WebSocket客户端映射
+	pending        []byte                 // Fu-A分片累积缓冲区
+	firstTimestamp uint32                 // 起始时间戳(用于计算相对时间)
+	startTime      time.Time              // 起始时间
+	sps            []byte                 // 序列参数集 (Sequence Parameter Set)
+	pps            []byte                 // 图像参数集 (Picture Parameter Set)
 }
 
+// WebSocketClient 表示一个连接的WebSocket客户端
+// =============================================================================
+// 客户端结构简单，仅包含连接和引用
+// 实际管理通过H264Writer.clients映射进行
+// =============================================================================
 type WebSocketClient struct {
-	conn     *websocket.Conn
-	writer   *H264Writer
-	clientID string
+	conn     *websocket.Conn // WebSocket连接
+	writer   *H264Writer     // 所属H264Writer引用
+	clientID string          // 客户端标识符 (如 "client-0")
 }
 
+// =============================================================================
+// 工具函数
+// =============================================================================
+
+// minInt 返回两个整数中的较小值
+// =============================================================================
+// 用途: 用于日志输出时限制打印的字节数量
+// =============================================================================
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// =============================================================================
+// WebSocket配置
+// =============================================================================
+
+// upgrader HTTP升级为WebSocket的配置
+// =============================================================================
+// CheckOrigin: 允许所有来源的跨域请求
+// 在生产环境中应该限制为特定的域名
+// =============================================================================
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
 }
 
+// =============================================================================
+// H264Writer方法实现
+// =============================================================================
+
+// NewH264Writer 创建新的H264Writer实例
+// =============================================================================
+// 初始化客户端映射
+// 其他字段使用零值，后续会从RTSP SDP中填充SPS/PPS
+// =============================================================================
 func NewH264Writer() *H264Writer {
 	return &H264Writer{
 		clients: make(map[string]*WebSocketClient),
 	}
 }
 
+// broadcastFrame 广播视频帧到所有连接的客户端
+// =============================================================================
+// 工作流程:
+// 1. 获取互斥锁，确保线程安全
+// 2. 遍历所有客户端
+// 3. 将H264Frame序列化为JSON
+// 4. 通过WebSocket发送二进制消息
+// 5. 处理发送失败，关闭连接并移除客户端
+//
+// 消息类型: websocket.BinaryMessage (二进制消息)
+//
+// 注意: 序列化的JSON包含Base64编码的数据，因为[]byte默认会Base64编码
+// =============================================================================
 func (w *H264Writer) broadcastFrame(frame *H264Frame) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -61,6 +182,10 @@ func (w *H264Writer) broadcastFrame(frame *H264Frame) {
 	for _, client := range w.clients {
 		if client.conn != nil {
 			data, _ := json.Marshal(frame)
+			if len(frame.Data) > 4 {
+				naluType := frame.Data[4] & 0x1F
+				log.Printf("Sending frame: NALU type=%d, isKey=%v, dataLen=%d", naluType, frame.IsKey, len(frame.Data))
+			}
 			if err := client.conn.WriteMessage(websocket.BinaryMessage, data); err != nil {
 				log.Printf("Error sending frame to client %s: %v", client.clientID, err)
 				client.conn.Close()
@@ -70,69 +195,238 @@ func (w *H264Writer) broadcastFrame(frame *H264Frame) {
 	}
 }
 
+// processRTPPacket 处理RTP数据包，提取H.264帧
+// =============================================================================
+// 核心函数，处理来自RTSP流的RTP包
+//
+// 输入: RTP包 (来自gortsplib的回调)
+//
+// 输出: H264Frame (用于广播) 或 nil (不需广播)
+//
+// 处理逻辑:
+//
+// 1. 提取RTP负载 (payload)
+// 2. 检查NALU类型:
+//    - Fu-A分片 (type=28): 需要重组
+//    - 完整NALU (type=1-12): 直接处理
+//    - SPS (type=7): 缓存，不广播
+//    - PPS (type=8): 缓存，不广播
+//    - 其他: 忽略
+//
+// 3. Fu-A分片处理:
+//    - isStart=true: 开始新的分片
+//    - isStart=false, isEnd=false: 中间分片，累积
+//    - isEnd=true: 最后一个分片，完成重组
+//
+// 4. 重组完成后:
+//    - 如果是SPS/PPS: 缓存到writer.sps/writer.pps
+//    - 如果是视频帧: 调用buildFrame()构建H264Frame
+//
+// 注意: 此函数在持有互斥锁的情况下调用
+// =============================================================================
 func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
+	// RTP负载: [1 byte NALU头] [可选: Fu-Indicator + Fu-Header] [数据]
 	payload := pkt.Payload
 
+	// 负载太小，无法包含有效的NALU
 	if len(payload) < 2 {
 		return nil
 	}
 
+	// 解析NALU头
+	// =============================================================================
+	// RTP负载第一个字节结构:
+	// bit7: F (1位) -  forbidden_zero_bit，必须为0
+	// bit6-5: NRI (2位) -  nal_ref_idc，参考帧指示
+	// bit4-0: type (5位) - NALU类型
+	//
+	// 常见类型值:
+	// type=1: 非IDR Slice (P帧)
+	// type=5: IDR Slice (I帧/关键帧)
+	// type=7: SPS (Sequence Parameter Set)
+	// type=8: PPS (Picture Parameter Set)
+	// type=28: FU-A (分片单元)
+	// =============================================================================
 	naluType := payload[0] & 0x1F
-	nal := payload[0] & 0x60
+	nal := payload[0] & 0x60 // 保留NRI位，用于重组
 
+	// 处理Fu-A分片
+	// =============================================================================
+	// Fu-A分片结构:
+	// [Fu-Indicator] [Fu-Header] [片段数据...]
+	//
+	// Fu-Indicator (1字节):
+	//   bit7: F
+	//   bit6-5: NRI (来自原NALU头)
+	//   bit4-0: 28 (Fu-A类型)
+	//
+	// Fu-Header (1字节):
+	//   bit7: S (Start bit) - 1=第一个分片
+	//   bit6: E (End bit) - 1=最后一个分片
+	//   bit5: R (Reserved) - 保留，必须为0
+	//   bit4-0: type (原始NALU类型)
+	// =============================================================================
 	if naluType == 28 {
 		if len(payload) < 2 {
 			return nil
 		}
 
 		fuHeader := payload[1]
-		isStart := fuHeader&0x80 != 0
-		isEnd := fuHeader&0x40 != 0
-		nalType := fuHeader & 0x1F
+		isStart := fuHeader&0x80 != 0  // S位: 第一个分片
+		isEnd := fuHeader&0x40 != 0    // E位: 最后一个分片
+		nalType := fuHeader & 0x1F     // 原始NALU类型
 
+		// 重组NALU头: NRI位 + 原始类型
 		reconstructed := []byte{nal | nalType}
 
 		if isStart {
+			// 第一个分片: 开始累积
 			w.pending = append(reconstructed, payload[2:]...)
-		} else if len(w.pending) > 0 {
-			w.pending = append(w.pending, payload[2:]...)
-		}
 
-		if isEnd && len(w.pending) > 0 {
+			if isEnd {
+				// 单分片NALU (既start又end)
+				w.pending = append(w.pending, payload[2:]...)
+				if nalType == 7 {
+					w.sps = make([]byte, len(w.pending))
+					copy(w.sps, w.pending)
+				} else if nalType == 8 {
+					w.pps = make([]byte, len(w.pending))
+					copy(w.pps, w.pending)
+				}
+				w.pending = nil
+				return nil
+			}
+		} else if len(w.pending) > 0 {
+			// 中间或最后一个分片
 			w.pending = append(w.pending, payload[2:]...)
-			frame := w.buildFrame(w.pending)
-			w.pending = nil
-			return frame
+
+			if isEnd {
+				// 最后一个分片，完成重组
+				w.pending = append(w.pending, payload[2:]...)
+				nalType := w.pending[0] & 0x1F
+				if nalType == 7 {
+					w.sps = make([]byte, len(w.pending))
+					copy(w.sps, w.pending)
+					w.pending = nil
+					return nil
+				} else if nalType == 8 {
+					w.pps = make([]byte, len(w.pending))
+					copy(w.pps, w.pending)
+					w.pending = nil
+					return nil
+				} else {
+					frame := w.buildFrame(w.pending)
+					w.pending = nil
+					return frame
+				}
+			} else {
+				// 中间分片，继续累积
+				return nil
+			}
 		}
 
 		return nil
 	}
 
-	if naluType >= 1 && naluType <= 12 {
-		return w.buildFrame(payload)
-	}
-
+	// 处理完整NALU (非分片)
+	// =============================================================================
+	// 完整NALU直接包含数据，不需要分片重组
+	// 但需要注意SPS/PPS只需要缓存，不需要广播
+	// =============================================================================
 	if naluType == 7 {
+		// SPS (Sequence Parameter Set) - 包含视频编码参数
+		// =============================================================================
+		// SPS包含:
+		// - Profile (编码配置，如Baseline, Main, High)
+		// - Level (编码级别，如3.1表示720p@30fps)
+		// - 分辨率信息
+		// - 参考帧数量等
+		//
+		// SPS在视频流开始时发送，后续只需要在关键帧前重复
+		// 解码器必须先有SPS才能解码
+		// =============================================================================
 		w.sps = payload
+		return nil
 	}
 	if naluType == 8 {
+		// PPS (Picture Parameter Set) - 包含图像参数
+		// =============================================================================
+		// PPS包含:
+		// - 熵编码模式 (CABAC/CAVLC)
+		// - 量化参数
+		// - 去块滤波器参数等
+		//
+		// PPS通常紧跟在SPS后面
+		// 解码器需要SPS+PPS才能正常工作
+		// =============================================================================
 		w.pps = payload
+		return nil
+	}
+
+	// 检查是否是有效的视频帧类型 (1-12是有效的Slice类型)
+	if naluType >= 1 && naluType <= 12 {
+		return w.buildFrame(payload)
 	}
 
 	return nil
 }
 
+// buildFrame 从NALU数据构建H264Frame
+// =============================================================================
+// 输入: 原始NALU数据 (不含起始码)
+//
+// 输出: H264Frame (含起始码，可直接广播)
+//
+// 处理步骤:
+// 1. 判断是否为关键帧 (type=5是IDR帧)
+// 2. 生成时间戳
+// 3. 添加H.264起始码 [00 00 00 01]
+// 4. 构建H264Frame结构
+//
+// H.264起始码:
+// - 4字节: [00 00 00 01] - 首选
+// - 3字节: [00 00 01] - 备选
+//
+// 这里统一使用4字节起始码
+// =============================================================================
 func (w *H264Writer) buildFrame(data []byte) *H264Frame {
+	// 提取NALU类型
 	nalType := data[0] & 0x1F
+
+	// 判断是否为关键帧
+	// =============================================================================
+	// 关键帧 (IDR, Instantaneous Decoder Refresh):
+	// - 可以独立解码，不需要参考其他帧
+	// - 视频流中的随机访问点
+	// - 通常在场景切换时产生
+	// - 解码器配置后必须以关键帧开始
+	//
+	// P帧 (Predicted):
+	// - 需要参考前面的帧才能解码
+	// - 压缩率更高，但依赖性也更高
+	// =============================================================================
 	isKey := nalType == 5
 
+	// 生成时间戳
 	timestamp := w.getTimestamp()
 
+	// 添加4字节起始码
+	// =============================================================================
+	// H.264原始数据通常不包含起始码
+	// 但Web端解码需要起始码来识别NALU边界
+	// 添加 [00 00 00 01] 作为起始码
+	// =============================================================================
 	frameData := append([]byte{0x00, 0x00, 0x00, 0x01}, data...)
 
+	// 调试日志: 打印前10个字节和NALU类型
+	if len(data) > 10 {
+		log.Printf("BuildFrame input: first bytes = %v, NALU type = %d", data[:10], nalType)
+	}
+
+	// 构建输出帧
 	return &H264Frame{
 		Data:      frameData,
 		Timestamp: timestamp,
@@ -140,6 +434,16 @@ func (w *H264Writer) buildFrame(data []byte) *H264Frame {
 	}
 }
 
+// getTimestamp 获取相对时间戳
+// =============================================================================
+// 返回从连接开始经过的微秒数
+//
+// 实现逻辑:
+// 1. 第一次调用时记录起始时间
+// 2. 后续调用返回 (当前时间 - 起始时间) 的微秒数
+//
+// 注意: 返回值会随时间递增，用于视频帧同步
+// =============================================================================
 func (w *H264Writer) getTimestamp() uint64 {
 	if w.firstTimestamp == 0 {
 		w.firstTimestamp = 0
@@ -150,16 +454,46 @@ func (w *H264Writer) getTimestamp() uint64 {
 	return uint64(elapsed)
 }
 
+// =============================================================================
+// WebSocket服务器
+// =============================================================================
+
+// startWebSocketServer 启动WebSocket服务器
+// =============================================================================
+// 在端口8080监听WebSocket连接
+//
+// 功能:
+// 1. HTTP处理器: /ws 端点用于WebSocket升级
+// 2. 客户端管理: 记录连接/断开，维护客户端列表
+// 3. 配置发送: 客户端连接时发送SPS/PPS
+// 4. 消息处理: 读取客户端消息(用于保持连接活跃)
+//
+// 客户端连接流程:
+// 1. 客户端发起HTTP请求到 /ws
+// 2. 服务器升级为WebSocket
+// 3. 分配clientID，加入客户端列表
+// 4. 发送SPS/PPS配置数据
+// 5. 等待接收视频帧 (通过broadcastFrame)
+// 6. 客户端断开时清理
+//
+// 注意:
+// - SPS/PPS在客户端连接时发送一次
+// - 后续的视频帧通过broadcastFrame持续发送
+// =============================================================================
 func startWebSocketServer(h264Writer *H264Writer) {
+	// 创建HTTP多路复用器
 	httpMux := http.NewServeMux()
 
+	// WebSocket端点
 	httpMux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		// 升级HTTP到WebSocket
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Printf("Failed to upgrade connection: %v", err)
 			return
 		}
 
+		// 生成客户端ID
 		clientID := fmt.Sprintf("client-%d", len(h264Writer.clients))
 		client := &WebSocketClient{
 			conn:     conn,
@@ -167,38 +501,78 @@ func startWebSocketServer(h264Writer *H264Writer) {
 			clientID: clientID,
 		}
 
+		// 添加到客户端列表
 		h264Writer.mu.Lock()
 		h264Writer.clients[clientID] = client
 		h264Writer.mu.Unlock()
 
 		log.Printf("Client connected: %s", clientID)
 
-		// Send config (SPS/PPS)
+		// =================================================================
+		// 发送SPS/PPS配置
+		// =================================================================
+		// 重要: 必须在任何视频帧之前发送SPS/PPS
+		// 解码器需要这些参数才能正确解码视频
+		// =================================================================
 		h264Writer.mu.Lock()
 		currentTime := uint64(time.Now().UnixNano() / 1000)
+
+		// 发送SPS (Sequence Parameter Set)
+		// =================================================================
+		// SPS包含视频的基本编码参数
+		// 需要在PPS之前发送
+		// =================================================================
 		if len(h264Writer.sps) > 0 {
+			// 格式: [00 00 00 01] + SPS数据
 			spsData := append([]byte{0x00, 0x00, 0x00, 0x01}, h264Writer.sps...)
+			log.Printf("Preparing SPS for client %s: total length=%d, first 10 bytes=%v", clientID, len(spsData), spsData[:minInt(10, len(spsData))])
+
+			// 构建配置消息
 			configMsg, _ := json.Marshal(H264Frame{
 				Data:      spsData,
 				Timestamp: currentTime,
-				IsKey:     true,
+				IsKey:     true, // 标记为关键帧
 			})
-			conn.WriteMessage(websocket.BinaryMessage, configMsg)
-			log.Printf("Sent SPS to client %s, length: %d", clientID, len(spsData))
+			log.Printf("SPS JSON length for client %s: %d", clientID, len(configMsg))
+
+			// 发送
+			if err := conn.WriteMessage(websocket.BinaryMessage, configMsg); err != nil {
+				log.Printf("Error sending SPS to client %s: %v", clientID, err)
+			} else {
+				log.Printf("Sent SPS to client %s, data length: %d", clientID, len(spsData))
+			}
 		}
+
+		// 发送PPS (Picture Parameter Set)
+		// =================================================================
+		// PPS包含图像的具体编码参数
+		// 需要在SPS之后发送
+		// =================================================================
 		if len(h264Writer.pps) > 0 {
 			ppsData := append([]byte{0x00, 0x00, 0x00, 0x01}, h264Writer.pps...)
+			log.Printf("Preparing PPS for client %s: total length=%d, first 10 bytes=%v", clientID, len(ppsData), ppsData[:minInt(10, len(ppsData))])
+
 			configMsg, _ := json.Marshal(H264Frame{
 				Data:      ppsData,
 				Timestamp: currentTime,
 				IsKey:     true,
 			})
-			conn.WriteMessage(websocket.BinaryMessage, configMsg)
-			log.Printf("Sent PPS to client %s, length: %d", clientID, len(ppsData))
+			log.Printf("PPS JSON length for client %s: %d", clientID, len(configMsg))
+
+			if err := conn.WriteMessage(websocket.BinaryMessage, configMsg); err != nil {
+				log.Printf("Error sending PPS to client %s: %v", clientID, err)
+			} else {
+				log.Printf("Sent PPS to client %s, data length: %d", clientID, len(ppsData))
+			}
 		}
 		h264Writer.mu.Unlock()
 
-		// Handle client messages (ping/pong, etc.)
+		// =================================================================
+		// 消息循环: 保持连接活跃
+		// =================================================================
+		// 读取客户端消息(ping等)
+		// 连接断开时退出循环
+		// =================================================================
 		for {
 			_, _, err := conn.ReadMessage()
 			if err != nil {
@@ -206,6 +580,7 @@ func startWebSocketServer(h264Writer *H264Writer) {
 			}
 		}
 
+		// 清理断开连接的客户端
 		h264Writer.mu.Lock()
 		delete(h264Writer.clients, clientID)
 		h264Writer.mu.Unlock()
@@ -214,6 +589,7 @@ func startWebSocketServer(h264Writer *H264Writer) {
 		log.Printf("Client disconnected: %s", clientID)
 	})
 
+	// 启动HTTP服务器
 	go func() {
 		log.Printf("WebSocket server listening on :8080")
 		if err := http.ListenAndServe(":8080", httpMux); err != nil && err != http.ErrServerClosed {
@@ -222,6 +598,20 @@ func startWebSocketServer(h264Writer *H264Writer) {
 	}()
 }
 
+// =============================================================================
+// 辅助函数 (未使用，保留备用)
+// =============================================================================
+
+// parseFramesFromRTP 从RTP负载解析H.264帧
+// =============================================================================
+// 注意: 此函数未使用
+//
+// 原始实现假设RTP使用字节长度前缀格式
+// 但实际RTSP流使用分片(Fu-A)格式
+//
+// 字节长度格式:
+// [4字节长度] [Nalu数据] [4字节长度] [Nalu数据] ...
+// =============================================================================
 func parseFramesFromRTP(pkt *rtp.Packet) [][]byte {
 	payload := pkt.Payload
 	var frames [][]byte
@@ -232,6 +622,7 @@ func parseFramesFromRTP(pkt *rtp.Packet) [][]byte {
 			break
 		}
 
+		// 读取4字节长度前缀
 		naluLen := int(payload[offset])<<24 | int(payload[offset+1])<<16 |
 			int(payload[offset+2])<<8 | int(payload[offset+3])
 
@@ -241,6 +632,7 @@ func parseFramesFromRTP(pkt *rtp.Packet) [][]byte {
 			break
 		}
 
+		// 构建带起始码的NALU
 		nalu := make([]byte, naluLen+4)
 		copy(nalu, []byte{0x00, 0x00, 0x00, 0x01})
 		copy(nalu[4:], payload[offset:offset+naluLen])
@@ -252,6 +644,16 @@ func parseFramesFromRTP(pkt *rtp.Packet) [][]byte {
 	return frames
 }
 
+// findNALUStartCode 在数据中查找NALU起始码
+// =============================================================================
+// 注意: 此函数未使用
+//
+// 查找:
+// - 4字节起始码: [00 00 00 01]
+// - 3字节起始码: [00 00 01]
+//
+// 返回起始码的位置索引
+// =============================================================================
 func findNALUStartCode(data []byte) int {
 	for i := 0; i <= len(data)-4; i++ {
 		if bytes.Equal(data[i:i+4], []byte{0x00, 0x00, 0x00, 0x01}) {
@@ -264,15 +666,29 @@ func findNALUStartCode(data []byte) int {
 	return -1
 }
 
+// =============================================================================
+// 主函数
+// =============================================================================
+
 func main() {
+	// 创建H264Writer实例
 	h264Writer := NewH264Writer()
 
+	// 启动WebSocket服务器
 	startWebSocketServer(h264Writer)
 
+	// RTSP流URL配置
+	// =============================================================================
+	// 示例URL:
+	// - 本地测试: rtsp://localhost:8554/live
+	// - IP摄像头: rtsp://192.168.1.100:554/stream
+	// - 海康威视: rtsp://admin:password@192.168.1.100:554/h264/ch1/main/av_stream
+	// =============================================================================
 	// rtspURL := "rtsp://172.16.40.9:554" // Adjust this to your actual RTSP stream URL
 	rtspURL := "rtsp://localhost:8554/live" // Adjust this to your actual RTSP stream URL
 	// Common formats: "rtsp://ip:port/", "rtsp://ip:port/stream", "rtsp://ip:port/live.sdp"
 
+	// 解析RTSP URL
 	u, err := base.ParseURL(rtspURL)
 	if err != nil {
 		log.Printf("Error parsing URL %s: %v", rtspURL, err)
@@ -281,46 +697,92 @@ func main() {
 
 	log.Printf("Parsed URL - Scheme: %s, Host: %s, Path: %s", u.Scheme, u.Host, u.Path)
 
+	// 创建RTSP客户端
 	c := gortsplib.Client{
 		Scheme: u.Scheme,
 		Host:   u.Host,
 	}
 
+	// 启动RTSP客户端连接
 	err = c.Start()
 	if err != nil {
 		panic(err)
 	}
 	defer c.Close()
 
+	// 获取媒体描述 (SDP)
+	// =============================================================================
+	// Describe返回会话描述协议(SDP)信息
+	// 包含媒体类型、编码格式、SPS/PPS等参数
+	// =============================================================================
 	desc, _, err := c.Describe(u)
 	if err != nil {
 		panic(err)
 	}
 
+	// =================================================================
+	// 从SDP加载SPS/PPS
+	// =================================================================
+	// SDP中的extradata包含H.264编码参数
+	// 包括SPS (序列参数集) 和 PPS (图像参数集)
+	// 这些参数对于解码至关重要
+	// =================================================================
+	log.Printf("Loading SPS/PPS from SDP:")
+	for _, media := range desc.Medias {
+		for _, f := range media.Formats {
+			if h264, ok := f.(*format.H264); ok {
+				log.Printf("  Found H264 format, SPS len=%d, PPS len=%d", len(h264.SPS), len(h264.PPS))
+				if len(h264.SPS) > 0 {
+					h264Writer.sps = h264.SPS
+					log.Printf("  Loaded SPS from SDP: %v", h264Writer.sps)
+				}
+				if len(h264.PPS) > 0 {
+					h264Writer.pps = h264.PPS
+					log.Printf("  Loaded PPS from SDP: %v", h264Writer.pps)
+				}
+			}
+		}
+	}
+
+	// 设置传输会话
 	err = c.SetupAll(desc.BaseURL, desc.Medias)
 	if err != nil {
 		panic(err)
 	}
 
+	// =================================================================
+	// 注册RTP包回调
+	// =================================================================
+	// OnPacketRTPAny在收到每个RTP包时调用
+	// 我们在这里处理RTP包，提取H.264帧
+	// =================================================================
 	c.OnPacketRTPAny(func(medi *description.Media, ffmt format.Format, pkt *rtp.Packet) {
+		// 处理RTP包
 		frame := h264Writer.processRTPPacket(pkt)
 		if frame != nil {
-			// fmt.Println(frame)
+			// 如果成功提取帧，广播到所有WebSocket客户端
 			h264Writer.broadcastFrame(frame)
 		}
 	})
 
+	// RTCP回调 (用于QoS监控，未实现)
 	c.OnPacketRTCPAny(func(medi *description.Media, pkt rtcp.Packet) {
 		log.Printf("RTCP packet from media %v, type %T\n", medi, pkt)
 	})
 
+	// 开始播放RTSP流
 	_, err = c.Play(nil)
 	if err != nil {
 		panic(err)
 	}
 
+	// 等待直到连接断开
 	panic(c.Wait())
 }
+
+// =============================================================================
+// 关闭信号处理 (未实现)
+// =============================================================================
 
 var shutdownCtx, shutdownCancel = context.WithCancel(context.Background())
 
