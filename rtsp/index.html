@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTSP WebCodecs Player</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .player-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border: 2px solid #333;
+            background-color: #000;
+        }
+        .controls {
+            text-align: center;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .connect-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .disconnect-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .status {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .status.connected {
+            color: #4CAF50;
+        }
+        .status.disconnected {
+            color: #f44336;
+        }
+        .info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .info h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .info li {
+            margin: 5px 0;
+        }
+        .resolution-selector {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .resolution-selector select {
+            padding: 5px 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RTSP WebCodecs Player</h1>
+
+        <div class="player-container">
+            <div class="resolution-selector">
+                <label for="resolution">Video Resolution: </label>
+                <select id="resolution">
+                    <option value="640x480">640x480</option>
+                    <option value="1280x720">1280x720 (HD)</option>
+                    <option value="1920x1080">1920x1080 (Full HD)</option>
+                    <option value="3840x2160">3840x2160 (4K)</option>
+                </select>
+            </div>
+            <canvas id="videoCanvas" width="640" height="480"></canvas>
+            <div class="controls">
+                <button id="connectBtn" class="connect-btn">Connect</button>
+                <button id="disconnectBtn" class="disconnect-btn" disabled>Disconnect</button>
+            </div>
+            <div id="status" class="status disconnected">Disconnected</div>
+        </div>
+
+        <div class="info">
+            <h3>Instructions</h3>
+            <ul>
+                <li>Select the correct video resolution that matches your RTSP stream</li>
+                <li>Make sure the Go RTSP server is running on port 8080</li>
+                <li>Click "Connect" to start receiving video stream</li>
+                <li>Video will be decoded using WebCodecs API and rendered on canvas</li>
+                <li>Ensure your browser supports WebCodecs (Chrome 94+, Edge 94+)</li>
+            </ul>
+
+            <h3>Supported Browsers</h3>
+            <ul>
+                <li>Chrome 94+</li>
+                <li>Edge 94+</li>
+                <li>Firefox (limited support)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        class H264WebSocketPlayer {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.ws = null;
+                this.decoder = null;
+                this.isConnected = false;
+                this.sps = null;
+                this.pps = null;
+                this.resolutionSelect = document.getElementById('resolution');
+
+                this.resolutionSelect.addEventListener('change', () => {
+                    this.updateCanvasSize();
+                });
+
+                this.updateCanvasSize();
+                this.initDecoder();
+            }
+
+            updateCanvasSize() {
+                const [width, height] = this.resolutionSelect.value.split('x').map(Number);
+                this.canvas.width = width;
+                this.canvas.height = height;
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(0, 0, width, height);
+            }
+
+            initDecoder() {
+                if (!('VideoDecoder' in window)) {
+                    alert('WebCodecs VideoDecoder not supported in this browser');
+                    return;
+                }
+
+                this.decoder = new VideoDecoder({
+                    output: this.handleFrame.bind(this),
+                    error: (error) => {
+                        console.error('VideoDecoder error:', error);
+                        this.updateStatus('Decoder error: ' + error.message, false);
+                    }
+                });
+            }
+
+            async connect() {
+                if (this.isConnected) return;
+
+                try {
+                    this.ws = new WebSocket('ws://localhost:8080/ws');
+                    this.ws.binaryType = 'arraybuffer';
+
+                    this.ws.onopen = () => {
+                        console.log('WebSocket connected');
+                        this.isConnected = true;
+                        this.updateStatus('Connected', true);
+                        this.updateButtons(true);
+                    };
+
+                    this.ws.onmessage = async (event) => {
+                        await this.processMessage(event.data);
+                    };
+
+                    this.ws.onclose = () => {
+                        console.log('WebSocket disconnected');
+                        this.isConnected = false;
+                        this.updateStatus('Disconnected', false);
+                        this.updateButtons(false);
+                    };
+
+                    this.ws.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                        this.updateStatus('Connection error', false);
+                    };
+
+                } catch (error) {
+                    console.error('Connection failed:', error);
+                    this.updateStatus('Connection failed', false);
+                }
+            }
+
+            disconnect() {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.close();
+                }
+            }
+
+            async processMessage(data) {
+                try {
+                    const jsonStr = new TextDecoder().decode(data);
+                    const frame = JSON.parse(jsonStr);
+
+                    // Check if it's SPS or PPS config
+                    if (frame.data && frame.data.length > 4) {
+                        const naluType = frame.data[4] & 0x1F;
+                        console.log('Received frame, NALU type:', naluType, 'length:', frame.data.length, 'isKey:', frame.is_key);
+
+                        if (naluType === 7) { // SPS
+                            this.sps = new Uint8Array(frame.data);
+                            console.log('Received SPS, length:', this.sps.length, 'naluHeader:', this.sps[4].toString(16));
+
+                            // Try to configure decoder immediately
+                            if (this.pps) {
+                                await this.configureDecoder();
+                            }
+                            return;
+                        } else if (naluType === 8) { // PPS
+                            this.pps = new Uint8Array(frame.data);
+                            console.log('Received PPS, length:', this.pps.length, 'naluHeader:', this.pps[4].toString(16));
+
+                            // Try to configure decoder immediately
+                            if (this.sps) {
+                                await this.configureDecoder();
+                            }
+                            return;
+                        }
+                    }
+
+                    // Skip if decoder not configured
+                    if (this.decoder.state !== 'configured') {
+                        console.log('Decoder not configured yet, skipping frame');
+                        return;
+                    }
+
+                    // Create EncodedVideoChunk
+                    const chunk = new EncodedVideoChunk({
+                        type: frame.is_key ? 'key' : 'delta',
+                        timestamp: frame.timestamp * 1000, // Convert to microseconds
+                        data: new Uint8Array(frame.data)
+                    });
+
+                    // Decode the chunk
+                    try {
+                        await this.decoder.decode(chunk);
+                    } catch (error) {
+                        console.error('Decode error:', error);
+                    }
+
+                } catch (error) {
+                    console.error('Message processing error:', error);
+                }
+            }
+
+            async configureDecoder() {
+                if (!this.sps || !this.pps) {
+                    console.log('Waiting for both SPS and PPS');
+                    return;
+                }
+
+                try {
+                    const [width, height] = this.resolutionSelect.value.split('x').map(Number);
+                    const codec = this.getCodecString(this.sps);
+
+                    console.log('Configuring decoder:', {
+                        codec: codec,
+                        width: width,
+                        height: height
+                    });
+
+                    await this.decoder.configure({
+                        codec: codec,
+                        codedWidth: width,
+                        codedHeight: height,
+                    });
+
+                    console.log('Decoder configured successfully');
+                } catch (error) {
+                    console.error('Decoder configuration failed:', error);
+                }
+            }
+
+
+
+            handleFrame(frame) {
+                // Clear canvas
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw the video frame
+                this.ctx.drawImage(frame, 0, 0, this.canvas.width, this.canvas.height);
+
+                // Close the frame to free memory
+                frame.close();
+            }
+
+            getCodecString(sps) {
+                // Parse SPS to get codec string
+                // This is a simplified implementation
+                const profile = sps[5];  // profile_idc
+                const compat = sps[6];   // constraint_set_flags
+                const level = sps[7];    // level_idc
+
+                const profileHex = profile.toString(16).padStart(2, '0').toUpperCase();
+                const compatHex = compat.toString(16).padStart(2, '0').toUpperCase();
+                const levelHex = level.toString(16).padStart(2, '0').toUpperCase();
+
+                return `avc1.${profileHex}${compatHex}${levelHex}`;
+            }
+
+            updateStatus(message, connected) {
+                const statusEl = document.getElementById('status');
+                statusEl.textContent = message;
+                statusEl.className = 'status ' + (connected ? 'connected' : 'disconnected');
+            }
+
+            updateButtons(connected) {
+                document.getElementById('connectBtn').disabled = connected;
+                document.getElementById('disconnectBtn').disabled = !connected;
+            }
+        }
+
+        // Initialize player when page loads
+        let player;
+        document.addEventListener('DOMContentLoaded', () => {
+            player = new H264WebSocketPlayer('videoCanvas');
+
+            document.getElementById('connectBtn').addEventListener('click', () => {
+                player.connect();
+            });
+
+            document.getElementById('disconnectBtn').addEventListener('click', () => {
+                player.disconnect();
+            });
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (player) {
+                player.disconnect();
+            }
+        });
+    </script>
+</body>
+</html>

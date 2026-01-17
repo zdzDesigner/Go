@@ -173,19 +173,26 @@ func startWebSocketServer(h264Writer *H264Writer) {
 
 		// Send config (SPS/PPS)
 		h264Writer.mu.Lock()
+		currentTime := uint64(time.Now().UnixNano() / 1000)
 		if len(h264Writer.sps) > 0 {
+			spsData := append([]byte{0x00, 0x00, 0x00, 0x01, 0x67}, h264Writer.sps...)
 			configMsg, _ := json.Marshal(H264Frame{
-				Data:  append([]byte{0x00, 0x00, 0x00, 0x01, 0x07}, h264Writer.sps...),
-				IsKey: true,
+				Data:      spsData,
+				Timestamp: currentTime,
+				IsKey:     true,
 			})
 			conn.WriteMessage(websocket.BinaryMessage, configMsg)
+			log.Printf("Sent SPS to client %s", clientID)
 		}
 		if len(h264Writer.pps) > 0 {
+			ppsData := append([]byte{0x00, 0x00, 0x00, 0x01, 0x68}, h264Writer.pps...)
 			configMsg, _ := json.Marshal(H264Frame{
-				Data:  append([]byte{0x00, 0x00, 0x00, 0x01, 0x08}, h264Writer.pps...),
-				IsKey: true,
+				Data:      ppsData,
+				Timestamp: currentTime,
+				IsKey:     true,
 			})
 			conn.WriteMessage(websocket.BinaryMessage, configMsg)
+			log.Printf("Sent PPS to client %s", clientID)
 		}
 		h264Writer.mu.Unlock()
 
@@ -295,7 +302,7 @@ func main() {
 	c.OnPacketRTPAny(func(medi *description.Media, ffmt format.Format, pkt *rtp.Packet) {
 		frame := h264Writer.processRTPPacket(pkt)
 		if frame != nil {
-      fmt.Println(frame)
+			// fmt.Println(frame)
 			h264Writer.broadcastFrame(frame)
 		}
 	})
