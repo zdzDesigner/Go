@@ -779,14 +779,14 @@
           }
         }
 
-        // 自动选择最佳编码器（优先选择 H.264，然后是 VP9，然后是 VP8）
-        // const priority = ['avc1.640032', 'avc1.42E01E', 'vp09.00.10.08', 'vp9', 'vp8'];
+        // 自动选择最佳编码器（优先选择 VP9/VP8，它们不需要 description）
+        // H.264 需要复杂的 description 字段
         const priority = [
-          "avc1.64001F",
-          "avc1.42E01E",
-          "vp09.00.10.08",
-          "vp9",
-          "vp8",
+          "vp09.00.10.08",  // VP9 - 不需要 description
+          "vp9",            // VP9 - 不需要 description
+          "vp8",            // VP8 - 不需要 description
+          "avc1.64001F",    // H.264 - 需要 description
+          "avc1.42E01E",    // H.264 - 需要 description
         ];
 
         for (const codecId of priority) {
@@ -947,6 +947,22 @@
         log(`使用编码器: ${codec}`, "info");
         log(`硬件加速: ${useHardwareAccel ? "启用" : "禁用"}`, "info");
 
+        // 检查是否需要 description（H.264 需要，VP8/VP9/AV1 不需要）
+        const needsDescription = codec.startsWith("avc1") || codec === "avc";
+        log(`需要 description: ${needsDescription ? "是" : "否"}`, "info");
+
+        // 如果使用 H.264，优先尝试使用 VP9 或 VP8（它们不需要 description）
+        if (needsDescription && availableCodecs.encoders.some(c => c.codec === "vp9")) {
+          log("H.264 需要 description，自动切换到 VP9...", "warning");
+          // 查找 VP9
+          const vp9Codec = availableCodecs.encoders.find(c => c.codec === "vp9" || c.codec === "vp09.00.10.08");
+          if (vp9Codec) {
+            // 更新下拉选择器
+            document.getElementById("codecSelect").value = vp9Codec.codec;
+            return initWebCodecs(video, width, height); // 重新调用
+          }
+        }
+
         // 初始化编码器
         videoEncoder = new VideoEncoder({
           output: async (encodedChunk, metadata) => {
@@ -995,8 +1011,6 @@
           output: (frame) => {
             const startTime = performance.now();
 
-            console.log({ frame });
-
             // 统计解码时间
             const decodeTime = startTime - lastDecodeTime;
             stats.decodeTimes.push(decodeTime);
@@ -1036,14 +1050,58 @@
           },
         });
 
-        await videoDecoder.configure({
+        // 构建解码器配置
+        const decoderConfig = {
           codec: codec,
           width: width,
           height: height,
           // hardwareAcceleration: useHardwareAccel
           //   ? "prefer-hardware"
           //   : "prefer-software",
-        });
+        };
+
+        // 如果是 H.264，尝试生成有效的 description
+        if (needsDescription) {
+          try {
+            // 创建一个临时的编码器来生成 SPS/PPS
+            const configEncoder = new VideoEncoder({
+              output: (chunk, metadata) => {
+                if (metadata && metadata.decoderConfig && metadata.decoderConfig.description) {
+                  // 保存 description
+                  decoderConfig.description = metadata.decoderConfig.description;
+                  log("已获取 H.264 description", "success");
+                }
+                // 释放内存
+                if (chunk.data) chunk.data.close();
+              },
+              error: (error) => {
+                log(`配置编码器错误: ${error.message}`, "warning");
+              },
+            });
+
+            await configEncoder.configure({
+              codec: codec,
+              width: width,
+              height: height,
+              bitrate: 1000000,
+              framerate: 30,
+            });
+
+            // 编码一个关键帧来获取配置
+            const configFrame = new VideoFrame(video, {
+              timestamp: performance.now() * 1000,
+            });
+            configEncoder.encode(configFrame, { keyFrame: true });
+            configFrame.close();
+            await configEncoder.flush();
+            configEncoder.close();
+
+          } catch (error) {
+            log(`获取 description 失败: ${error.message}`, "warning");
+          }
+        }
+
+        await videoDecoder.configure(decoderConfig);
 
         log("解码器配置完成", "success");
         log("WebCodecs 初始化完成", "success");
