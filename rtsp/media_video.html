@@ -1,857 +1,1254 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WebCodecs 摄像头示例 - 摄像头 → WebCodecs → Canvas</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        h1 {
-            color: white;
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 2rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .subtitle {
-            color: rgba(255, 255, 255, 0.9);
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-        
-        .control-panel {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .control-panel h2 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        button:hover {
-            background: #5a6fd6;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
-        }
-        
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        button.danger {
-            background: #dc3545;
-        }
-        
-        button.danger:hover {
-            background: #c82333;
-            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
-        }
-        
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: white;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 2rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 1.1rem;
+      }
+
+      .control-panel {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .control-panel h2 {
+        color: #667eea;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+      }
+
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        background: #5a6fd6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      button.danger {
+        background: #dc3545;
+      }
+
+      button.danger:hover {
+        background: #c82333;
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+      }
+
+      button.success {
+        background: #28a745;
+      }
+
+      button.success:hover {
+        background: #218838;
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+      }
+
+      .canvas-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .canvas-wrapper {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .canvas-wrapper h3 {
+        color: #667eea;
+        margin-bottom: 10px;
+        font-size: 1rem;
+      }
+
+      .canvas-wrapper canvas {
+        width: 100%;
+        height: auto;
+        border: 2px solid #667eea;
+        border-radius: 5px;
+        background: #f0f0f0;
+      }
+
+      .stats-panel {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .stats-panel h2 {
+        color: #667eea;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .stat-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 5px;
+      }
+
+      .log-panel {
+        background: #1a1a2e;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .log-panel h2 {
+        color: #00d9ff;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+      }
+
+      .log-container {
+        background: #0f0f1a;
+        border-radius: 5px;
+        padding: 15px;
+        height: 300px;
+        overflow-y: auto;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      .log-entry {
+        margin-bottom: 5px;
+        padding: 3px 0;
+        border-bottom: 1px solid #2a2a4e;
+      }
+
+      .log-time {
+        color: #666;
+        margin-right: 10px;
+      }
+
+      .log-info {
+        color: #00d9ff;
+      }
+
+      .log-success {
+        color: #00ff88;
+      }
+
+      .log-warning {
+        color: #ffaa00;
+      }
+
+      .log-error {
+        color: #ff4444;
+      }
+
+      .log-debug {
+        color: #aa88ff;
+      }
+
+      .info-box {
+        background: rgba(255, 255, 255, 0.1);
+        border-left: 4px solid #00d9ff;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .info-box h3 {
+        color: #00d9ff;
+        margin-bottom: 10px;
+      }
+
+      .info-box ul {
+        margin-left: 20px;
+        line-height: 1.8;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-left: 10px;
+      }
+
+      .status-idle {
+        background: #6c757d;
+        color: white;
+      }
+
+      .status-active {
+        background: #28a745;
+        color: white;
+      }
+
+      .status-error {
+        background: #dc3545;
+        color: white;
+      }
+
+      .status-processing {
+        background: #ffc107;
+        color: #333;
+      }
+
+      select {
+        padding: 10px 15px;
+        border: 2px solid #667eea;
+        border-radius: 5px;
+        font-size: 1rem;
+        background: white;
+        cursor: pointer;
+        outline: none;
+        min-width: 150px;
+      }
+
+      select:focus {
+        border-color: #5a6fd6;
+      }
+
+      .section-divider {
+        height: 2px;
+        background: linear-gradient(
+          to right,
+          transparent,
+          #667eea,
+          transparent
+        );
+        margin: 20px 0;
+      }
+
+      .codec-info {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        color: #333;
+      }
+
+      .codec-info h4 {
+        color: #667eea;
+        margin-bottom: 10px;
+      }
+
+      .codec-tag {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin: 2px;
+      }
+
+      .codec-supported {
+        background: #28a745;
+        color: white;
+      }
+
+      .codec-unsupported {
+        background: #dc3545;
+        color: white;
+      }
+
+      .error-details {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+        color: #856404;
+      }
+
+      @media (max-width: 768px) {
         .canvas-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
+          grid-template-columns: 1fr;
         }
-        
-        .canvas-wrapper {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        h1 {
+          font-size: 1.5rem;
         }
-        
-        .canvas-wrapper h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1rem;
+
+        .button-group {
+          flex-direction: column;
         }
-        
-        .canvas-wrapper canvas {
-            width: 100%;
-            height: auto;
-            border: 2px solid #667eea;
-            border-radius: 5px;
-            background: #f0f0f0;
+
+        button {
+          width: 100%;
         }
-        
-        .stats-panel {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stats-panel h2 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-        
-        .stat-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
-        
-        .log-panel {
-            background: #1a1a2e;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .log-panel h2 {
-            color: #00d9ff;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .log-container {
-            background: #0f0f1a;
-            border-radius: 5px;
-            padding: 15px;
-            height: 300px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-        }
-        
-        .log-entry {
-            margin-bottom: 5px;
-            padding: 3px 0;
-            border-bottom: 1px solid #2a2a4e;
-        }
-        
-        .log-time {
-            color: #666;
-            margin-right: 10px;
-        }
-        
-        .log-info {
-            color: #00d9ff;
-        }
-        
-        .log-success {
-            color: #00ff88;
-        }
-        
-        .log-warning {
-            color: #ffaa00;
-        }
-        
-        .log-error {
-            color: #ff4444;
-        }
-        
-        .log-debug {
-            color: #aa88ff;
-        }
-        
-        .info-box {
-            background: rgba(255, 255, 255, 0.1);
-            border-left: 4px solid #00d9ff;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-        
-        .info-box h3 {
-            color: #00d9ff;
-            margin-bottom: 10px;
-        }
-        
-        .info-box ul {
-            margin-left: 20px;
-            line-height: 1.8;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin-left: 10px;
-        }
-        
-        .status-idle {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .status-active {
-            background: #28a745;
-            color: white;
-        }
-        
-        .status-error {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .status-processing {
-            background: #ffc107;
-            color: #333;
-        }
-        
+
         select {
-            padding: 10px 15px;
-            border: 2px solid #667eea;
-            border-radius: 5px;
-            font-size: 1rem;
-            background: white;
-            cursor: pointer;
-            outline: none;
+          width: 100%;
         }
-        
-        select:focus {
-            border-color: #5a6fd6;
-        }
-        
-        .section-divider {
-            height: 2px;
-            background: linear-gradient(to right, transparent, #667eea, transparent);
-            margin: 20px 0;
-        }
-        
-        @media (max-width: 768px) {
-            .canvas-container {
-                grid-template-columns: 1fr;
-            }
-            
-            h1 {
-                font-size: 1.5rem;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            button {
-                width: 100%;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>📹 WebCodecs 摄像头实时处理示例</h1>
-        <p class="subtitle">摄像头 → WebCodecs 编码 → WebCodecs 解码 → Canvas 显示</p>
-        
-        <div class="info-box">
-            <h3>💡 数据流说明</h3>
-            <ul>
-                <li><strong>输入源</strong>：getUserMedia 获取摄像头原始视频流</li>
-                <li><strong>WebCodecs 编码</strong>：将原始 VideoFrame 编码为 H.264 编码块</li>
-                <li><strong>WebCodecs 解码</strong>：将 H.264 编码块解码为原始 VideoFrame</li>
-                <li><strong>输出目标</strong>：在 Canvas 上显示解码后的视频帧</li>
-            </ul>
+      <h1>📹 WebCodecs 摄像头实时处理示例</h1>
+      <p class="subtitle">
+        摄像头 → WebCodecs 编码 → WebCodecs 解码 → Canvas 显示
+      </p>
+
+      <div class="info-box">
+        <h3>💡 数据流说明</h3>
+        <ul>
+          <li><strong>输入源</strong>：getUserMedia 获取摄像头原始视频流</li>
+          <li>
+            <strong>WebCodecs 编码</strong>：将原始 VideoFrame 编码为 H.264
+            编码块
+          </li>
+          <li>
+            <strong>WebCodecs 解码</strong>：将 H.264 编码块解码为原始
+            VideoFrame
+          </li>
+          <li><strong>输出目标</strong>：在 Canvas 上显示解码后的视频帧</li>
+        </ul>
+      </div>
+
+      <div class="control-panel">
+        <h2>
+          🎛️ 控制面板
+          <span id="statusBadge" class="status-badge status-idle">空闲</span>
+        </h2>
+
+        <div class="codec-info" id="codecInfo">
+          <h4>🔍 检测编解码器支持...</h4>
+          <div id="codecList">正在检测...</div>
         </div>
-        
-        <div class="control-panel">
-            <h2>🎛️ 控制面板 <span id="statusBadge" class="status-badge status-idle">空闲</span></h2>
-            
-            <div class="button-group">
-                <button id="startBtn" onclick="startCamera()">📷 启动摄像头</button>
-                <button id="stopBtn" onclick="stopCamera()" disabled>⏹️ 停止</button>
-                <button id="captureBtn" onclick="captureFrame()" disabled>📸 截图</button>
-                <button id="statsBtn" onclick="toggleStats()" disabled>📊 统计信息</button>
-            </div>
-            
-            <div class="button-group">
-                <label for="resolutionSelect" style="color: #333; margin-right: 10px;">分辨率:</label>
-                <select id="resolutionSelect">
-                    <option value="640x480">640×480 (VGA)</option>
-                    <option value="1280x720" selected>1280×720 (HD)</option>
-                    <option value="1920x1080">1920×1080 (Full HD)</option>
-                </select>
-                
-                <label for="codecSelect" style="color: #333; margin-left: 20px; margin-right: 10px;">编码器:</label>
-                <select id="codecSelect">
-                    <option value="avc1.640032">H.264 High (avc1.640032)</option>
-                    <option value="avc1.42E01E">H.264 Baseline (avc1.42E01E)</option>
-                    <option value="vp8">VP8</option>
-                    <option value="vp9">VP9</option>
-                </select>
-            </div>
-            
-            <div class="button-group">
-                <label style="color: #333; margin-right: 10px;">
-                    <input type="checkbox" id="hardwareAccel" checked> 硬件加速
-                </label>
-                <label style="color: #333; margin-right: 10px;">
-                    <input type="checkbox" id="showFps" checked> 显示帧率
-                </label>
-                <label style="color: #333;">
-                    <input type="checkbox" id="mirrorView"> 镜像显示
-                </label>
-            </div>
+
+        <div class="error-details" id="errorDetails" style="display: none">
+          <strong>⚠️ 上次错误：</strong>
+          <span id="errorMessage"></span>
+          <br /><br />
+          <strong>建议：</strong>
+          <ul>
+            <li>尝试使用其他编码器格式</li>
+            <li>确保使用 Chrome 94+ 或 Edge 94+</li>
+            <li>检查是否在 HTTPS 环境下运行</li>
+          </ul>
         </div>
-        
-        <div class="canvas-container">
-            <div class="canvas-wrapper">
-                <h3>🎥 原始视频 (getUserMedia)</h3>
-                <canvas id="originalCanvas" width="640" height="480"></canvas>
-            </div>
-            
-            <div class="canvas-wrapper">
-                <h3>🖥️ 处理后视频 (WebCodecs 解码)</h3>
-                <canvas id="processedCanvas" width="640" height="480"></canvas>
-            </div>
+
+        <div class="button-group">
+          <button id="startBtn" onclick="startCamera()">📷 启动摄像头</button>
+          <button id="stopBtn" onclick="stopCamera()" disabled>⏹️ 停止</button>
+          <button id="captureBtn" onclick="captureFrame()" disabled>
+            📸 截图
+          </button>
+          <button id="statsBtn" onclick="toggleStats()" disabled>
+            📊 统计信息
+          </button>
         </div>
-        
-        <div class="section-divider"></div>
-        
-        <div class="stats-panel" id="statsPanel" style="display: none;">
-            <h2>📊 性能统计</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value" id="fpsValue">0</div>
-                    <div class="stat-label">帧率 (FPS)</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="encodedValue">0</div>
-                    <div class="stat-label">已编码帧数</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="decodedValue">0</div>
-                    <div class="stat-label">已解码帧数</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="encodeTime">0ms</div>
-                    <div class="stat-label">平均编码时间</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="decodeTime">0ms</div>
-                    <div class="stat-label">平均解码时间</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="queueSize">0</div>
-                    <div class="stat-label">解码队列大小</div>
-                </div>
-            </div>
+
+        <div class="button-group">
+          <label for="resolutionSelect" style="color: #333; margin-right: 10px"
+            >分辨率:</label
+          >
+          <select id="resolutionSelect">
+            <option value="640x480">640×480 (VGA)</option>
+            <option value="1280x720" selected>1280×720 (HD)</option>
+            <option value="1920x1080">1920×1080 (Full HD)</option>
+          </select>
+
+          <label
+            for="codecSelect"
+            style="color: #333; margin-left: 20px; margin-right: 10px"
+            >编码器:</label
+          >
+          <select id="codecSelect">
+            <option value="">自动选择（推荐）</option>
+          </select>
         </div>
-        
-        <div class="section-divider"></div>
-        
-        <div class="log-panel">
-            <h2>📋 运行日志</h2>
-            <div class="log-container" id="logContainer">
-                <div class="log-entry">
-                    <span class="log-time">[系统]</span>
-                    <span class="log-info">等待启动...</span>
-                </div>
-            </div>
+
+        <div class="button-group">
+          <label style="color: #333; margin-right: 10px">
+            <input type="checkbox" id="hardwareAccel" checked /> 硬件加速
+          </label>
+          <label style="color: #333; margin-right: 10px">
+            <input type="checkbox" id="showFps" checked /> 显示帧率
+          </label>
+          <label style="color: #333">
+            <input type="checkbox" id="mirrorView" /> 镜像显示
+          </label>
         </div>
+      </div>
+
+      <div class="canvas-container">
+        <div class="canvas-wrapper">
+          <h3>🎥 原始视频 (getUserMedia)</h3>
+          <canvas id="originalCanvas" width="640" height="480"></canvas>
+        </div>
+
+        <div class="canvas-wrapper">
+          <h3>🖥️ 处理后视频 (WebCodecs 解码)</h3>
+          <canvas id="processedCanvas" width="640" height="480"></canvas>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="stats-panel" id="statsPanel" style="display: none">
+        <h2>📊 性能统计</h2>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" id="fpsValue">0</div>
+            <div class="stat-label">帧率 (FPS)</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="encodedValue">0</div>
+            <div class="stat-label">已编码帧数</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="decodedValue">0</div>
+            <div class="stat-label">已解码帧数</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="encodeTime">0ms</div>
+            <div class="stat-label">平均编码时间</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="decodeTime">0ms</div>
+            <div class="stat-label">平均解码时间</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="queueSize">0</div>
+            <div class="stat-label">解码队列大小</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="log-panel">
+        <h2>📋 运行日志</h2>
+        <div class="log-container" id="logContainer">
+          <div class="log-entry">
+            <span class="log-time">[系统]</span>
+            <span class="log-info">正在初始化...</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        // ==================== 全局变量 ====================
-        let videoStream = null;
-        let videoTrack = null;
-        let videoProcessor = null;
-        let videoEncoder = null;
-        let videoDecoder = null;
-        let isRunning = false;
-        let frameCount = 0;
-        let lastFpsTime = performance.now();
-        let fps = 0;
-        
-        // 性能统计
-        let stats = {
-            encodedFrames: 0,
-            decodedFrames: 0,
-            encodeTimes: [],
-            decodeTimes: []
+      // ==================== 全局变量 ====================
+      let videoStream = null;
+      let videoTrack = null;
+      let videoProcessor = null;
+      let videoEncoder = null;
+      let videoDecoder = null;
+      let isRunning = false;
+      let frameCount = 0;
+      let lastFpsTime = performance.now();
+      let fps = 0;
+
+      // 性能统计
+      let stats = {
+        encodedFrames: 0,
+        decodedFrames: 0,
+        encodeTimes: [],
+        decodeTimes: [],
+      };
+
+      // 可用的编解码器列表
+      let availableCodecs = {
+        encoders: [],
+        decoders: [],
+      };
+
+      // Canvas 上下文
+      const originalCanvas = document.getElementById("originalCanvas");
+      const processedCanvas = document.getElementById("processedCanvas");
+      const originalCtx = originalCanvas.getContext("2d");
+      const processedCtx = processedCanvas.getContext("2d");
+
+      // ==================== 日志系统 ====================
+      function log(message, type = "info") {
+        const container = document.getElementById("logContainer");
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+
+        const time = new Date().toLocaleTimeString();
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "log-time";
+        timeSpan.textContent = `[${time}]`;
+
+        const messageSpan = document.createElement("span");
+        messageSpan.className = `log-${type}`;
+        messageSpan.textContent = message;
+
+        entry.appendChild(timeSpan);
+        entry.appendChild(messageSpan);
+        container.appendChild(entry);
+
+        // 自动滚动到底部
+        container.scrollTop = container.scrollHeight;
+
+        console.log(`[${type.toUpperCase()}]`, message);
+      }
+
+      // ==================== 状态管理 ====================
+      function updateStatus(status) {
+        const badge = document.getElementById("statusBadge");
+        badge.className = `status-badge status-${status}`;
+
+        const statusText = {
+          idle: "空闲",
+          active: "运行中",
+          error: "错误",
+          processing: "处理中",
         };
-        
-        // Canvas 上下文
-        const originalCanvas = document.getElementById('originalCanvas');
-        const processedCanvas = document.getElementById('processedCanvas');
-        const originalCtx = originalCanvas.getContext('2d');
-        const processedCtx = processedCanvas.getContext('2d');
-        
-        // ==================== 日志系统 ====================
-        function log(message, type = 'info') {
-            const container = document.getElementById('logContainer');
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            
-            const time = new Date().toLocaleTimeString();
-            const timeSpan = document.createElement('span');
-            timeSpan.className = 'log-time';
-            timeSpan.textContent = `[${time}]`;
-            
-            const messageSpan = document.createElement('span');
-            messageSpan.className = `log-${type}`;
-            messageSpan.textContent = message;
-            
-            entry.appendChild(timeSpan);
-            entry.appendChild(messageSpan);
-            container.appendChild(entry);
-            
-            // 自动滚动到底部
-            container.scrollTop = container.scrollHeight;
-            
-            console.log(`[${type.toUpperCase()}]`, message);
-        }
-        
-        // ==================== 状态管理 ====================
-        function updateStatus(status) {
-            const badge = document.getElementById('statusBadge');
-            badge.className = `status-badge status-${status}`;
-            
-            const statusText = {
-                'idle': '空闲',
-                'active': '运行中',
-                'error': '错误',
-                'processing': '处理中'
+
+        badge.textContent = statusText[status];
+      }
+
+      function updateButtons(enabled) {
+        document.getElementById("startBtn").disabled = enabled;
+        document.getElementById("stopBtn").disabled = !enabled;
+        document.getElementById("captureBtn").disabled = !enabled;
+        document.getElementById("statsBtn").disabled = !enabled;
+      }
+
+      // ==================== 编解码器检测 ====================
+      async function detectCodecSupport() {
+        log("正在检测编解码器支持...", "info");
+
+        // 定义要检测的编解码器
+        const testCodecs = [
+          {
+            codec: "avc1.64001F",
+            profile: "H.264 High Profile",
+            type: "video",
+          },
+          {
+            codec: "avc1.640032",
+            profile: "H.264 High Profile",
+            type: "video",
+          },
+          {
+            codec: "avc1.42E01E",
+            profile: "H.264 Baseline Profile",
+            type: "video",
+          },
+          {
+            codec: "avc1.4D4028",
+            profile: "H.264 Main Profile",
+            type: "video",
+          },
+          { codec: "vp8", profile: "VP8", type: "video" },
+          { codec: "vp9", profile: "VP9", type: "video" },
+          { codec: "vp09.00.10.08", profile: "VP9 Profile 0", type: "video" },
+          { codec: "av01", profile: "AV1", type: "video" },
+          {
+            codec: "av01.0.01M.08",
+            profile: "AV1 Main Profile",
+            type: "video",
+          },
+        ];
+
+        const resolution = { width: 640, height: 480 };
+        const useHardwareAccel =
+          document.getElementById("hardwareAccel").checked;
+        const hwConfig = useHardwareAccel
+          ? "prefer-hardware"
+          : "prefer-software";
+
+        const supportedEncoders = [];
+        const supportedDecoders = [];
+
+        // 测试每个编解码器
+        for (const testCodec of testCodecs) {
+          try {
+            // 测试编码器
+            const encoderConfig = {
+              codec: testCodec.codec,
+              width: resolution.width,
+              height: resolution.height,
+              bitrate: 2000000,
+              framerate: 30,
+              // hardwareAcceleration: hwConfig // 不要设置
             };
-            
-            badge.textContent = statusText[status];
-        }
-        
-        function updateButtons(enabled) {
-            document.getElementById('startBtn').disabled = enabled;
-            document.getElementById('stopBtn').disabled = !enabled;
-            document.getElementById('captureBtn').disabled = !enabled;
-            document.getElementById('statsBtn').disabled = !enabled;
-        }
-        
-        // ==================== 摄像头相关 ====================
-        async function startCamera() {
-            try {
-                log('正在启动摄像头...', 'info');
-                updateStatus('processing');
-                
-                // 获取分辨率设置
-                const resolution = document.getElementById('resolutionSelect').value.split('x');
-                const width = parseInt(resolution[0]);
-                const height = parseInt(resolution[1]);
-                
-                // 更新 Canvas 尺寸
-                originalCanvas.width = width;
-                originalCanvas.height = height;
-                processedCanvas.width = width;
-                processedCanvas.height = height;
-                
-                // 获取摄像头流
-                videoStream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        width: { ideal: width },
-                        height: { ideal: height },
-                        frameRate: { ideal: 30 }
-                    },
-                    audio: false
-                });
-                
-                videoTrack = videoStream.getVideoTracks()[0];
-                
-                // 显示视频轨道信息
-                const settings = videoTrack.getSettings();
-                log(`摄像头配置: ${settings.width}×${settings.height} @ ${settings.frameRate}fps`, 'success');
-                
-                // 创建隐藏的视频元素用于捕获帧
-                const video = document.createElement('video');
-                video.srcObject = videoStream;
-                video.muted = true;
-                video.playsInline = true;
-                await video.play();
-                
-                log('摄像头启动成功', 'success');
-                
-                // 初始化 WebCodecs
-                await initWebCodecs(video, width, height);
-                
-                // 开始编码循环
-                startEncodingLoop(video);
-                
-                isRunning = true;
-                updateStatus('active');
-                updateButtons(true);
-                log('开始实时处理', 'success');
-                
-            } catch (error) {
-                log(`启动失败: ${error.message}`, 'error');
-                updateStatus('error');
-                stopCamera();
+
+            const encoderSupport = await VideoEncoder.isConfigSupported(
+              encoderConfig
+            );
+            if (encoderSupport.supported) {
+              supportedEncoders.push(testCodec);
+              log(
+                `✅ 编码器 ${testCodec.profile} (${testCodec.codec}) 支持`,
+                "success"
+              );
+            } else {
+              log(
+                `❌ 编码器 ${testCodec.profile} (${testCodec.codec}) 不支持`,
+                "debug"
+              );
             }
-        }
-        
-        function stopCamera() {
-            log('正在停止...', 'info');
-            isRunning = false;
-            
-            // 停止编码循环
-            if (videoProcessor) {
-                videoProcessor.cancel();
-                videoProcessor = null;
-            }
-            
-            // 关闭编码器
-            if (videoEncoder) {
-                videoEncoder.close();
-                videoEncoder = null;
-            }
-            
-            // 关闭解码器
-            if (videoDecoder) {
-                videoDecoder.close();
-                videoDecoder = null;
-            }
-            
-            // 停止摄像头流
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-                videoTrack = null;
-            }
-            
-            // 清除 Canvas
-            originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
-            processedCtx.clearRect(0, 0, processedCanvas.width, processedCanvas.height);
-            
-            updateStatus('idle');
-            updateButtons(false);
-            log('已停止', 'warning');
-        }
-        
-        // ==================== WebCodecs 初始化 ====================
-        async function initWebCodecs(video, width, height) {
-            const codec = document.getElementById('codecSelect').value;
-            const useHardwareAccel = document.getElementById('hardwareAccel').checked;
-            
-            log(`初始化 WebCodecs... 编码器: ${codec}`, 'info');
-            
-            // 检查编解码器支持
-            const encoderSupport = await VideoEncoder.isConfigSupported({
-                codec: codec,
-                width: width,
-                height: height,
-                bitrate: 5000000,
-                framerate: 30,
-                hardwareAcceleration: useHardwareAccel ? 'prefer-hardware' : 'prefer-software'
-            });
-            
-            if (!encoderSupport.supported) {
-                throw new Error(`编码器 ${codec} 不支持`);
-            }
-            
-            log(`编码器 ${codec} 支持验证通过`, 'success');
-            
-            // 初始化编码器
-            videoEncoder = new VideoEncoder({
-                output: async (encodedChunk, metadata) => {
-                    const startTime = performance.now();
-                    
-                    // 统计编码时间
-                    const encodeTime = startTime - lastEncodeTime;
-                    stats.encodeTimes.push(encodeTime);
-                    if (stats.encodeTimes.length > 100) stats.encodeTimes.shift();
-                    
-                    stats.encodedFrames++;
-                    
-                    // 解码刚编码的帧
-                    if (videoDecoder && videoDecoder.state === 'configured') {
-                        videoDecoder.decode(encodedChunk);
-                    }
-                    
-                    // 释放编码块内存
-                    if (encodedChunk.data) {
-                        encodedChunk.data.close();
-                    }
-                },
-                error: (error) => {
-                    log(`编码器错误: ${error.message}`, 'error');
-                }
-            });
-            
-            await videoEncoder.configure({
-                codec: codec,
-                width: width,
-                height: height,
-                bitrate: 5000000,  // 5 Mbps
-                framerate: 30,
-                hardwareAcceleration: useHardwareAccel ? 'prefer-hardware' : 'prefer-software',
-                bitrateMode: 'variable',
-                latencyMode: 'quality'
-            });
-            
-            log('编码器配置完成', 'success');
-            
-            // 初始化解码器
-            videoDecoder = new VideoDecoder({
-                output: (frame) => {
-                    const startTime = performance.now();
-                    
-                    // 统计解码时间
-                    const decodeTime = startTime - lastDecodeTime;
-                    stats.decodeTimes.push(decodeTime);
-                    if (stats.decodeTimes.length > 100) stats.decodeTimes.shift();
-                    
-                    stats.decodedFrames++;
-                    frameCount++;
-                    
-                    // 绘制到处理后的 Canvas
-                    const mirror = document.getElementById('mirrorView').checked;
-                    if (mirror) {
-                        processedCtx.save();
-                        processedCtx.scale(-1, 1);
-                        processedCtx.drawImage(frame, -processedCanvas.width, 0, 
-                                              processedCanvas.width, processedCanvas.height);
-                        processedCtx.restore();
-                    } else {
-                        processedCtx.drawImage(frame, 0, 0, 
-                                              processedCanvas.width, processedCanvas.height);
-                    }
-                    
-                    // 释放帧内存
-                    frame.close();
-                },
-                error: (error) => {
-                    log(`解码器错误: ${error.message}`, 'error');
-                }
-            });
-            
-            await videoDecoder.configure({
-                codec: codec,
-                width: width,
-                height: height,
-                hardwareAcceleration: useHardwareAccel ? 'prefer-hardware' : 'prefer-software'
-            });
-            
-            log('解码器配置完成', 'success');
-            log('WebCodecs 初始化完成', 'success');
-        }
-        
-        // ==================== 编码循环 ====================
-        let lastEncodeTime = 0;
-        let lastDecodeTime = 0;
-        let encodeRequestId = null;
-        
-        function startEncodingLoop(video) {
-            const encodeFrame = (timestamp) => {
-                if (!isRunning) return;
-                
-                const startTime = performance.now();
-                lastEncodeTime = startTime;
-                lastDecodeTime = startTime;
-                
-                try {
-                    // 从视频元素创建 VideoFrame
-                    const frame = new VideoFrame(video, {
-                        timestamp: performance.now() * 1000  // 微秒
-                    });
-                    
-                    // 绘制原始帧到 Canvas
-                    originalCtx.drawImage(video, 0, 0, 
-                                         originalCanvas.width, originalCanvas.height);
-                    
-                    // 编码帧
-                    if (videoEncoder && videoEncoder.state === 'configured') {
-                        videoEncoder.encode(frame, {
-                            keyFrame: frameCount % 150 === 0  // 每150帧生成关键帧
-                        });
-                    }
-                    
-                    frame.close();
-                    
-                    // 更新帧率统计
-                    updateFps();
-                    
-                } catch (error) {
-                    log(`编码帧错误: ${error.message}`, 'error');
-                }
-                
-                // 继续循环
-                encodeRequestId = requestAnimationFrame(encodeFrame);
+
+            // 测试解码器
+            const decoderConfig = {
+              codec: testCodec.codec,
+              codedWidth: resolution.width,
+              codedHeight: resolution.height,
+              // hardwareAcceleration: hwConfig // 不要设置
             };
-            
-            // 开始编码循环
-            encodeRequestId = requestAnimationFrame(encodeFrame);
-            log('编码循环已启动', 'success');
-        }
-        
-        // ==================== 帧率计算 ====================
-        function updateFps() {
-            const now = performance.now();
-            const elapsed = now - lastFpsTime;
-            
-            if (elapsed >= 1000) {
-                fps = Math.round((frameCount * 1000) / elapsed);
-                frameCount = 0;
-                lastFpsTime = now;
-                
-                if (document.getElementById('showFps').checked) {
-                    document.getElementById('fpsValue').textContent = fps;
-                }
+
+            const decoderSupport = await VideoDecoder.isConfigSupported(
+              decoderConfig
+            );
+            if (decoderSupport.supported) {
+              supportedDecoders.push(testCodec);
+              log(
+                `✅ 解码器 ${testCodec.profile} (${testCodec.codec}) 支持`,
+                "success"
+              );
             }
+          } catch (error) {
+            log(`检测 ${testCodec.codec} 时出错: ${error.message}`, "warning");
+          }
         }
-        
-        // ==================== 截图功能 ====================
-        function captureFrame() {
-            try {
-                // 创建临时 Canvas 用于合并截图
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = originalCanvas.width + processedCanvas.width + 20;
-                tempCanvas.height = Math.max(originalCanvas.height, processedCanvas.height) + 40;
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                // 背景
-                tempCtx.fillStyle = '#1a1a2e';
-                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                
-                // 标题
-                tempCtx.fillStyle = 'white';
-                tempCtx.font = '20px Arial';
-                tempCtx.fillText('WebCodecs 处理对比', 10, 30);
-                
-                // 绘制两个 Canvas
-                tempCtx.fillText('原始视频', 10, 50);
-                tempCtx.drawImage(originalCanvas, 10, 60);
-                
-                tempCtx.fillText('处理后视频', originalCanvas.width + 15, 50);
-                tempCtx.drawImage(processedCanvas, originalCanvas.width + 15, 60);
-                
-                // 导出图片
-                const link = document.createElement('a');
-                link.download = `webcodecs-capture-${Date.now()}.png`;
-                link.href = tempCanvas.toDataURL('image/png');
-                link.click();
-                
-                log('截图已保存', 'success');
-                
-            } catch (error) {
-                log(`截图失败: ${error.message}`, 'error');
-            }
+
+        // 保存结果
+        availableCodecs.encoders = supportedEncoders;
+        availableCodecs.decoders = supportedDecoders;
+
+        // 更新 UI
+        updateCodecSelector();
+
+        // 显示检测结果
+        displayCodecSupport();
+
+        log(
+          `检测完成: ${supportedEncoders.length} 个编码器, ${supportedDecoders.length} 个解码器支持`,
+          "success"
+        );
+
+        return { encoders: supportedEncoders, decoders: supportedDecoders };
+      }
+
+      function updateCodecSelector() {
+        const select = document.getElementById("codecSelect");
+
+        // 清空现有选项
+        select.innerHTML = '<option value="">自动选择（推荐）</option>';
+
+        // 添加可用的编码器
+        if (availableCodecs.encoders.length > 0) {
+          for (const codec of availableCodecs.encoders) {
+            const option = document.createElement("option");
+            option.value = codec.codec;
+            option.textContent = `${codec.profile} (${codec.codec})`;
+            select.appendChild(option);
+          }
+        } else {
+          // 如果没有可用的编码器，添加错误提示
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "❌ 未检测到支持的编码器";
+          option.disabled = true;
+          select.appendChild(option);
         }
-        
-        // ==================== 统计面板 ====================
-        function toggleStats() {
-            const panel = document.getElementById('statsPanel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-            
-            if (panel.style.display === 'block') {
-                updateStatsDisplay();
-            }
+      }
+
+      function displayCodecSupport() {
+        const container = document.getElementById("codecList");
+        const infoDiv = document.getElementById("codecInfo");
+
+        let html = '<div style="margin-top: 10px;">';
+
+        // 显示编码器
+        html += '<div style="margin-bottom: 15px;"><strong>编码器：</strong>';
+        if (availableCodecs.encoders.length > 0) {
+          for (const codec of availableCodecs.encoders) {
+            html += `<span class="codec-tag codec-supported">${codec.profile}</span>`;
+          }
+        } else {
+          html += '<span class="codec-tag codec-unsupported">无支持</span>';
         }
-        
-        function updateStatsDisplay() {
-            if (!isRunning) return;
-            
-            document.getElementById('encodedValue').textContent = stats.encodedFrames;
-            document.getElementById('decodedValue').textContent = stats.decodedFrames;
-            
-            // 计算平均编码/解码时间
-            const avgEncodeTime = stats.encodeTimes.length > 0
-                ? (stats.encodeTimes.reduce((a, b) => a + b, 0) / stats.encodeTimes.length).toFixed(2)
-                : 0;
-            const avgDecodeTime = stats.decodeTimes.length > 0
-                ? (stats.decodeTimes.reduce((a, b) => a + b, 0) / stats.decodeTimes.length).toFixed(2)
-                : 0;
-            
-            document.getElementById('encodeTime').textContent = `${avgEncodeTime}ms`;
-            document.getElementById('decodeTime').textContent = `${avgDecodeTime}ms`;
-            
-            // 解码队列大小
-            if (videoDecoder) {
-                document.getElementById('queueSize').textContent = videoDecoder.decodeQueueSize;
-            }
-            
-            // 继续更新
-            if (isRunning) {
-                requestAnimationFrame(updateStatsDisplay);
-            }
+        html += "</div>";
+
+        // 显示解码器
+        html += "<div><strong>解码器：</strong>";
+        if (availableCodecs.decoders.length > 0) {
+          for (const codec of availableCodecs.decoders) {
+            html += `<span class="codec-tag codec-supported">${codec.profile}</span>`;
+          }
+        } else {
+          html += '<span class="codec-tag codec-unsupported">无支持</span>';
         }
-        
-        // ==================== 初始化 ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            log('页面加载完成', 'info');
-            log('请点击"启动摄像头"开始演示', 'info');
-            
-            // 初始化统计更新
-            setInterval(() => {
-                if (isRunning && document.getElementById('statsPanel').style.display !== 'none') {
-                    updateStatsDisplay();
-                }
-            }, 100);
-            
-            // 页面关闭时停止
-            window.addEventListener('beforeunload', () => {
-                if (isRunning) {
-                    stopCamera();
-                }
-            });
+        html += "</div>";
+
+        html += "</div>";
+        container.innerHTML = html;
+
+        infoDiv.querySelector("h4").textContent = "🔍 编解码器支持检测完成";
+      }
+
+      // ==================== 智能编码器选择 ====================
+      function selectBestCodec() {
+        const selectedCodec = document.getElementById("codecSelect").value;
+
+        // 如果用户手动选择了编码器，验证是否支持
+        if (selectedCodec) {
+          const codec = availableCodecs.encoders.find(
+            (c) => c.codec === selectedCodec
+          );
+          if (codec) {
+            return selectedCodec;
+          } else {
+            log(`选择的编码器 ${selectedCodec} 不支持，自动选择...`, "warning");
+          }
+        }
+
+        // 自动选择最佳编码器（优先选择 H.264，然后是 VP9，然后是 VP8）
+        // const priority = ['avc1.640032', 'avc1.42E01E', 'vp09.00.10.08', 'vp9', 'vp8'];
+        const priority = [
+          "avc1.64001F",
+          "avc1.42E01E",
+          "vp09.00.10.08",
+          "vp9",
+          "vp8",
+        ];
+
+        for (const codecId of priority) {
+          const codec = availableCodecs.encoders.find(
+            (c) => c.codec === codecId
+          );
+          if (codec) {
+            log(`自动选择编码器: ${codec.profile}`, "info");
+            return codec.codec;
+          }
+        }
+
+        // 如果没有优先级中的，任意选择一个
+        if (availableCodecs.encoders.length > 0) {
+          const codec = availableCodecs.encoders[0];
+          log(`使用可用编码器: ${codec.profile}`, "info");
+          return codec.codec;
+        }
+
+        throw new Error("未检测到支持的视频编码器");
+      }
+
+      // ==================== 摄像头相关 ====================
+      async function startCamera() {
+        try {
+          // 隐藏错误信息
+          document.getElementById("errorDetails").style.display = "none";
+
+          log("正在启动摄像头...", "info");
+          updateStatus("processing");
+
+          // 获取分辨率设置
+          const resolution = document
+            .getElementById("resolutionSelect")
+            .value.split("x");
+          const width = parseInt(resolution[0]);
+          const height = parseInt(resolution[1]);
+
+          // 更新 Canvas 尺寸
+          originalCanvas.width = width;
+          originalCanvas.height = height;
+          processedCanvas.width = width;
+          processedCanvas.height = height;
+
+          // 获取摄像头流
+          videoStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: width },
+              height: { ideal: height },
+              frameRate: { ideal: 30 },
+            },
+            audio: false,
+          });
+
+          videoTrack = videoStream.getVideoTracks()[0];
+
+          // 显示视频轨道信息
+          const settings = videoTrack.getSettings();
+          log(
+            `摄像头配置: ${settings.width}×${settings.height} @ ${settings.frameRate}fps`,
+            "success"
+          );
+
+          // 创建隐藏的视频元素用于捕获帧
+          const video = document.createElement("video");
+          video.srcObject = videoStream;
+          video.muted = true;
+          video.playsInline = true;
+          await video.play();
+
+          log("摄像头启动成功", "success");
+
+          // 初始化 WebCodecs
+          await initWebCodecs(video, width, height);
+
+          // 开始编码循环
+          startEncodingLoop(video);
+
+          isRunning = true;
+          updateStatus("active");
+          updateButtons(true);
+          log("开始实时处理", "success");
+        } catch (error) {
+          log(`启动失败: ${error.message}`, "error");
+          updateStatus("error");
+
+          // 显示错误信息
+          document.getElementById("errorDetails").style.display = "block";
+          document.getElementById("errorMessage").textContent = error.message;
+
+          stopCamera();
+        }
+      }
+
+      function stopCamera() {
+        log("正在停止...", "info");
+        isRunning = false;
+
+        // 停止编码循环
+        if (videoProcessor) {
+          videoProcessor.cancel();
+          videoProcessor = null;
+        }
+
+        // 关闭编码器
+        if (videoEncoder) {
+          try {
+            videoEncoder.close();
+          } catch (e) {
+            // 忽略关闭错误
+          }
+          videoEncoder = null;
+        }
+
+        // 关闭解码器
+        if (videoDecoder) {
+          try {
+            videoDecoder.close();
+          } catch (e) {
+            // 忽略关闭错误
+          }
+          videoDecoder = null;
+        }
+
+        // 停止摄像头流
+        if (videoStream) {
+          videoStream.getTracks().forEach((track) => track.stop());
+          videoStream = null;
+          videoTrack = null;
+        }
+
+        // 清除 Canvas
+        originalCtx.clearRect(
+          0,
+          0,
+          originalCanvas.width,
+          originalCanvas.height
+        );
+        processedCtx.clearRect(
+          0,
+          0,
+          processedCanvas.width,
+          processedCanvas.height
+        );
+
+        updateStatus("idle");
+        updateButtons(false);
+        log("已停止", "warning");
+      }
+
+      // ==================== WebCodecs 初始化 ====================
+      async function initWebCodecs(video, width, height) {
+        // 智能选择编码器
+        const codec = selectBestCodec();
+        const useHardwareAccel =
+          document.getElementById("hardwareAccel").checked;
+
+        log(`使用编码器: ${codec}`, "info");
+        log(`硬件加速: ${useHardwareAccel ? "启用" : "禁用"}`, "info");
+
+        // 初始化编码器
+        videoEncoder = new VideoEncoder({
+          output: async (encodedChunk, metadata) => {
+            const startTime = performance.now();
+
+            // 统计编码时间
+            const encodeTime = startTime - lastEncodeTime;
+            stats.encodeTimes.push(encodeTime);
+            if (stats.encodeTimes.length > 100) stats.encodeTimes.shift();
+
+            stats.encodedFrames++;
+
+            // 编码 => 解码
+            // 解码刚编码的帧
+            if (videoDecoder && videoDecoder.state === "configured") {
+              videoDecoder.decode(encodedChunk);
+            }
+
+            // 释放编码块内存
+            if (encodedChunk.data) {
+              encodedChunk.data.close();
+            }
+          },
+          error: (error) => {
+            log(`编码器错误: ${error.message}`, "error");
+          },
         });
+
+        await videoEncoder.configure({
+          codec: codec,
+          width: width,
+          height: height,
+          bitrate: Math.min(5000000, width * height * 3), // 根据分辨率调整码率
+          framerate: 30,
+          // hardwareAcceleration: useHardwareAccel
+          //   ? "prefer-hardware"
+          //   : "prefer-software",
+          bitrateMode: "variable",
+          latencyMode: "quality",
+        });
+
+        log("编码器配置完成", "success");
+
+        // 初始化解码器
+        videoDecoder = new VideoDecoder({
+          output: (frame) => {
+            const startTime = performance.now();
+
+            console.log({ frame });
+
+            // 统计解码时间
+            const decodeTime = startTime - lastDecodeTime;
+            stats.decodeTimes.push(decodeTime);
+            if (stats.decodeTimes.length > 100) stats.decodeTimes.shift();
+
+            stats.decodedFrames++;
+            frameCount++;
+
+            // 绘制到处理后的 Canvas
+            const mirror = document.getElementById("mirrorView").checked;
+            if (mirror) {
+              processedCtx.save();
+              processedCtx.scale(-1, 1);
+              processedCtx.drawImage(
+                frame,
+                -processedCanvas.width,
+                0,
+                processedCanvas.width,
+                processedCanvas.height
+              );
+              processedCtx.restore();
+            } else {
+              processedCtx.drawImage(
+                frame,
+                0,
+                0,
+                processedCanvas.width,
+                processedCanvas.height
+              );
+            }
+
+            // 释放帧内存
+            frame.close();
+          },
+          error: (error) => {
+            log(`解码器错误: ${error.message}`, "error");
+          },
+        });
+
+        await videoDecoder.configure({
+          codec: codec,
+          width: width,
+          height: height,
+          // hardwareAcceleration: useHardwareAccel
+          //   ? "prefer-hardware"
+          //   : "prefer-software",
+        });
+
+        log("解码器配置完成", "success");
+        log("WebCodecs 初始化完成", "success");
+      }
+
+      // ==================== 编码循环 ====================
+      let lastEncodeTime = 0;
+      let lastDecodeTime = 0;
+      let encodeRequestId = null;
+
+      function startEncodingLoop(video) {
+        const encodeFrame = (timestamp) => {
+          if (!isRunning) return;
+
+          const startTime = performance.now();
+          lastEncodeTime = startTime;
+          lastDecodeTime = startTime;
+
+          try {
+            // 从视频元素创建 VideoFrame
+            const frame = new VideoFrame(video, {
+              timestamp: performance.now() * 1000, // 微秒
+            });
+
+            // 绘制原始帧到 Canvas
+            originalCtx.drawImage(
+              video,
+              0,
+              0,
+              originalCanvas.width,
+              originalCanvas.height
+            );
+
+            // 编码帧
+            if (videoEncoder && videoEncoder.state === "configured") {
+              videoEncoder.encode(frame, {
+                keyFrame: frameCount % 150 === 0, // 每150帧生成关键帧
+              });
+            }
+
+            frame.close();
+
+            // 更新帧率统计
+            updateFps();
+          } catch (error) {
+            log(`编码帧错误: ${error.message}`, "error");
+          }
+
+          // 继续循环
+          encodeRequestId = requestAnimationFrame(encodeFrame);
+        };
+
+        // 开始编码循环
+        encodeRequestId = requestAnimationFrame(encodeFrame);
+        log("编码循环已启动", "success");
+      }
+
+      // ==================== 帧率计算 ====================
+      function updateFps() {
+        const now = performance.now();
+        const elapsed = now - lastFpsTime;
+
+        if (elapsed >= 1000) {
+          fps = Math.round((frameCount * 1000) / elapsed);
+          frameCount = 0;
+          lastFpsTime = now;
+
+          if (document.getElementById("showFps").checked) {
+            document.getElementById("fpsValue").textContent = fps;
+          }
+        }
+      }
+
+      // ==================== 截图功能 ====================
+      function captureFrame() {
+        try {
+          // 创建临时 Canvas 用于合并截图
+          const tempCanvas = document.createElement("canvas");
+          tempCanvas.width = originalCanvas.width + processedCanvas.width + 20;
+          tempCanvas.height =
+            Math.max(originalCanvas.height, processedCanvas.height) + 40;
+          const tempCtx = tempCanvas.getContext("2d");
+
+          // 背景
+          tempCtx.fillStyle = "#1a1a2e";
+          tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+          // 标题
+          tempCtx.fillStyle = "white";
+          tempCtx.font = "20px Arial";
+          tempCtx.fillText("WebCodecs 处理对比", 10, 30);
+
+          // 绘制两个 Canvas
+          tempCtx.fillText("原始视频", 10, 50);
+          tempCtx.drawImage(originalCanvas, 10, 60);
+
+          tempCtx.fillText("处理后视频", originalCanvas.width + 15, 50);
+          tempCtx.drawImage(processedCanvas, originalCanvas.width + 15, 60);
+
+          // 导出图片
+          const link = document.createElement("a");
+          link.download = `webcodecs-capture-${Date.now()}.png`;
+          link.href = tempCanvas.toDataURL("image/png");
+          link.click();
+
+          log("截图已保存", "success");
+        } catch (error) {
+          log(`截图失败: ${error.message}`, "error");
+        }
+      }
+
+      // ==================== 统计面板 ====================
+      function toggleStats() {
+        const panel = document.getElementById("statsPanel");
+        panel.style.display = panel.style.display === "none" ? "block" : "none";
+
+        if (panel.style.display === "block") {
+          updateStatsDisplay();
+        }
+      }
+
+      function updateStatsDisplay() {
+        if (!isRunning) return;
+
+        document.getElementById("encodedValue").textContent =
+          stats.encodedFrames;
+        document.getElementById("decodedValue").textContent =
+          stats.decodedFrames;
+
+        // 计算平均编码/解码时间
+        const avgEncodeTime =
+          stats.encodeTimes.length > 0
+            ? (
+                stats.encodeTimes.reduce((a, b) => a + b, 0) /
+                stats.encodeTimes.length
+              ).toFixed(2)
+            : 0;
+        const avgDecodeTime =
+          stats.decodeTimes.length > 0
+            ? stats.decodeTimes.length > 0
+              ? (
+                  stats.decodeTimes.reduce((a, b) => a + b, 0) /
+                  stats.decodeTimes.length
+                ).toFixed(2)
+              : 0
+            : 0;
+
+        document.getElementById(
+          "encodeTime"
+        ).textContent = `${avgEncodeTime}ms`;
+        document.getElementById(
+          "decodeTime"
+        ).textContent = `${avgDecodeTime}ms`;
+
+        // 解码队列大小
+        if (videoDecoder) {
+          document.getElementById("queueSize").textContent =
+            videoDecoder.decodeQueueSize;
+        }
+
+        // 继续更新
+        if (isRunning) {
+          requestAnimationFrame(updateStatsDisplay);
+        }
+      }
+
+      // ==================== 初始化 ====================
+      document.addEventListener("DOMContentLoaded", async () => {
+        log("页面加载完成", "info");
+
+        // 检测编解码器支持
+        if ("VideoEncoder" in window && "VideoDecoder" in window) {
+          try {
+            await detectCodecSupport();
+            log('请点击"启动摄像头"开始演示', "info");
+          } catch (error) {
+            log(`编解码器检测失败: ${error.message}`, "error");
+            log("WebCodecs API 可能不受支持", "warning");
+          }
+        } else {
+          log("⚠️ 您的浏览器不支持 WebCodecs API", "error");
+          log("请使用 Chrome 94+ 或 Edge 94+", "warning");
+          document.getElementById("codecInfo").innerHTML = `
+                    <h4>❌ WebCodecs 不支持</h4>
+                    <p>请使用 Chrome 94+ 或 Edge 94+ 浏览器，并确保在 HTTPS 环境下运行（localhost 除外）。</p>
+                `;
+        }
+
+        // 初始化统计更新
+        setInterval(() => {
+          if (
+            isRunning &&
+            document.getElementById("statsPanel").style.display !== "none"
+          ) {
+            updateStatsDisplay();
+          }
+        }, 100);
+
+        // 页面关闭时停止
+        window.addEventListener("beforeunload", () => {
+          if (isRunning) {
+            stopCamera();
+          }
+        });
+      });
     </script>
-</body>
+  </body>
 </html>
