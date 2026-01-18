@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ArrayBuffer → WebCodecs → Canvas</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: white;
+        text-align: center;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      canvas {
+        border: 3px solid white;
+        border-radius: 8px;
+        background: #000;
+        margin: 20px 0;
+        max-width: 100%;
+      }
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin: 5px;
+      }
+      button:hover {
+        background: #5a6fd6;
+      }
+      .info {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        text-align: left;
+      }
+      code {
+        background: rgba(0, 0, 0, 0.5);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📦 ArrayBuffer → WebCodecs → Canvas</h1>
+
+      <div class="info">
+        <h3>数据流向：</h3>
+        <p>
+          ArrayBuffer (原始像素) → <code>VideoFrame</code> →
+          <code>VideoEncoder</code> → <code>EncodedVideoChunk</code> →
+          <code>VideoDecoder</code> → <code>VideoFrame</code> → Canvas
+        </p>
+      </div>
+
+      <button onclick="processFrame()">处理一帧</button>
+      <button onclick="startLoop()" id="loopBtn">开始循环</button>
+      <button onclick="stopLoop()" id="stopBtn" disabled>停止循环</button>
+
+      <canvas id="canvas" width="640" height="480"></canvas>
+
+      <p>FPS: <span id="fps">0</span> | 帧数: <span id="frameCount">0</span></p>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const WIDTH = 640;
+      const HEIGHT = 480;
+
+      let encoder = null;
+      let decoder = null;
+      let loopId = null;
+      let frameCount = 0;
+      let lastTime = performance.now();
+      let fps = 0;
+
+      // 生成测试图像数据
+      function createTestFrame(time) {
+        const data = new Uint8ClampedArray(WIDTH * HEIGHT * 4);
+
+        for (let y = 0; y < HEIGHT; y++) {
+          for (let x = 0; x < WIDTH; x++) {
+            const i = (y * WIDTH + x) * 4;
+
+            // 渐变背景
+            data[i] = Math.sin(x / 50 + time / 1000) * 127 + 128; // R
+            data[i + 1] = Math.cos(y / 50 + time / 1000) * 127 + 128; // G
+            data[i + 2] = (x / WIDTH) * 255; // B
+            data[i + 3] = 255; // A
+          }
+        }
+
+        return data;
+      }
+
+      async function initCodecs() {
+        // 1. 检测支持的编解码器
+        const vp9Support = await VideoEncoder.isConfigSupported({
+          codec: "vp9",
+          width: WIDTH,
+          height: HEIGHT,
+          bitrate: 2000000,
+          framerate: 30,
+        });
+
+        const codec = vp9Support.supported ? "vp9" : "vp8";
+        console.log(`使用编码器: ${codec}`);
+
+        // 2. 创建编码器
+        encoder = new VideoEncoder({
+          output: (chunk, metadata) => {
+            // 编码完成，解码
+            if (decoder && decoder.state === "configured") {
+              decoder.decode(chunk);
+            }
+            if (chunk.data) chunk.data.close();
+          },
+          error: (e) => console.error("编码器错误:", e),
+        });
+
+        await encoder.configure({
+          codec: codec,
+          width: WIDTH,
+          height: HEIGHT,
+          bitrate: 2000000,
+          framerate: 30,
+        });
+
+        // 3. 创建解码器
+        decoder = new VideoDecoder({
+          output: (frame) => {
+            // 解码完成，绘制到 Canvas
+            ctx.drawImage(frame, 0, 0);
+            frame.close();
+
+            frameCount++;
+            updateFps();
+          },
+          error: (e) => console.error("解码器错误:", e),
+        });
+
+        await decoder.configure({
+          codec: codec,
+          width: WIDTH,
+          height: HEIGHT,
+        });
+
+        console.log("编解码器初始化完成");
+      }
+
+      async function processFrame() {
+        if (!encoder || !decoder) {
+          await initCodecs();
+        }
+
+        const time = performance.now();
+        const pixelData = createTestFrame(time);
+
+        // 1. ArrayBuffer → VideoFrame
+        const frame = new VideoFrame(pixelData, {
+          format: "RGBA",
+          timestamp: Math.floor(time * 1000),
+          codedWidth: WIDTH,
+          codedHeight: HEIGHT,
+        });
+
+        // 2. VideoFrame → 编码
+        encoder.encode(frame, { keyFrame: frameCount % 150 === 0 });
+        frame.close();
+      }
+
+      function updateFps() {
+        const now = performance.now();
+        if (now - lastTime >= 1000) {
+          fps = Math.round((frameCount * 1000) / (now - lastTime));
+          document.getElementById("fps").textContent = fps;
+          document.getElementById("frameCount").textContent = frameCount;
+          frameCount = 0;
+          lastTime = now;
+        }
+      }
+
+      function startLoop() {
+        document.getElementById("loopBtn").disabled = true;
+        document.getElementById("stopBtn").disabled = false;
+
+        (async () => {
+          await initCodecs();
+
+          const loop = () => {
+            if (!loopId) return;
+            processFrame();
+            requestAnimationFrame(loop);
+          };
+
+          loop();
+        })();
+      }
+
+      function stopLoop() {
+        loopId = null;
+        document.getElementById("loopBtn").disabled = false;
+        document.getElementById("stopBtn").disabled = true;
+
+        if (encoder) {
+          encoder.close();
+          encoder = null;
+        }
+        if (decoder) {
+          decoder.close();
+          decoder = null;
+        }
+      }
+
+      // 检查支持
+      if (!("VideoEncoder" in window)) {
+        document.querySelector(".container").innerHTML =
+          "<h1>❌ 您的浏览器不支持 WebCodecs</h1><p>请使用 Chrome 94+ 或 Edge 94+</p>";
+      }
+    </script>
+  </body>
+</html>
