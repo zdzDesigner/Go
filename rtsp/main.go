@@ -707,8 +707,11 @@ func main() {
 	// - 海康威视: rtsp://admin:password@192.168.1.100:554/h264/ch1/main/av_stream
 	// =============================================================================
 	// rtspURL := "rtsp://172.16.40.9:554" // Adjust this to your actual RTSP stream URL
+	// rtspURL := "rtsp://172.16.50.134:554"
 	// rtspURL := "rtsp://localhost:8554/live" // Adjust this to your actual RTSP stream URL
-  rtspURL := "rtsp://172.16.40.35/ch1" // Adjust this to your actual RTSP stream URL
+	// rtspURL := "rtsp://172.16.40.35/ch1" // Adjust this to your actual RTSP stream URL
+	// rtspURL := "rtsp://172.16.50.134/ch1" // Adjust this to your actual RTSP stream URL
+	rtspURL := "rtsp://172.16.50.134:554" // Adjust this to your actual RTSP stream URL
 	// Common formats: "rtsp://ip:port/", "rtsp://ip:port/stream", "rtsp://ip:port/live.sdp"
 
 	// 解析RTSP URL
