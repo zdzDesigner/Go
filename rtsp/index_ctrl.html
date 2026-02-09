@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTSP WebCodecs Player</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .player-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border: 2px solid #333;
+            background-color: #000;
+        }
+        .controls {
+            text-align: center;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .connect-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .disconnect-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .status {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .status.connected {
+            color: #4CAF50;
+        }
+        .status.disconnected {
+            color: #f44336;
+        }
+        .info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .info h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .info li {
+            margin: 5px 0;
+        }
+        .resolution-selector {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .resolution-selector select {
+            padding: 5px 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RTSP WebCodecs Player</h1>
+
+        <div class="player-container">
+            <div class="resolution-selector">
+                <label for="resolution">Video Resolution: </label>
+                <select id="resolution">
+                    <option value="640x480">640x480</option>
+                    <option value="1280x720">1280x720 (HD)</option>
+                    <option value="1920x1080">1920x1080 (Full HD)</option>
+                    <option value="3840x2160">3840x2160 (4K)</option>
+                </select>
+            </div>
+            <canvas id="videoCanvas" width="640" height="480"></canvas>
+            <div class="controls">
+                <button id="connectBtn" class="connect-btn">Connect</button>
+                <button id="disconnectBtn" class="disconnect-btn" disabled>Disconnect</button>
+            </div>
+            <div id="status" class="status disconnected">Disconnected</div>
+        </div>
+
+        <div class="info">
+            <h3>Instructions</h3>
+            <ul>
+                <li>Select the correct video resolution that matches your RTSP stream</li>
+                <li>Make sure the Go RTSP server is running on port 8080</li>
+                <li>Click "Connect" to start receiving video stream</li>
+                <li>Video will be decoded using WebCodecs API and rendered on canvas</li>
+                <li>Ensure your browser supports WebCodecs (Chrome 94+, Edge 94+)</li>
+            </ul>
+
+            <h3>Supported Browsers</h3>
+            <ul>
+                <li>Chrome 94+</li>
+                <li>Edge 94+</li>
+                <li>Firefox (limited support)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        class H264WebSocketPlayer {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.ws = null;
+                this.decoder = null;
+                this.isConnected = false;
+                this.sps = null;
+                this.pps = null;
+                this.frameCount = 0;
+                this.keyFrameReceived = false;
+                this.resolutionSelect = document.getElementById('resolution');
+
+                this.resolutionSelect.addEventListener('change', () => {
+                    this.updateCanvasSize();
+                });
+
+                this.updateCanvasSize();
+                this.initDecoder();
+            }
+
+            updateCanvasSize() {
+                const [width, height] = this.resolutionSelect.value.split('x').map(Number);
+                this.canvas.width = width;
+                this.canvas.height = height;
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(0, 0, width, height);
+            }
+
+            initDecoder() {
+                if (!('VideoDecoder' in window)) {
+                    alert('WebCodecs VideoDecoder not supported in this browser');
+                    return;
+                }
+
+                this.decoder = new VideoDecoder({
+                    output: this.handleFrame.bind(this),
+                    error: (error) => {
+                        console.error('VideoDecoder error:', error);
+                        this.updateStatus('Decoder error: ' + error.message, false);
+                    }
+                });
+            }
+
+            async connect() {
+                if (this.isConnected) return;
+
+                try {
+                    this.ws = new WebSocket('ws://localhost:8080/ws');
+                    this.ws.binaryType = 'arraybuffer';
+
+                    this.ws.onopen = () => {
+                        console.log('WebSocket connected');
+                        this.isConnected = true;
+                        this.updateStatus('Connected', true);
+                        this.updateButtons(true);
+                    };
+
+                    this.ws.onmessage = async (event) => {
+                        // =====================================================
+                        // WebSocket消息接收调试
+                        // =====================================================
+                        // 目的：确认服务器发送的消息类型和内容
+                        // 问题：服务器日志显示发送了SPS/PPS，但前端未收到
+                        // =====================================================
+                        
+                        console.log('=== WebSocket.onmessage START ===');
+                        console.log('event.data类型:', Object.prototype.toString.call(event.data));
+                        console.log('event.data instanceof ArrayBuffer:', event.data instanceof ArrayBuffer);
+                        console.log('event.data instanceof Blob:', event.data instanceof Blob);
+                        console.log('event.data instanceof String:', typeof event.data === 'string');
+                        
+                        if (event.data instanceof ArrayBuffer) {
+                            console.log('消息是ArrayBuffer, 大小:', event.data.byteLength);
+                            // 打印前20个字节的十六进制
+                            const view = new Uint8Array(event.data);
+                            const hex = Array.from(view.slice(0, 20)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+                            console.log('前20字节hex:', hex);
+                        } else if (event.data instanceof Blob) {
+                            console.log('消息是Blob, 大小:', event.data.size);
+                        } else if (typeof event.data === 'string') {
+                            console.log('消息是字符串, 长度:', event.data.length);
+                            console.log('字符串前100字符:', event.data.substring(0, 100));
+                        }
+                        
+                        await this.processMessage(event.data);
+                        console.log('=== WebSocket.onmessage END ===');
+                    };
+
+                    this.ws.onclose = () => {
+                        console.log('WebSocket disconnected');
+                        this.isConnected = false;
+                        this.updateStatus('Disconnected', false);
+                        this.updateButtons(false);
+                    };
+
+                    this.ws.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                        this.updateStatus('Connection error', false);
+                    };
+
+                } catch (error) {
+                    console.error('Connection failed:', error);
+                    this.updateStatus('Connection failed', false);
+                }
+            }
+
+            disconnect() {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.close();
+                }
+            }
+
+            async processMessage(data) {
+                // =====================================================
+                // processMessage - 处理WebSocket接收的视频帧数据
+                // =====================================================
+                // 数据流程:
+                // 1. WebSocket接收JSON格式数据: {"data": "Base64字符串", "timestamp": 0, "is_key": false}
+                // 2. 将Base64字符串解码为Uint8Array
+                // 3. 检查NALU类型 (H.264视频流)
+                //    - type 7 = SPS (序列参数集) - 包含视频分辨率、profile等
+                //    - type 8 = PPS (图像参数集) - 包含熵编码模式等
+                //    - type 5 = IDR (关键帧/I帧) - 可独立解码的帧
+                //    - type 1 = P帧 (预测帧) - 需要参考帧才能解码
+                // 4. 配置VideoDecoder (需要SPS+PPS+关键帧)
+                // 5. 送入解码器解码
+                // =====================================================
+                
+                console.log('=== processMessage START ===');
+                console.log('输入data类型:', typeof data);
+                console.log('输入data instanceof ArrayBuffer:', data instanceof ArrayBuffer);
+                console.log('输入data instanceof Blob:', data instanceof Blob);
+                console.log('输入data instanceof String:', typeof data === 'string');
+                
+                if (data instanceof ArrayBuffer) {
+                    console.log('ArrayBuffer大小:', data.byteLength);
+                    const view = new Uint8Array(data);
+                    const hex = Array.from(view.slice(0, 30)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+                    console.log('前30字节hex:', hex);
+                } else if (typeof data === 'string') {
+                    console.log('字符串长度:', data.length);
+                    console.log('字符串前100字符:', data.substring(0, 100));
+                    console.log('字符串最后100字符:', data.substring(Math.max(0, data.length - 100)));
+                }
+                
+                try {
+                    // 将ArrayBuffer/Blob转换为字符串进行JSON解析
+                    let jsonStr;
+                    if (data instanceof ArrayBuffer) {
+                        jsonStr = new TextDecoder().decode(data);
+                    } else if (data instanceof Blob) {
+                        jsonStr = await data.text();
+                    } else if (typeof data === 'string') {
+                        jsonStr = data;
+                    } else {
+                        console.error('未知的消息类型:', typeof data);
+                        return;
+                    }
+                    
+                    console.log('JSON字符串长度:', jsonStr.length);
+                    console.log('JSON前150字符:', jsonStr.substring(0, 150));
+                    
+                    // 解析JSON: {"data": "...", "timestamp": 0, "is_key": false}
+                    const frame = JSON.parse(jsonStr);
+                    
+                    // =====================================================
+                    // frame.data 可能存在两种格式:
+                    // 1. 数组格式 (旧版本): [0, 0, 0, 1, 65, ...] - 原始字节数组
+                    // 2. Base64字符串 (当前): "AAAAAQGe6WpHf814zTakSu..." - 编码后的字符串
+                    // =====================================================
+                    
+                    console.log('=== frame对象解析结果 ===');
+                    console.log('frame对象keys:', Object.keys(frame));
+                    console.log('frame.data是否存在:', 'data' in frame);
+                    console.log('frame.data类型:', typeof frame.data);
+                    console.log('frame.data值:', frame.data);
+                    console.log('frame.timestamp:', frame.timestamp);
+                    console.log('frame.is_key:', frame.is_key);
+                    
+                    // 如果frame.data是Base64字符串，验证它是否匹配SPS的预期格式
+                    if (typeof frame.data === 'string') {
+                        console.log('=== 检测到Base64编码的数据 ===');
+                        console.log('Base64长度:', frame.data.length);
+                        console.log('Base64前50字符:', frame.data.substring(0, 50));
+                        
+                        // 预期SPS的Base64应该以 "AAAAA" 开头 (因为0x00 0x00 0x00 0x01 0x67 = "AAAAA" + "g")
+                        if (frame.data.startsWith('AAAAA')) {
+                            console.log('✓ 数据以AAAAA开头，可能是H.264 NALU (00 00 00 01)');
+                        }
+                        
+                        // 尝试解码前几个字节来验证
+                        try {
+                            const firstBytes = atob(frame.data.substring(0, 10));
+                            const byteValues = Array.from(firstBytes).map(c => c.charCodeAt(0));
+                            console.log('解码前10字节:', byteValues);
+                            console.log('前10字节hex:', byteValues.map(b => b.toString(16).padStart(2, '0')).join(' '));
+                        } catch (e) {
+                            console.log('解码测试失败:', e.message);
+                        }
+                    }
+                    
+                    // =====================================================
+                    // 数据类型转换: Base64字符串 → Uint8Array
+                    // =====================================================
+                    let frameData; // 将用于后续处理的Uint8Array
+                    
+                    if (typeof frame.data === 'string') {
+                        // 情况1: Base64字符串，需要解码
+                        console.log('=== Base64字符串解码 ===');
+                        console.log('开始解码...');
+                        const binaryString = atob(frame.data);
+                        console.log('Base64解码后的二进制字符串长度:', binaryString.length);
+                        
+                        frameData = new Uint8Array(binaryString.length);
+                        for (let i = 0; i < binaryString.length; i++) {
+                            frameData[i] = binaryString.charCodeAt(i);
+                        }
+                        console.log('转换为Uint8Array完成, 长度:', frameData.length);
+                    } else if (Array.isArray(frame.data)) {
+                        // 情况2: 数组格式，直接转换
+                        console.log('=== 数组格式转换 ===');
+                        frameData = new Uint8Array(frame.data);
+                        console.log('转换为Uint8Array完成, 长度:', frameData.length);
+                    } else {
+                        console.error('未知的frame.data格式:', typeof frame.data);
+                        return;
+                    }
+                    
+                    console.log('frameData前30字节:', Array.from(frameData.slice(0, 30)));
+                    console.log('frameData前30字节hex:', Array.from(frameData.slice(0, 30)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+                    
+                    // =====================================================
+                    // NALU类型解析
+                    // =====================================================
+                    // H.264 NALU结构:
+                    // [00 00 00 01] [type] [data...]
+                    //               ^^^^^
+                    //               NALU类型字节，bit0-4为类型
+                    //
+                    // 常见类型:
+                    // type 7 = SPS (Sequence Parameter Set) - 视频参数
+                    // type 8 = PPS (Picture Parameter Set) - 图像参数  
+                    // type 5 = IDR (Instantaneous Decoder Refresh) - 关键帧
+                    // type 1 = P帧 (Predicted Picture) - 预测帧
+                    // type 6 = SEI (Supplemental Enhancement Information)
+                    // type 9 = Access Unit Delimiter
+                    // =====================================================
+                    
+                    console.log('=== NALU类型检查 ===');
+                    console.log('frameData长度:', frameData.length);
+                    
+                    if (frameData.length < 5) {
+                        console.log('数据太短，无法检查NALU类型');
+                        return;
+                    }
+                    
+                    // 跳过起始码 [00 00 00 01] 检查实际的NALU头
+                    let naluOffset = 0;
+                    if (frameData[0] === 0 && frameData[1] === 0 && frameData[2] === 0 && frameData[3] === 1) {
+                        naluOffset = 4;
+                        console.log('检测到4字节起始码 [00 00 00 01]');
+                    } else if (frameData[0] === 0 && frameData[1] === 0 && frameData[2] === 1) {
+                        naluOffset = 3;
+                        console.log('检测到3字节起始码 [00 00 01]');
+                    } else {
+                        console.log('未检测到标准起始码，使用偏移0');
+                    }
+                    
+                    const naluHeader = frameData[naluOffset];
+                    const naluType = naluHeader & 0x1F; // 取低5位
+                    const nalRefIdc = (naluHeader >> 5) & 0x03; // 取bit5-6
+                    
+                    console.log('NALU头字节:', naluHeader, 'hex:', naluHeader.toString(16));
+                    console.log('NALU类型:', naluType);
+                    console.log('NAL Ref IDC:', nalRefIdc);
+                    console.log('类型解释:', this.getNaluTypeName(naluType));
+                    
+                    // =====================================================
+                    // 根据NALU类型处理
+                    // =====================================================
+                    
+                    if (naluType === 7) { // SPS
+                        this.sps = frameData;
+                        console.log('========================================');
+                        console.log('*** 收到SPS (Sequence Parameter Set) ***');
+                        console.log('========================================');
+                        console.log('SPS长度:', this.sps.length);
+                        console.log('SPS数据:', Array.from(this.sps));
+                        console.log('SPS前20字节hex:', Array.from(this.sps.slice(0, 20)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+                        
+                        // 解析SPS获取视频信息
+                        if (this.sps.length >= 5) {
+                            const profile = this.sps[naluOffset + 1];
+                            const compat = this.sps[naluOffset + 2];
+                            const level = this.sps[naluOffset + 3];
+                            console.log('SPS解析: profile=' + profile + ', compat=' + compat + ', level=' + level);
+                        }
+                        
+                        // 检查是否已有PPS，配置解码器
+                        if (this.pps) {
+                            console.log('PPS已存在，配置解码器...');
+                            await this.configureDecoder();
+                        } else {
+                            console.log('等待PPS...');
+                        }
+                        return;
+                        
+                    } else if (naluType === 8) { // PPS
+                        this.pps = frameData;
+                        console.log('========================================');
+                        console.log('*** 收到PPS (Picture Parameter Set) ***');
+                        console.log('========================================');
+                        console.log('PPS长度:', this.pps.length);
+                        console.log('PPS数据:', Array.from(this.pps));
+                        console.log('PPS前20字节hex:', Array.from(this.pps.slice(0, 20)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+                        
+                        // 检查是否已有SPS，配置解码器
+                        if (this.sps) {
+                            console.log('SPS已存在，配置解码器...');
+                            await this.configureDecoder();
+                        } else {
+                            console.log('等待SPS...');
+                        }
+                        return;
+                        
+                    } else if (naluType === 5) { // IDR (关键帧)
+                        console.log('========================================');
+                        console.log('*** 收到IDR帧 (关键帧/I帧) ***');
+                        console.log('========================================');
+                        console.log('可独立解码的帧，不需要参考其他帧');
+                        
+                    } else if (naluType === 1) { // P帧
+                        console.log('--- 收到P帧 (预测帧) ---');
+                        console.log('需要参考前面的帧才能解码');
+                    } else if (naluType === 6) { // SEI
+                        console.log('--- 收到SEI (辅助增强信息) ---');
+                    } else if (naluType === 9) { // AUD
+                        console.log('--- 收到AUD (访问单元分隔符) ---');
+                    } else {
+                        console.log('--- 收到其他类型NALU: type=' + naluType + ' ---');
+                    }
+                    
+                    // =====================================================
+                    // 解码器配置检查
+                    // =====================================================
+                    console.log('=== 解码器状态检查 ===');
+                    console.log('decoder是否存在:', !!this.decoder);
+                    console.log('decoder.state:', this.decoder ? this.decoder.state : 'N/A');
+                    console.log('sps是否存在:', !!this.sps);
+                    console.log('pps是否存在:', !!this.pps);
+                    
+                    if (!this.decoder) {
+                        console.log('解码器不存在，跳过');
+                        return;
+                    }
+                    
+                    if (this.decoder.state !== 'configured') {
+                        console.log('解码器未配置，跳过帧');
+                        console.log('可能原因: 1) 尚未收到SPS/PPS 2) 配置失败');
+                        return;
+                    }
+                    
+                    // =====================================================
+                    // 关键帧检查 - VideoDecoder要求configure后第一个帧必须是关键帧
+                    // =====================================================
+                    if (this.frameCount === 0) {
+                        console.log('=== 第一个帧检查 (configure后) ===');
+                        if (naluType === 5) {
+                            console.log('✓ 第一个帧是关键帧(IDR)，可以开始解码');
+                        } else {
+                            console.log('✗ 第一个帧不是关键帧(type=' + naluType + ')，VideoDecoder要求关键帧');
+                            console.log('跳过此帧，等待关键帧...');
+                            return;
+                        }
+                    }
+                    
+                    // =====================================================
+                    // 送入解码器
+                    // =====================================================
+                    console.log('=== 送入解码器 ===');
+                    const chunk = new EncodedVideoChunk({
+                        type: (naluType === 5 || frame.is_key) ? 'key' : 'delta',
+                        timestamp: (frame.timestamp || 0) * 1000,
+                        data: frameData
+                    });
+                    
+                    console.log('chunk.type:', chunk.type);
+                    console.log('chunk.timestamp:', chunk.timestamp);
+                    console.log('chunk.byteLength:', chunk.byteLength);
+                    
+                    try {
+                        await this.decoder.decode(chunk);
+                        this.frameCount++;
+                        console.log('✓ 解码成功, frameCount=' + this.frameCount);
+                    } catch (error) {
+                        console.error('✗ 解码失败:', error);
+                        console.error('错误详情:', error.message);
+                        if (error.message.includes('key frame')) {
+                            console.error('需要关键帧，请等待下一个IDR帧');
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('=== 处理消息时出错 ===');
+                    console.error('错误:', error);
+                    console.error('错误堆栈:', error.stack);
+                }
+                console.log('=== processMessage END ===');
+            }
+            
+            getNaluTypeName(type) {
+                const typeNames = {
+                    0: 'Unspecified',
+                    1: 'Non-IDR Slice (P帧)',
+                    2: 'Slice Partition A',
+                    3: 'Slice Partition B',
+                    4: 'Slice Partition C',
+                    5: 'IDR Slice (关键帧)',
+                    6: 'SEI',
+                    7: 'SPS (序列参数集)',
+                    8: 'PPS (图像参数集)',
+                    9: 'AUD (访问单元分隔符)',
+                    10: 'End of Sequence',
+                    11: 'End of Stream',
+                    12: 'Filler Data',
+                    13: 'SPS Extension',
+                    14: 'Prefix NALU',
+                    15: 'Subset SPS',
+                    16: 'Depth Parameter Set'
+                };
+                return typeNames[type] || 'Unknown (type=' + type + ')';
+            }
+
+            async configureDecoder() {
+                // =====================================================
+                // configureDecoder - 配置VideoDecoder
+                // =====================================================
+                // 前提条件:
+                // - 已收到SPS (Sequence Parameter Set) - 包含视频编码参数
+                // - 已收到PPS (Picture Parameter Set) - 包含图像参数
+                //
+                // VideoDecoder配置要求:
+                // - codec: H.264格式字符串，如 "avc1.64001F" (从SPS解析)
+                // - codedWidth/codedHeight: 视频分辨率
+                // - description: AVCC格式的extradata (SPS+PPS)
+                // - configure后的第一个帧必须是关键帧(IDR)
+                // =====================================================
+                
+                console.log('=== configureDecoder START ===');
+                console.log('SPS状态:', this.sps ? '已收到, 长度=' + this.sps.length : '未收到');
+                console.log('PPS状态:', this.pps ? '已收到, 长度=' + this.pps.length : '未收到');
+                
+                if (!this.sps || !this.pps) {
+                    console.log('缺少SPS或PPS，无法配置解码器');
+                    console.log('需要等待更多消息...');
+                    return;
+                }
+                
+                // 检查是否已配置
+                if (this.decoder && this.decoder.state === 'configured') {
+                    console.log('解码器已配置，跳过重复配置');
+                    return;
+                }
+                
+                try {
+                    // =====================================================
+                    // 解析SPS获取视频参数
+                    // =====================================================
+                    // H.264 SPS结构 (筒化):
+                    // [1 byte: profile] [1 byte: compat] [1 byte: level]
+                    // [1 byte: 00] [2 bits: chroma_format] [5 bits: bit_depth_luma_minus8]
+                    // [3 bits: bit_depth_chroma_minus8] [1 bit: qpprime_y_zero_transform_bypass_flag]
+                    // [5 bits: seq_scaling_matrix_present_flag] ...
+                    // =====================================================
+                    
+                    console.log('=== 解析SPS ===');
+                    console.log('SPS完整数据:', Array.from(this.sps));
+                    console.log('SPS前30字节hex:', Array.from(this.sps.slice(0, 30)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+                    
+                    // 跳过可能的起始码
+                    let spsOffset = 0;
+                    if (this.sps[0] === 0 && this.sps[1] === 0 && this.sps[2] === 0 && this.sps[3] === 1) {
+                        spsOffset = 4;
+                    } else if (this.sps[0] === 0 && this.sps[1] === 0 && this.sps[2] === 1) {
+                        spsOffset = 3;
+                    }
+                    
+                    if (this.sps.length >= spsOffset + 4) {
+                        const profile = this.sps[spsOffset + 1];
+                        const compat = this.sps[spsOffset + 2];
+                        const level = this.sps[spsOffset + 3];
+                        
+                        console.log('SPS解析结果:');
+                        console.log('  profile_idc (编码配置):', profile, '(' + this.getProfileName(profile) + ')');
+                        console.log('  constraint_set flags:', compat.toString(2).padStart(8, '0'));
+                        console.log('  level_idc (编码级别):', level, '(Level ' + (level / 10) + ')');
+                    }
+                    
+                    // =====================================================
+                    // 生成codec字符串
+                    // =====================================================
+                    // codec格式: avc1.XXYYZZ
+                    // - XX: profile_idc (十六进制)
+                    // - YY: constraint_set flags (十六进制)
+                    // - ZZ: level_idc (十六进制)
+                    // 例如: avc1.64001F = High Profile, Level 3.1
+                    // =====================================================
+                    
+                    const codec = this.getCodecString(this.sps);
+                    console.log('生成的codec字符串:', codec);
+                    
+                    // =====================================================
+                    // 获取视频分辨率
+                    // =====================================================
+                    const [width, height] = this.resolutionSelect.value.split('x').map(Number);
+                    console.log('目标分辨率:', width, 'x', height);
+                    
+                    // =====================================================
+                    // 构建AVCC格式的description
+                    // =====================================================
+                    // AVCC extradata格式:
+                    // [1 byte: version] [1 byte: profile] [1 byte: compat] [1 byte: level]
+                    // [1 byte: 0xFF] (NALU length size = 4 bytes minus 1)
+                    // [1 byte: 0xE1] (number of SPS = 1, with reserved bits)
+                    // [2 bytes: SPS length]
+                    // [SPS bytes...]
+                    // [1 byte: number of PPS]
+                    // [2 bytes: PPS length]
+                    // [PPS bytes...]
+                    //
+                    // 简化版本 (部分解码器接受):
+                    // [4 bytes: SPS length] [SPS bytes...] [4 bytes: PPS length] [PPS bytes...]
+                    // =====================================================
+                    
+                    console.log('=== 构建description (extradata) ===');
+                    
+                    // 方法1: 简化格式 (4字节长度 + 数据)
+                    const description = new Uint8Array(4 + (this.sps.length - spsOffset) + 4 + this.pps.length);
+                    
+                    // 写入SPS长度和数据
+                    const spsLen = new Uint8Array(new Uint32Array([this.sps.length - spsOffset]).buffer);
+                    description[0] = spsLen[3];
+                    description[1] = spsLen[2];
+                    description[2] = spsLen[1];
+                    description[3] = spsLen[0];
+                    description.set(this.sps.slice(spsOffset), 4);
+                    
+                    // 写入PPS长度和数据
+                    let ppsOffset = 0;
+                    if (this.pps[0] === 0 && this.pps[1] === 0 && this.pps[2] === 0 && this.pps[3] === 1) {
+                        ppsOffset = 4;
+                    } else if (this.pps[0] === 0 && this.pps[1] === 0 && this.pps[2] === 1) {
+                        ppsOffset = 3;
+                    }
+                    
+                    const ppsLen = new Uint8Array(new Uint32Array([this.pps.length - ppsOffset]).buffer);
+                    const ppsStart = 4 + (this.sps.length - spsOffset);
+                    description[ppsStart] = ppsLen[3];
+                    description[ppsStart + 1] = ppsLen[2];
+                    description[ppsStart + 2] = ppsLen[1];
+                    description[ppsStart + 3] = ppsLen[0];
+                    description.set(this.pps.slice(ppsOffset), ppsStart + 4);
+                    
+                    console.log('description长度:', description.length);
+                    console.log('description hex:', Array.from(description.slice(0, Math.min(40, description.length))).map(b => b.toString(16).padStart(2, '0')).join(' '));
+                    
+                    // =====================================================
+                    // 配置VideoDecoder
+                    // =====================================================
+                    console.log('=== 配置VideoDecoder ===');
+                    console.log('配置参数:');
+                    console.log('  codec:', codec);
+                    console.log('  codedWidth:', width);
+                    console.log('  codedHeight:', height);
+                    console.log('  description长度:', description.length);
+                    
+                    await this.decoder.configure({
+                        codec: codec,
+                        codedWidth: width,
+                        codedHeight: height,
+                        description: description
+                    });
+                    
+                    console.log('========================================');
+                    console.log('*** 解码器配置成功 ***');
+                    console.log('========================================');
+                    console.log('等待关键帧(IDR)开始解码...');
+                    
+                    // 重置帧计数器，等待关键帧
+                    this.frameCount = 0;
+                    this.keyFrameReceived = false;
+                    
+                } catch (error) {
+                    console.error('========================================');
+                    console.error('✗ 解码器配置失败');
+                    console.error('========================================');
+                    console.error('错误:', error);
+                    console.error('错误消息:', error.message);
+                    
+                    if (error.message.includes('description')) {
+                        console.error('可能原因: description格式不正确');
+                    } else if (error.message.includes('codec')) {
+                        console.error('可能原因: codec字符串格式错误');
+                    } else if (error.message.includes('width') || error.message.includes('height')) {
+                        console.error('可能原因: 分辨率值不合法');
+                    }
+                }
+                console.log('=== configureDecoder END ===');
+            }
+            
+            getProfileName(profileIdc) {
+                const profiles = {
+                    66: 'Baseline',
+                    77: 'Main',
+                    88: 'Extended',
+                    100: 'High',
+                    110: 'High 10',
+                    122: 'High 4:2:2',
+                    144: 'High 4:4:4'
+                };
+                return profiles[profileIdc] || 'Unknown (profile=' + profileIdc + ')';
+            }
+
+            // Add a method to check and wait for key frame
+            async waitForKeyFrame() {
+                return new Promise((resolve) => {
+                    const checkKeyFrame = () => {
+                        if (this.keyFrameReceived) {
+                            this.keyFrameReceived = false;
+                            resolve(true);
+                        } else {
+                            setTimeout(checkKeyFrame, 10);
+                        }
+                    };
+                    checkKeyFrame();
+                });
+            }
+
+
+
+            handleFrame(frame) {
+                // Clear canvas
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw the video frame
+                this.ctx.drawImage(frame, 0, 0, this.canvas.width, this.canvas.height);
+
+                // Close the frame to free memory
+                frame.close();
+            }
+
+            getCodecString(sps) {
+                // Parse SPS to get codec string
+                // This is a simplified implementation
+                const profile = sps[5];  // profile_idc
+                const compat = sps[6];   // constraint_set_flags
+                const level = sps[7];    // level_idc
+
+                const profileHex = profile.toString(16).padStart(2, '0').toUpperCase();
+                const compatHex = compat.toString(16).padStart(2, '0').toUpperCase();
+                const levelHex = level.toString(16).padStart(2, '0').toUpperCase();
+
+                return `avc1.${profileHex}${compatHex}${levelHex}`;
+            }
+
+            updateStatus(message, connected) {
+                const statusEl = document.getElementById('status');
+                statusEl.textContent = message;
+                statusEl.className = 'status ' + (connected ? 'connected' : 'disconnected');
+            }
+
+            updateButtons(connected) {
+                document.getElementById('connectBtn').disabled = connected;
+                document.getElementById('disconnectBtn').disabled = !connected;
+            }
+        }
+
+        // Initialize player when page loads
+        let player;
+        document.addEventListener('DOMContentLoaded', () => {
+            player = new H264WebSocketPlayer('videoCanvas');
+
+            document.getElementById('connectBtn').addEventListener('click', () => {
+                player.connect();
+            });
+
+            document.getElementById('disconnectBtn').addEventListener('click', () => {
+                player.disconnect();
+            });
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (player) {
+                player.disconnect();
+            }
+        });
+    </script>
+</body>
+</html>
