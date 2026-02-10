@@ -183,7 +183,12 @@ func (w *H264Writer) broadcastFrame(frame *H264Frame) {
 
 	for _, client := range w.clients {
 		if client.conn != nil {
-			data, _ := json.Marshal(frame)
+			data, err := json.Marshal(frame)
+			if err != nil {
+				log.Printf("Error marshaling frame to JSON for client %s: %v", client.clientID, err)
+				continue
+			}
+
 			if len(frame.Data) > 4 {
 				// naluType := frame.Data[4] & 0x1F
 				// log.Printf("Sending frame: NALU type=%d, isKey=%v, dataLen=%d", naluType, frame.IsKey, len(frame.Data))
@@ -550,18 +555,22 @@ func startWebSocketServer(h264Writer *H264Writer) {
 			log.Printf("Preparing SPS for client %s: total length=%d, first 10 bytes=%v", clientID, len(spsData), spsData[:minInt(10, len(spsData))])
 
 			// 构建配置消息
-			configMsg, _ := json.Marshal(H264Frame{
+			configMsg, err := json.Marshal(H264Frame{
 				Data:      spsData,
 				Timestamp: currentTime,
 				IsKey:     true, // 标记为关键帧
 			})
-			log.Printf("SPS JSON length for client %s: %d", clientID, len(configMsg))
-
-			// 发送
-			if err := conn.WriteMessage(websocket.BinaryMessage, configMsg); err != nil {
-				log.Printf("Error sending SPS to client %s: %v", clientID, err)
+			if err != nil {
+				log.Printf("Error marshaling SPS to JSON for client %s: %v", clientID, err)
 			} else {
-				log.Printf("Sent SPS to client %s, data length: %d", clientID, len(spsData))
+				log.Printf("SPS JSON length for client %s: %d", clientID, len(configMsg))
+
+				// 发送
+				if err := conn.WriteMessage(websocket.BinaryMessage, configMsg); err != nil {
+					log.Printf("Error sending SPS to client %s: %v", clientID, err)
+				} else {
+					log.Printf("Sent SPS to client %s, data length: %d", clientID, len(spsData))
+				}
 			}
 		}
 
@@ -574,12 +583,22 @@ func startWebSocketServer(h264Writer *H264Writer) {
 			ppsData := append([]byte{0x00, 0x00, 0x00, 0x01}, h264Writer.pps...)
 			log.Printf("Preparing PPS for client %s: total length=%d, first 10 bytes=%v", clientID, len(ppsData), ppsData[:minInt(10, len(ppsData))])
 
-			configMsg, _ := json.Marshal(H264Frame{
+			configMsg, err := json.Marshal(H264Frame{
 				Data:      ppsData,
 				Timestamp: currentTime,
 				IsKey:     true,
 			})
-			log.Printf("PPS JSON length for client %s: %d", clientID, len(configMsg))
+			if err != nil {
+				log.Printf("Error marshaling PPS to JSON for client %s: %v", clientID, err)
+			} else {
+				log.Printf("PPS JSON length for client %s: %d", clientID, len(configMsg))
+
+				if err := conn.WriteMessage(websocket.BinaryMessage, configMsg); err != nil {
+					log.Printf("Error sending PPS to client %s: %v", clientID, err)
+				} else {
+					log.Printf("Sent PPS to client %s, data length: %d", clientID, len(ppsData))
+				}
+			}
 
 			if err := conn.WriteMessage(websocket.BinaryMessage, configMsg); err != nil {
 				log.Printf("Error sending PPS to client %s: %v", clientID, err)
