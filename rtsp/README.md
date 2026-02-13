@@ -113,9 +113,9 @@ const chunk = new EncodedVideoChunk({
 });
 ```
 
-### 3. WebSocket 协议设计
+### 3. 传输协议设计
 
-**二进制消息格式：**
+**WebSocket 协议设计** (兼容模式):
 ```json
 {
   "data": [00, 00, 00, 01, 0x67, ...SPS...],  // 带 start code 的 H264 NALU
@@ -124,24 +124,44 @@ const chunk = new EncodedVideoChunk({
 }
 ```
 
+**WebTransport 协议设计** (低延迟模式):
+- 基于 QUIC 的多路复用流
+- 无队头阻塞
+- 0-RTT 连接建立
+- 更低的端到端延迟
+
 **初始化序列：**
-1. 客户端连接 → WebSocket 握手
+1. 客户端连接 → 协议协商 (WebSocket优先，WebTransport备选)
 2. 服务器发送缓存的 SPS/PPS → 解码器初始化
 3. 服务器开始流传输 → 正常视频帧
 
-### 4. 性能优化
+### 4. 混合传输架构
+
+**协议选择逻辑:**
+- 优先尝试 WebTransport (Chrome/Edge 97+)
+- 回退到 WebSocket (全浏览器兼容)
+- 浏览器自动协商最佳协议
+
+**性能特性:**
+- **WebSocket**: 全兼容，延迟 30-85ms
+- **WebTransport**: 低延迟，延迟 10-40ms
+- **QUIC 优势**: 无队头阻塞，连接迁移，快速握手
+
+### 5. 性能优化
 
 **服务端：**
 - **无锁帧广播**：最小化互斥锁争用
-- **二进制协议**：WebSocket 上的 JSON（高效传输）
+- **二进制协议**：WebSocket/WebTransport 上的 JSON（高效传输）
 - **SPS/PPS 缓存**：新客户端的参数存储
 - **时间戳转换**：预计算的相对时间戳
+- **双协议支持**：统一的帧分发机制
 
 **客户端：**
 - **硬件解码**：WebCodecs GPU 加速
 - **帧回收**：适当的 VideoFrame.close() 内存管理
 - **块处理**：高效的 EncodedVideoChunk 创建
 - **Canvas 优化**：直接帧到 canvas 渲染
+- **自适应传输**：根据浏览器能力选择传输协议
 
 ### 5. 错误处理与容错
 

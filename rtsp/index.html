@@ -211,26 +211,89 @@
       }
 
       // ==========================================
-      // 3. WebSocket 连接与主循环
+      // 3. 混合传输协议连接与主循环
       // ==========================================
       const wsUrl = "ws://localhost:8080/ws"
-      const socket = new WebSocket(wsUrl)
-      socket.binaryType = "arraybuffer"
+      const wtUrl = "https://localhost:4433/wt"
+      let currentSocket = null;
+      let transportProtocol = "unknown";
 
-      socket.onopen = () => {
-        statusDiv.innerText = "WebSocket 已连接"
+      // 检查是否支持 WebTransport
+      if (typeof WebTransport !== 'undefined') {
+        console.log('WebTransport is supported, attempting hybrid connection...');
+        // 动态加载 WebTransport 客户端脚本
+        const script = document.createElement('script');
+        script.src = 'webtransport_client.js';
+        script.onload = initHybridTransport;
+        script.onerror = () => {
+          console.warn('Failed to load WebTransport client, using WebSocket fallback');
+          initWebSocket();
+        };
+        document.head.appendChild(script);
+      } else {
+        console.log('WebTransport not supported, using WebSocket');
+        initWebSocket();
       }
 
-      socket.onclose = () => {
-        statusDiv.innerText = "连接已断开"
-        isDecoderConfigured = false
+      // 初始化 WebSocket 连接
+      function initWebSocket() {
+        console.log('Initializing WebSocket connection at:', wsUrl);
+        currentSocket = new WebSocket(wsUrl);
+        currentSocket.binaryType = "arraybuffer";
+        transportProtocol = "websocket";
+
+        currentSocket.onopen = () => {
+          statusDiv.innerText = `WebSocket 已连接 (协议: ${transportProtocol})`;
+        };
+
+        currentSocket.onclose = () => {
+          statusDiv.innerText = "WebSocket 连接已断开";
+          isDecoderConfigured = false;
+          // 尝试重连
+          setTimeout(initWebSocket, 3000);
+        };
+
+        currentSocket.onerror = (err) => {
+          console.error("WebSocket 错误:", err);
+        };
+
+        currentSocket.onmessage = handleIncomingMessage;
       }
 
-      socket.onerror = (err) => {
-        console.error("WebSocket 错误:", err)
+      // 初始化混合传输连接
+      async function initHybridTransport() {
+        try {
+          // 创建混合客户端实例
+          const hybridClient = new HybridTransportClient(
+            wsUrl,  // WebSocket URL
+            wtUrl,  // WebTransport URL
+            (data) => {
+              // 接收到数据时的处理 - 创建模拟事件对象
+              const mockEvent = { data: data };
+              handleIncomingMessage(mockEvent);
+            },
+            (error) => {
+              console.error('Hybrid transport error:', error);
+              // 如果混合传输失败，回退到普通WebSocket
+              initWebSocket();
+            }
+          );
+
+          // 尝试连接
+          await hybridClient.connect();
+          currentSocket = hybridClient;
+          transportProtocol = hybridClient.protocol;
+          console.log('Connected using', transportProtocol);
+
+          statusDiv.innerText = `混合传输已连接 (协议: ${transportProtocol})`;
+        } catch (error) {
+          console.warn('Hybrid transport initialization failed, using WebSocket fallback:', error);
+          initWebSocket();
+        }
       }
 
-      socket.onmessage = async (event) => {
+      // 处理传入的消息（无论是来自WebSocket还是WebTransport）
+      async function handleIncomingMessage(event) {
         // --- A. 解析 JSON ---
         let jsonMsg
         try {

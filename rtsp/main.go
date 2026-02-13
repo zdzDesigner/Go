@@ -718,6 +718,16 @@ func main() {
 	// 启动WebSocket服务器
 	startWebSocketServer(h264Writer)
 
+	// 启动WebTransport服务器 (QUIC支持)
+	wtServer := GetWTServer()
+	wtServer.SyncSPSPPS(h264Writer) // 同步现有的SPS/PPS
+	err := wtServer.StartWebTransportServer(h264Writer)
+	if err != nil {
+		log.Printf("Failed to start WebTransport server: %v", err)
+	} else {
+		log.Printf("WebTransport server started successfully on %s", wtServer.addr)
+	}
+
 	// RTSP流URL配置
 	// =============================================================================
 	// 示例URL:
@@ -781,10 +791,16 @@ func main() {
 				if len(h264.SPS) > 0 {
 					h264Writer.sps = h264.SPS
 					log.Printf("  Loaded SPS from SDP: %v", h264Writer.sps)
+
+					// 同步到WebTransport服务器
+					GetWTServer().SyncSPSPPS(h264Writer)
 				}
 				if len(h264.PPS) > 0 {
 					h264Writer.pps = h264.PPS
 					log.Printf("  Loaded PPS from SDP: %v", h264Writer.pps)
+
+					// 同步到WebTransport服务器
+					GetWTServer().SyncSPSPPS(h264Writer)
 				}
 			}
 		}
@@ -808,6 +824,9 @@ func main() {
 		if frame != nil {
 			// 如果成功提取帧，广播到所有WebSocket客户端
 			h264Writer.broadcastFrame(frame)
+
+			// 同时广播到WebTransport客户端
+			GetWTServer().BroadcastFrame(frame)
 		}
 	})
 
