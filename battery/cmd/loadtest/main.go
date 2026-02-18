@@ -1,3 +1,6 @@
+// Package main implements a high-scale MQTT load testing tool.
+// This command-line application simulates thousands of concurrent MQTT clients
+// to stress-test the MQTT broker's performance and capacity.
 package main
 
 import (
@@ -11,22 +14,29 @@ import (
 	"time"
 )
 
+// MQTT packet types as defined in the MQTT 3.1.1 specification
 const (
-	Connect     = 1
-	Connack     = 2
-	Publish     = 3
-	Subscribe   = 8
-	Suback      = 9
-	Unsubscribe = 10
-	Pingreq     = 12
-	Pingresp    = 13
-	Disconnect  = 14
+	Connect     = 1  // Client request to connect to Server
+	Connack     = 2  // Connect acknowledgment
+	Publish     = 3  // Publish message
+	Subscribe   = 8  // Client subscribe request
+	Suback      = 9  // Subscribe acknowledgment
+	Unsubscribe = 10 // Unsubscribe request
+	Pingreq     = 12 // PING request
+	Pingresp    = 13 // PING response
+	Disconnect  = 14 // Client is disconnecting
 )
 
 var (
+	// brokerAddr specifies the MQTT broker address to connect to
+	// Default value is "localhost:1883"
 	brokerAddr = flag.String("addr", "localhost:1883", "MQTT broker address")
+	// numClients defines the number of concurrent MQTT clients to simulate
+	// Default value is 100,000 to test high-scale scenarios
 	numClients = flag.Int("clients", 100000, "Number of concurrent clients to simulate")
-	testTime   = flag.Duration("time", 30*time.Second, "Duration of the test")
+	// testTime specifies the duration for which the load test will run
+	// Default value is 30 seconds
+	testTime = flag.Duration("time", 30*time.Second, "Duration of the test")
 )
 
 type Client struct {

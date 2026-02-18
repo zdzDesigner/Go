@@ -1,3 +1,6 @@
+// Package broker implements a high-performance MQTT broker capable of handling 100K+ concurrent connections.
+// It follows MQTT 3.1.1 specification for packet format and protocol handling, with efficient routing
+// and connection management for scalable IoT messaging.
 package broker
 
 import (
@@ -15,47 +18,78 @@ import (
 	"battery/internal/router"
 )
 
+// MQTT packet types as defined in the MQTT 3.1.1 specification
 const (
-	Connect     = 1
-	Connack     = 2
-	Publish     = 3
-	Puback      = 4
-	Pubrec      = 5
-	Pubrel      = 6
-	Pubcomp     = 7
-	Subscribe   = 8
-	Suback      = 9
-	Unsubscribe = 10
-	Unsuback    = 11
-	Pingreq     = 12
-	Pingresp    = 13
-	Disconnect  = 14
+	Connect     = 1  // Client request to connect to Server
+	Connack     = 2  // Connect acknowledgment
+	Publish     = 3  // Publish message
+	Puback      = 4  // Publish acknowledgment
+	Pubrec      = 5  // Publish received (assured delivery part 1)
+	Pubrel      = 6  // Publish release (assured delivery part 2)
+	Pubcomp     = 7  // Publish complete (assured delivery part 3)
+	Subscribe   = 8  // Client subscribe request
+	Suback      = 9  // Subscribe acknowledgment
+	Unsubscribe = 10 // Unsubscribe request
+	Unsuback    = 11 // Unsubscribe acknowledgment
+	Pingreq     = 12 // PING request
+	Pingresp    = 13 // PING response
+	Disconnect  = 14 // Client is disconnecting
 )
 
+// Broker represents the main MQTT broker instance that handles client connections,
+// message routing, and protocol compliance. It manages the lifecycle of MQTT sessions
+// and coordinates with the connection manager and topic router.
 type Broker struct {
-	listener    net.Listener
-	clients     sync.Map
-	messages    chan *Message
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
+	// listener accepts incoming network connections on the configured port
+	listener net.Listener
+	// clients maintains a thread-safe map of active client connections by client ID
+	clients sync.Map
+	// messages channel queues incoming messages for routing to subscribers
+	messages chan *Message
+	// ctx provides cancellation capability for graceful shutdown
+	ctx context.Context
+	// cancel function cancels the context to signal shutdown
+	cancel context.CancelFunc
+	// wg waits for all goroutines to finish during shutdown
+	wg sync.WaitGroup
+	// connManager handles connection limits and resource management
 	connManager *connection.ConnectionManager
+	// topicRouter manages topic subscriptions and matching
 	topicRouter *router.TopicMatcher
 }
 
+// Message represents an MQTT message that contains topic, payload, and quality of service level
 type Message struct {
+	// Topic specifies the MQTT topic to which the message is published
 	Topic string
+	// Value contains the binary payload data of the message
 	Value []byte
-	QoS   byte
+	// QoS defines the quality of service level for this message (0, 1, or 2)
+	QoS byte
 }
 
+// ClientConnection encapsulates the information and state for a single MQTT client connection
 type ClientConnection struct {
-	ID        string
-	Conn      net.Conn
+	// ID uniquely identifies the client in the broker's client registry
+	ID string
+	// Conn holds the underlying network connection to the client
+	Conn net.Conn
+	// CreatedAt records the timestamp when the connection was established
 	CreatedAt time.Time
-	mu        sync.RWMutex
+	// mu provides thread-safe access to connection state
+	mu sync.RWMutex
 }
 
+// NewBroker creates and initializes a new MQTT broker instance with the specified configuration.
+// It sets up network listening, message channels, and associated managers needed for operation.
+//
+// Parameters:
+//   - address: Network address to bind the MQTT listener (e.g., ":1883" or "localhost:1883")
+//   - maxConnections: Maximum number of concurrent client connections allowed
+//
+// Returns:
+//   - A pointer to the initialized Broker instance
+//   - An error if the network listener could not be created
 func NewBroker(address string, maxConnections int) (*Broker, error) {
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
@@ -66,7 +100,7 @@ func NewBroker(address string, maxConnections int) (*Broker, error) {
 
 	broker := &Broker{
 		listener:    listener,
-		messages:    make(chan *Message, 10000),
+		messages:    make(chan *Message, 10000), // Buffer up to 10,000 messages in queue
 		ctx:         ctx,
 		cancel:      cancel,
 		connManager: connection.NewConnectionManager(maxConnections),

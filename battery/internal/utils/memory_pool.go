@@ -1,15 +1,26 @@
+// Package utils provides utility structures and functions to support the MQTT broker,
+// including memory management utilities to reduce garbage collection pressure
+// and improve performance in high-throughput scenarios.
 package utils
 
 import (
 	"sync"
 )
 
-// MemoryPool manages reusable buffers to reduce GC pressure
+// MemoryPool manages reusable byte buffers to reduce garbage collection pressure.
+// In high-throughput MQTT systems, frequent allocation/deallocation of byte slices
+// can cause performance degradation. This pool reuses buffers to minimize allocations.
 type MemoryPool struct {
+	// pool implements the underlying synchronization for buffer reuse using sync.Pool
 	pool *sync.Pool
 }
 
-// NewMemoryPool creates a new memory pool with default buffer size
+// NewMemoryPool creates a new memory pool with default buffer size.
+// Initializes the sync.Pool with a New function that creates byte slices
+// with zero length but 1KB capacity for efficient reuse.
+//
+// Returns:
+//   - A pointer to the newly created MemoryPool instance
 func NewMemoryPool() *MemoryPool {
 	return &MemoryPool{
 		pool: &sync.Pool{
@@ -20,7 +31,12 @@ func NewMemoryPool() *MemoryPool {
 	}
 }
 
-// Get returns a buffer from the pool
+// Get returns a buffer from the pool, resetting its length to 0 while preserving capacity.
+// This allows efficient reuse of allocated memory without requiring new allocations.
+// After use, the buffer should be returned to the pool using Put.
+//
+// Returns:
+//   - A byte slice with zero length but preserved capacity for reuse
 func (mp *MemoryPool) Get() []byte {
 	buf := mp.pool.Get().([]byte)
 	return buf[:0] // Reset length to 0 while keeping capacity
