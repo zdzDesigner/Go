@@ -25,16 +25,13 @@ func main() {
 		log.Fatal("Failed to create broker: ", err)
 	}
 
-	// Set up signal handling for graceful shutdown
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	// Run the broker in a goroutine
 	go func() {
 		b.Start()
 	}()
 
-	// Wait for shutdown signal
 	<-sigChan
 	log.Println("Shutdown signal received, stopping broker...")
 	b.Stop()

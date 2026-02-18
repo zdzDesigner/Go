@@ -334,7 +334,7 @@ func (b *Broker) handleSubscribe(client *ClientConnection, data []byte) error {
 		b.topicRouter.Subscribe(topic, client.ID)
 	}
 
-	response := make([]byte, 3+len(topics))
+	response := make([]byte, 4+len(topics))
 	response[0] = Suback<<4 | 0
 	response[1] = byte(2 + len(topics))
 	binary.BigEndian.PutUint16(response[2:4], packetID)

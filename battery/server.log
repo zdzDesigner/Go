@@ -1,0 +1,2 @@
+2026/02/18 16:46:21 Starting MQTT Broker with max 100000 connections on :1883
+2026/02/18 16:46:21 Failed to create broker: listen tcp :1883: bind: address already in use

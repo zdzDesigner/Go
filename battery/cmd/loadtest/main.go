@@ -73,24 +73,61 @@ func (c *Client) Connect(addr string) error {
 }
 
 func buildConnectPacket(clientID string) []byte {
-	// Fixed header
-	var packet []byte
-
 	// Protocol name: "MQTT"
 	protoName := []byte("MQTT")
-	packet = append(packet, Connect<<4)
-	packet = append(packet, byte(10+len(clientID))) // remaining length
+
+	// Calculate remaining length:
+	// 2 bytes for protocol name length +
+	// len(protocol name) +
+	// 1 byte for protocol level +
+	// 1 byte for connect flags +
+	// 2 bytes for keep alive +
+	// 2 bytes for client ID length +
+	// len(client ID)
+	remainingLength := 2 + len(protoName) + 1 + 1 + 2 + 2 + len(clientID)
+
+	var packet []byte
+	packet = append(packet, Connect<<4)                                    // MQTT Control Packet type
+	packet = append(packet, encodeVariableByteInteger(remainingLength)...) // Remaining Length
+
+	// Protocol Name
 	packet = append(packet, byte(len(protoName)>>8), byte(len(protoName)&0xFF))
 	packet = append(packet, protoName...)
-	packet = append(packet, 4)                 // protocol level
-	packet = append(packet, byte(0))           // connect flags
-	packet = append(packet, byte(0), byte(30)) // keep alive (30 seconds)
 
-	// Client ID
+	// Protocol Level
+	packet = append(packet, 4) // MQTT v3.1.1
+
+	// Connect Flags
+	packet = append(packet, byte(0)) // Clean session, no other flags
+
+	// Keep Alive (30 seconds)
+	packet = append(packet, byte(0), byte(30))
+
+	// Client Identifier
 	packet = append(packet, byte(len(clientID)>>8), byte(len(clientID)&0xFF))
 	packet = append(packet, []byte(clientID)...)
 
 	return packet
+}
+
+// encodeVariableByteInteger encodes an integer into variable byte integer format
+func encodeVariableByteInteger(length int) []byte {
+	var result []byte
+	encodedByte := byte(0)
+
+	for {
+		encodedByte = byte(length % 128)
+		length = length / 128
+		if length > 0 {
+			encodedByte |= 128
+		}
+		result = append(result, encodedByte)
+		if length == 0 {
+			break
+		}
+	}
+
+	return result
 }
 
 func (c *Client) Subscribe(topic string) error {
