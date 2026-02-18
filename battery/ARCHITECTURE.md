@@ -219,6 +219,187 @@ Go MQTT Broker 是一个高性能的 MQTT 代理实现，设计支持 100K+ 并�
 - 性能统计
 - 协议异常
 
+## 示例
+
+### 运行示例
+
+1. 启动 MQTT Broker:
+   ```bash
+   ./server --address ":1883" --max-connections 100000
+   ```
+
+2. 使用 MQTT 客户端连接和测试:
+   ```bash
+   # 安装 mosquitto 客户端 (用于测试)
+   sudo apt-get install mosquitto-clients
+   
+   # 发布消息
+   mosquitto_pub -h localhost -p 1883 -t "test/topic" -m "Hello World"
+   
+   # 订阅消息
+   mosquitto_sub -h localhost -p 1883 -t "test/topic"
+   ```
+
+3. 使用 Python 客户端连接:
+   ```python
+   import paho.mqtt.client as mqtt
+   
+   # 创建客户端
+   client = mqtt.Client()
+   
+   # 连接到 Broker
+   client.connect("localhost", 1883, 60)
+   
+   # 发布消息
+   client.publish("test/topic", "Hello from Python")
+   
+   # 订阅主题
+   def on_message(client, userdata, msg):
+       print(f"{msg.topic}: {msg.payload}")
+   
+   client.on_message = on_message
+   client.subscribe("test/topic")
+   
+   client.loop_forever()
+   ```
+
+4. 使用 Go 客户端连接:
+   首先创建一个示例文件 `examples/simple-pub-sub/main.go`:
+   ```go
+   package main
+
+   import (
+       "flag"
+       "fmt"
+       "log"
+       "os"
+       "os/signal"
+       "syscall"
+       "time"
+
+       mqtt "github.com/eclipse/paho.mqtt.golang"
+   )
+
+   var (
+       broker   = flag.String("broker", "tcp://localhost:1883", "MQTT broker URL")
+       clientID = flag.String("clientid", "", "MQTT client ID")
+       topic    = flag.String("topic", "test/topic", "MQTT topic to publish/subscribe")
+       mode     = flag.String("mode", "both", "Mode: pub (publish only), sub (subscribe only), both (default)")
+       message  = flag.String("message", "Hello from Go MQTT client!", "Message to publish")
+       qos      = flag.Int("qos", 0, "QoS level")
+       retain   = flag.Bool("retain", false, "Retain message")
+   )
+
+   func main() {
+       flag.Parse()
+
+       // 设置 MQTT 客户端选项
+       opts := mqtt.NewClientOptions()
+       opts.AddBroker(*broker)
+       
+       if *clientID == "" {
+           *clientID = fmt.Sprintf("go-mqtt-client-%d", time.Now().Unix())
+       }
+       opts.SetClientID(*clientID)
+       
+       // 设置连接和消息处理回调
+       opts.OnConnect = func(client mqtt.Client) {
+           fmt.Printf("Connected to broker: %s\n", *broker)
+       }
+       
+       opts.OnConnectionLost = func(client mqtt.Client, reason error) {
+           log.Printf("Connection lost: %v", reason)
+       }
+
+       // 创建 MQTT 客户端
+       client := mqtt.NewClient(opts)
+       if token := client.Connect(); token.Wait() && token.Error() != nil {
+           log.Fatalf("Failed to connect to broker: %v", token.Error())
+       }
+
+       defer client.Disconnect(250)
+
+       // 创建一个通道来接收系统信号
+       sigCh := make(chan os.Signal, 1)
+       signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+       switch *mode {
+       case "pub":
+           // 发布模式 - 只发布消息
+           publishMessages(client)
+           
+       case "sub":
+           // 订阅模式 - 只订阅消息
+           subscribeMessages(client)
+           <-sigCh // 等待信号
+           
+       case "both":
+           // 默认模式 - 同时发布和订阅
+           subscribeMessages(client)
+           publishMessages(client)
+           <-sigCh // 等待信号
+       }
+   }
+
+   // 发布消息
+   func publishMessages(client mqtt.Client) {
+       fmt.Printf("Starting to publish messages to topic: %s (QoS: %d, Retain: %t)\n", *topic, *qos, *retain)
+
+       ticker := time.NewTicker(2 * time.Second)
+       defer ticker.Stop()
+
+       counter := 0
+       for {
+           select {
+           case <-ticker.C:
+               counter++
+               messageText := fmt.Sprintf("%s [%d]", *message, counter)
+               
+               token := client.Publish(*topic, byte(*qos), *retain, messageText)
+               token.Wait()
+               
+               if token.Error() != nil {
+                   log.Printf("Error publishing message: %v", token.Error())
+               } else {
+                   fmt.Printf("Published: %s\n", messageText)
+               }
+           }
+       }
+   }
+
+   // 订阅消息
+   func subscribeMessages(client mqtt.Client) {
+       // 设置消息处理回调
+       messageHandler := func(client mqtt.Client, msg mqtt.Message) {
+           fmt.Printf("Received message on topic '%s': %s\n", msg.Topic(), string(msg.Payload()))
+       }
+
+       // 订阅主题
+       if token := client.Subscribe(*topic, byte(*qos), messageHandler); token.Wait() && token.Error() != nil {
+           log.Fatalf("Failed to subscribe to topic %s: %v", *topic, token.Error())
+       }
+       
+       fmt.Printf("Subscribed to topic: %s\n", *topic)
+   }
+   ```
+
+   运行 Go 示例:
+   ```bash
+   # 首先初始化模块
+   cd examples/simple-pub-sub
+   go mod init example.com/pubsub
+   go get github.com/eclipse/paho.mqtt.golang
+   
+   # 运行发布者
+   go run main.go --mode pub
+   
+   # 运行订阅者
+   go run main.go --mode sub
+   
+   # 运行发布者和订阅者
+   go run main.go --mode both
+   ```
+
 ## 部署指南
 
 ### 最小系统要求

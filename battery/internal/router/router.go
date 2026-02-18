@@ -55,14 +55,25 @@ func (tm *TopicMatcher) GetClientsForTopic(topic string) []string {
 	defer tm.mu.RUnlock()
 
 	var result []string
+	seen := make(map[string]bool)
 
 	if clients, exists := tm.clients[topic]; exists {
-		result = append(result, clients...)
+		for _, clientID := range clients {
+			if !seen[clientID] {
+				result = append(result, clientID)
+				seen[clientID] = true
+			}
+		}
 	}
 
 	for storedTopic, clients := range tm.clients {
-		if matchTopic(storedTopic, topic) {
-			result = append(result, clients...)
+		if storedTopic != topic && matchTopic(storedTopic, topic) {
+			for _, clientID := range clients {
+				if !seen[clientID] {
+					result = append(result, clientID)
+					seen[clientID] = true
+				}
+			}
 		}
 	}
 

@@ -415,38 +415,52 @@ func (b *Broker) routeMessage(msg *Message) {
 			topicBytes := []byte(msg.Topic)
 			payload := msg.Value
 
-			packet := make([]byte, 2+len(topicBytes)+len(payload))
+			// 计算剩余长度：主题长度(2字节) + 主题 + 有效载荷
+			remainingLength := 2 + len(topicBytes) + len(payload)
 
-			packet[0] = (Publish << 4) | 0
-			remainingLength := len(topicBytes) + len(payload)
+			// 计算变长编码的剩余长度所需的字节数
+			encodedLength := encodeVariableByteInteger(uint32(remainingLength))
 
-			binary.BigEndian.PutUint16(packet[1:3], uint16(len(topicBytes)))
-			copy(packet[3:3+len(topicBytes)], topicBytes)
-			copy(packet[3+len(topicBytes):], payload)
+			// 创建完整的包
+			packet := make([]byte, 1+len(encodedLength)+2+len(topicBytes)+len(payload))
 
-			packetWithLength := make([]byte, 0)
-			packetWithLength = append(packetWithLength, Publish<<4|0)
+			// 固定头
+			packet[0] = (Publish << 4) | 0 // QoS 0, DUP=0, RETAIN=0
 
-			rl := remainingLength
-			for {
-				digit := byte(rl % 128)
-				rl /= 128
-				if rl > 0 {
-					digit |= 128
-				}
-				packetWithLength = append(packetWithLength, digit)
-				if rl == 0 {
-					break
-				}
-			}
+			// 编码后的剩余长度
+			copy(packet[1:], encodedLength)
 
-			packetWithLength = append(packetWithLength, packet[1:]...)
+			// 主题长度
+			binary.BigEndian.PutUint16(packet[1+len(encodedLength):], uint16(len(topicBytes)))
 
-			if _, err := client.Conn.Write(packetWithLength); err != nil {
+			// 主题
+			copy(packet[1+len(encodedLength)+2:], topicBytes)
+
+			// 有效载荷
+			copy(packet[1+len(encodedLength)+2+len(topicBytes):], payload)
+
+			if _, err := client.Conn.Write(packet); err != nil {
 				log.Printf("Send to client %s error: %v", cID, err)
 			}
 		}(clientID)
 	}
+}
+
+// encodeVariableByteInteger 将整数编码为MQTT变长字节整数
+func encodeVariableByteInteger(length uint32) []byte {
+	var res []byte
+	for {
+		digit := byte(length % 128)
+		length /= 128
+		if length > 0 {
+			digit |= 128
+		}
+		res = append(res, digit)
+		if length == 0 {
+			break
+		}
+	}
+	return res
 }
 
 func (b *Broker) Stop() {
