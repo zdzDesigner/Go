@@ -1,26 +1,26 @@
-// Package utils provides utility structures and functions to support the MQTT broker,
-// including memory management utilities to reduce garbage collection pressure
-// and improve performance in high-throughput scenarios.
+// Package utils 提供实用程序结构和函数来支持MQTT代理，
+// 包括内存管理实用程序，以减少垃圾回收压力
+// 并在高吞吐量场景中提高性能。
 package utils
 
 import (
 	"sync"
 )
 
-// MemoryPool manages reusable byte buffers to reduce garbage collection pressure.
-// In high-throughput MQTT systems, frequent allocation/deallocation of byte slices
-// can cause performance degradation. This pool reuses buffers to minimize allocations.
+// MemoryPool 管理可重用字节缓冲区以减少垃圾回收压力。
+// 在高吞吐量MQTT系统中，频繁分配/释放字节切片
+// 可能导致性能下降。此池重用缓冲区以最小化分配。
 type MemoryPool struct {
-	// pool implements the underlying synchronization for buffer reuse using sync.Pool
+	// pool 使用sync.Pool实现缓冲区重用的底层同步
 	pool *sync.Pool
 }
 
-// NewMemoryPool creates a new memory pool with default buffer size.
-// Initializes the sync.Pool with a New function that creates byte slices
-// with zero length but 1KB capacity for efficient reuse.
+// NewMemoryPool 创建一个具有默认缓冲区大小的新内存池。
+// 使用New函数初始化sync.Pool，该函数创建长度为零但容量为1KB的字节切片
+// 以便高效重用。
 //
-// Returns:
-//   - A pointer to the newly created MemoryPool instance
+// 返回值：
+//   - 指向新创建的MemoryPool实例的指针
 func NewMemoryPool() *MemoryPool {
 	return &MemoryPool{
 		pool: &sync.Pool{
@@ -31,12 +31,12 @@ func NewMemoryPool() *MemoryPool {
 	}
 }
 
-// Get returns a buffer from the pool, resetting its length to 0 while preserving capacity.
-// This allows efficient reuse of allocated memory without requiring new allocations.
-// After use, the buffer should be returned to the pool using Put.
+// Get 从池中返回一个缓冲区，在保留容量的同时将其长度重置为0。
+// 这样可以在不需要新分配的情况下高效重用已分配的内存。
+// 使用后，应使用Put将缓冲区返回到池中。
 //
-// Returns:
-//   - A byte slice with zero length but preserved capacity for reuse
+// 返回值：
+//   - 一个长度为零但保留容量以供重用的字节切片
 func (mp *MemoryPool) Get() []byte {
 	buf := mp.pool.Get().([]byte)
 	return buf[:0] // Reset length to 0 while keeping capacity

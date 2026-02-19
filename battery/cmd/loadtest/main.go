@@ -1,6 +1,6 @@
-// Package main implements a high-scale MQTT load testing tool.
-// This command-line application simulates thousands of concurrent MQTT clients
-// to stress-test the MQTT broker's performance and capacity.
+// Package main 实现了一个大规模MQTT负载测试工具。
+// 此命令行应用程序模拟数千个并发MQTT客户端
+// 来压力测试MQTT代理的性能和容量。
 package main
 
 import (
@@ -14,28 +14,28 @@ import (
 	"time"
 )
 
-// MQTT packet types as defined in the MQTT 3.1.1 specification
+// MQTT包类型，按照MQTT 3.1.1规范定义
 const (
-	Connect     = 1  // Client request to connect to Server
-	Connack     = 2  // Connect acknowledgment
-	Publish     = 3  // Publish message
-	Subscribe   = 8  // Client subscribe request
-	Suback      = 9  // Subscribe acknowledgment
-	Unsubscribe = 10 // Unsubscribe request
-	Pingreq     = 12 // PING request
-	Pingresp    = 13 // PING response
-	Disconnect  = 14 // Client is disconnecting
+	Connect     = 1  // 客户端请求连接到服务器
+	Connack     = 2  // 连接确认
+	Publish     = 3  // 发布消息
+	Subscribe   = 8  // 客户端订阅请求
+	Suback      = 9  // 订阅确认
+	Unsubscribe = 10 // 取消订阅请求
+	Pingreq     = 12 // PING请求
+	Pingresp    = 13 // PING响应
+	Disconnect  = 14 // 客户端断开连接
 )
 
 var (
-	// brokerAddr specifies the MQTT broker address to connect to
-	// Default value is "localhost:1883"
+	// brokerAddr 指定要连接的MQTT代理地址
+	// 默认值为"localhost:1883"
 	brokerAddr = flag.String("addr", "localhost:1883", "MQTT broker address")
-	// numClients defines the number of concurrent MQTT clients to simulate
-	// Default value is 100,000 to test high-scale scenarios
+	// numClients 定义要模拟的并发MQTT客户端数量
+	// 默认值为100,000以测试大规模场景
 	numClients = flag.Int("clients", 100000, "Number of concurrent clients to simulate")
-	// testTime specifies the duration for which the load test will run
-	// Default value is 30 seconds
+	// testTime 指定负载测试运行的持续时间
+	// 默认值为30秒
 	testTime = flag.Duration("time", 30*time.Second, "Duration of the test")
 )
 
@@ -120,7 +120,7 @@ func buildConnectPacket(clientID string) []byte {
 	return packet
 }
 
-// encodeVariableByteInteger encodes an integer into variable byte integer format
+// encodeVariableByteInteger 将整数编码为可变字节整数格式
 func encodeVariableByteInteger(length int) []byte {
 	var result []byte
 	encodedByte := byte(0)

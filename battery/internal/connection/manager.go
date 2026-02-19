@@ -1,6 +1,6 @@
-// Package connection provides connection management for the MQTT broker,
-// handling connection limits, resource tracking, and metrics collection
-// for high-scale MQTT deployments.
+// Package connection 为MQTT代理提供连接管理，
+// 处理连接限制、资源跟踪和指标收集
+// 适用于大规模MQTT部署。
 package connection
 
 import (
@@ -9,28 +9,28 @@ import (
 	"time"
 )
 
-// ConnectionManager handles connection pooling and resource management for high-scale MQTT
-// It enforces connection limits, tracks active connections, and maintains metrics
-// for monitoring broker performance and resource utilization.
+// ConnectionManager 处理大规模MQTT的连接池和资源管理
+// 它强制执行连接限制、跟踪活动连接并维护指标
+// 用于监控代理性能和资源利用率。
 type ConnectionManager struct {
-	// connections maintains a thread-safe map of active client connections by client ID
+	// connections 维护按客户端ID分类的活动客户端连接的线程安全映射
 	connections sync.Map
-	// maxConnections defines the maximum number of concurrent connections allowed
+	// maxConnections 定义允许的最大并发连接数
 	maxConnections int
-	// currentCount tracks the current number of active connections
+	// currentCount 跟踪当前活动连接数
 	currentCount int64
-	// countMu protects the currentCount variable during concurrent access
+	// countMu 在并发访问期间保护currentCount变量
 	countMu sync.RWMutex
-	// ctx provides cancellation capability for the monitor goroutine
+	// ctx 为监控goroutine提供取消功能
 	ctx context.Context
-	// cancel function cancels the context to stop the monitor
+	// cancel 函数取消上下文以停止监控
 	cancel context.CancelFunc
-	// metrics collects connection-related statistics for monitoring
+	// metrics 收集用于监控的连接相关统计信息
 	metrics *Metrics
 }
 
-// Metrics holds connection metrics for monitoring and performance analysis.
-// These metrics are essential for understanding broker performance and usage patterns.
+// Metrics 保存用于监控和性能分析的连接指标。
+// 这些指标对于理解代理性能和使用模式至关重要。
 type Metrics struct {
 	ConnectionsAccepted int64
 	ConnectionsClosed   int64
@@ -38,15 +38,15 @@ type Metrics struct {
 	BytesTransferred    int64
 }
 
-// NewConnectionManager creates a new connection manager with specified maximum connections.
-// This function initializes the connection management infrastructure including context for
-// cancellation and metric collection.
+// NewConnectionManager 创建具有指定最大连接数的新连接管理器。
+// 此函数初始化连接管理基础设施，包括用于
+// 取消和指标收集的上下文。
 //
-// Parameters:
-//   - maxConns: The maximum number of concurrent connections the manager will allow
+// 参数：
+//   - maxConns: 管理器允许的最大并发连接数
 //
-// Returns:
-//   - A pointer to the initialized ConnectionManager instance
+// 返回值：
+//   - 指向已初始化的ConnectionManager实例的指针
 func NewConnectionManager(maxConns int) *ConnectionManager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -60,16 +60,16 @@ func NewConnectionManager(maxConns int) *ConnectionManager {
 	return manager
 }
 
-// RegisterConnection attempts to register a new client connection with the manager.
-// This method checks if the maximum connection limit has been reached before
-// registering the new connection. Thread-safe implementation using mutex locks.
+// RegisterConnection 尝试与管理器注册新的客户端连接。
+// 此方法在注册新连接之前检查是否已达到最大连接限制。
+// 使用互斥锁的线程安全实现。
 //
-// Parameters:
-//   - clientID: Unique identifier for the client connection
+// 参数：
+//   - clientID: 客户端连接的唯一标识符
 //
-// Returns:
-//   - nil if the connection was successfully registered
-//   - ErrMaxConnectionsReached if the maximum connection limit has been reached
+// 返回值：
+//   - 如果连接成功注册则返回nil
+//   - 如果已达到最大连接限制则返回ErrMaxConnectionsReached
 func (cm *ConnectionManager) RegisterConnection(clientID string) error {
 	cm.countMu.Lock()
 	currentCount := cm.currentCount
@@ -89,12 +89,12 @@ func (cm *ConnectionManager) RegisterConnection(clientID string) error {
 	return nil
 }
 
-// DeregisterConnection removes a client connection from the manager.
-// This method decrements the active connection count and updates the closed connections metric.
-// Thread-safe implementation using mutex locks.
+// DeregisterConnection 从管理器中删除客户端连接。
+// 此方法减少活动连接计数并更新已关闭连接的指标。
+// 使用互斥锁的线程安全实现。
 //
-// Parameters:
-//   - clientID: Unique identifier of the client connection to be removed
+// 参数：
+//   - clientID: 要删除的客户端连接的唯一标识符
 func (cm *ConnectionManager) DeregisterConnection(clientID string) {
 	cm.connections.Delete(clientID)
 
@@ -138,12 +138,12 @@ func (e *ConnectionError) Error() string {
 	return e.msg
 }
 
-// Monitor runs a periodic monitoring routine to track connection metrics.
-// This method runs in a separate goroutine and reports metrics at the specified interval
-// until the context is cancelled. Currently commented out but ready for metric logging.
+// Monitor 运行定期监控例程来跟踪连接指标。
+// 此方法在单独的goroutine中运行并以指定间隔报告指标
+// 直到上下文被取消。当前被注释掉但已准备好进行指标记录。
 //
-// Parameters:
-//   - reportInterval: Duration between metric reports
+// 参数：
+//   - reportInterval: 指标报告之间的时间间隔
 func (cm *ConnectionManager) Monitor(reportInterval time.Duration) {
 	ticker := time.NewTicker(reportInterval)
 	defer ticker.Stop()

@@ -1,6 +1,6 @@
-// Package broker implements a high-performance MQTT broker capable of handling 100K+ concurrent connections.
-// It follows MQTT 3.1.1 specification for packet format and protocol handling, with efficient routing
-// and connection management for scalable IoT messaging.
+// Package broker 实现了一个高性能的MQTT代理，能够处理100K+并发连接。
+// 它遵循MQTT 3.1.1规范进行数据包格式和协议处理，具有高效的路由
+// 和连接管理，适用于可扩展的IoT消息传递。
 package broker
 
 import (
@@ -18,78 +18,78 @@ import (
 	"battery/internal/router"
 )
 
-// MQTT packet types as defined in the MQTT 3.1.1 specification
+// MQTT包类型，按照MQTT 3.1.1规范定义
 const (
-	Connect     = 1  // Client request to connect to Server
-	Connack     = 2  // Connect acknowledgment
-	Publish     = 3  // Publish message
-	Puback      = 4  // Publish acknowledgment
-	Pubrec      = 5  // Publish received (assured delivery part 1)
-	Pubrel      = 6  // Publish release (assured delivery part 2)
-	Pubcomp     = 7  // Publish complete (assured delivery part 3)
-	Subscribe   = 8  // Client subscribe request
-	Suback      = 9  // Subscribe acknowledgment
-	Unsubscribe = 10 // Unsubscribe request
-	Unsuback    = 11 // Unsubscribe acknowledgment
-	Pingreq     = 12 // PING request
-	Pingresp    = 13 // PING response
-	Disconnect  = 14 // Client is disconnecting
+	Connect     = 1  // 客户端请求连接到服务器
+	Connack     = 2  // 连接确认
+	Publish     = 3  // 发布消息
+	Puback      = 4  // 发布确认
+	Pubrec      = 5  // 发布已接收（可靠传输第1部分）
+	Pubrel      = 6  // 发布释放（可靠传输第2部分）
+	Pubcomp     = 7  // 发布完成（可靠传输第3部分）
+	Subscribe   = 8  // 客户端订阅请求
+	Suback      = 9  // 订阅确认
+	Unsubscribe = 10 // 取消订阅请求
+	Unsuback    = 11 // 取消订阅确认
+	Pingreq     = 12 // PING请求
+	Pingresp    = 13 // PING响应
+	Disconnect  = 14 // 客户端断开连接
 )
 
-// Broker represents the main MQTT broker instance that handles client connections,
-// message routing, and protocol compliance. It manages the lifecycle of MQTT sessions
-// and coordinates with the connection manager and topic router.
+// Broker 表示主MQTT代理实例，处理客户端连接，
+// 消息路由和协议合规性。它管理MQTT会话的生命周期
+// 并与连接管理器和主题路由器协调。
 type Broker struct {
-	// listener accepts incoming network connections on the configured port
+	// listener 在配置的端口上接受传入的网络连接
 	listener net.Listener
-	// clients maintains a thread-safe map of active client connections by client ID
+	// clients 维护按客户端ID分类的活动客户端连接的线程安全映射
 	clients sync.Map
-	// messages channel queues incoming messages for routing to subscribers
+	// messages 通道将传入消息排队以路由到订阅者
 	messages chan *Message
-	// ctx provides cancellation capability for graceful shutdown
+	// ctx 提供优雅关闭的取消功能
 	ctx context.Context
-	// cancel function cancels the context to signal shutdown
+	// cancel 函数取消上下文以发出关闭信号
 	cancel context.CancelFunc
-	// wg waits for all goroutines to finish during shutdown
+	// wg 在关闭期间等待所有goroutine完成
 	wg sync.WaitGroup
-	// connManager handles connection limits and resource management
+	// connManager 处理连接限制和资源管理
 	connManager *connection.ConnectionManager
-	// topicRouter manages topic subscriptions and matching
+	// topicRouter 管理主题订阅和匹配
 	topicRouter *router.TopicMatcher
 }
 
-// Message represents an MQTT message that contains topic, payload, and quality of service level
+// Message 表示一个包含主题、载荷和服务质量级别的MQTT消息
 type Message struct {
-	// Topic specifies the MQTT topic to which the message is published
+	// Topic 指定消息发布的MQTT主题
 	Topic string
-	// Value contains the binary payload data of the message
+	// Value 包含消息的二进制载荷数据
 	Value []byte
-	// QoS defines the quality of service level for this message (0, 1, or 2)
+	// QoS 定义此消息的服务质量级别（0、1或2）
 	QoS byte
 }
 
-// ClientConnection encapsulates the information and state for a single MQTT client connection
+// ClientConnection 封装单个MQTT客户端连接的信息和状态
 type ClientConnection struct {
-	// ID uniquely identifies the client in the broker's client registry
+	// ID 在代理的客户端注册表中唯一标识客户端
 	ID string
-	// Conn holds the underlying network connection to the client
+	// Conn 保存到客户端的基础网络连接
 	Conn net.Conn
-	// CreatedAt records the timestamp when the connection was established
+	// CreatedAt 记录建立连接的时间戳
 	CreatedAt time.Time
-	// mu provides thread-safe access to connection state
+	// mu 提供对连接状态的线程安全访问
 	mu sync.RWMutex
 }
 
-// NewBroker creates and initializes a new MQTT broker instance with the specified configuration.
-// It sets up network listening, message channels, and associated managers needed for operation.
+// NewBroker 创建并使用指定配置初始化新的MQTT代理实例。
+// 它设置网络监听、消息通道和操作所需的相关管理器。
 //
-// Parameters:
-//   - address: Network address to bind the MQTT listener (e.g., ":1883" or "localhost:1883")
-//   - maxConnections: Maximum number of concurrent client connections allowed
+// 参数：
+//   - address: 绑定MQTT监听器的网络地址（例如":1883"或"localhost:1883"）
+//   - maxConnections: 允许的最大并发客户端连接数
 //
-// Returns:
-//   - A pointer to the initialized Broker instance
-//   - An error if the network listener could not be created
+// 返回值：
+//   - 指向已初始化的Broker实例的指针
+//   - 如果无法创建网络监听器则返回错误
 func NewBroker(address string, maxConnections int) (*Broker, error) {
 	listener, err := net.Listen("tcp", address)
 	if err != nil {

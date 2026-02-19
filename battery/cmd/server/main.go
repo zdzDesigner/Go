@@ -1,6 +1,6 @@
-// Package main implements the entry point for the MQTT broker server.
-// This command-line application creates and manages an MQTT broker instance,
-// handling configuration, startup, and graceful shutdown procedures.
+// Package main 实现MQTT代理服务器的入口点。
+// 此命令行应用程序创建和管理MQTT代理实例，
+// 处理配置、启动和优雅关闭程序。
 package main
 
 import (
@@ -14,19 +14,19 @@ import (
 )
 
 var (
-	// address specifies the network address where the MQTT broker will listen for connections
-	// Default value is ":1883" which binds to all interfaces on port 1883
+	// address 指定MQTT代理侦听连接的网络地址
+	// 默认值为":1883"，绑定到端口1883上的所有接口
 	address = flag.String("address", ":1883", "Address to bind the MQTT broker")
-	// maxConnections sets the maximum number of concurrent client connections allowed
-	// Default value is 100,000 to support high-scale deployments
+	// maxConnections 设置允许的最大并发客户端连接数
+	// 默认值为100,000以支持大规模部署
 	maxConnections = flag.Int("max-connections", 100000, "Maximum number of concurrent connections")
 )
 
-// main is the entry point for the MQTT broker server application.
-// It handles command-line argument parsing, broker initialization,
-// signal handling for graceful shutdown, and broker lifecycle management.
+// main 是MQTT代理服务器应用程序的入口点。
+// 它处理命令行参数解析、代理初始化、
+// 优雅关闭的信号处理和代理生命周期管理。
 func main() {
-	// Parse command-line flags to configure the broker
+	// 解析命令行标志以配置代理
 	flag.Parse()
 
 	// Log startup information with configured parameters

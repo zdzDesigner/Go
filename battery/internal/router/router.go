@@ -1,5 +1,5 @@
-// Package router implements an MQTT topic routing system that manages topic subscriptions
-// and efficiently matches topics with wildcards (+ and #) to corresponding client IDs.
+// Package router 实现了一个MQTT主题路由系统，管理主题订阅
+// 并高效地将带有通配符（+ 和 #）的主题与相应的客户端ID进行匹配。
 package router
 
 import (
@@ -7,42 +7,38 @@ import (
 	"sync"
 )
 
-// TopicMatcher represents the core topic routing structure that maintains
-// the mapping between MQTT topics and client IDs for message routing.
-// This structure uses a concurrent-safe map with RWMutex to support
-// high-concurrency scenarios with many simultaneous subscriptions/unsubscriptions.
+// TopicMatcher 表示核心主题路由结构，维护MQTT主题和客户端ID之间的映射
+// 用于消息路由。此结构使用带RWMutex的并发安全映射来支持
+// 高并发场景下的大量同时订阅/取消订阅。
 type TopicMatcher struct {
-	// mu provides thread-safe access to the clients map
+	// mu 提供对客户端映射的安全访问
 	mu sync.RWMutex
-	// clients stores the mapping of topic patterns to client IDs
-	// key: topic pattern (e.g. "sensor/+/temperature" or "devices/#")
-	// value: list of client IDs that have subscribed to this topic
+	// clients 存储主题模式到客户端ID的映射
+	// key: 主题模式 (例如 "sensor/+/temperature" 或 "devices/#")
+	// value: 已订阅此主题的客户端ID列表
 	clients map[string][]string
 }
 
-// NewTopicMatcher creates and initializes a new TopicMatcher instance
-// with an empty subscription map. This is the constructor function
-// for the TopicMatcher type.
+// NewTopicMatcher 创建并初始化一个新的 TopicMatcher 实例
+// 使用一个空的订阅映射。这是 TopicMatcher 类型的构造函数。
 //
-// Returns:
-//   - A pointer to the newly created TopicMatcher instance
+// 返回值：
+//   - 指向新创建的 TopicMatcher 实例的指针
 func NewTopicMatcher() *TopicMatcher {
 	return &TopicMatcher{
 		clients: make(map[string][]string),
 	}
 }
 
-// Subscribe adds a client to the subscription list for a specific topic.
-// This method handles the registration of a client's interest in receiving
-// messages published to the specified topic. The client ID will be added
-// only if it's not already in the list for this topic.
+// Subscribe 将客户端添加到特定主题的订阅列表中。
+// 此方法处理客户端对接收发布到指定主题的消息的兴趣注册。
+// 仅当客户端ID尚未在此主题的列表中时才会添加。
 //
-// Parameters:
-//   - topic: The MQTT topic pattern to subscribe to (supports wildcards + and #)
-//   - clientID: The unique identifier of the client subscribing to the topic
+// 参数：
+//   - topic: 要订阅的MQTT主题模式（支持通配符 + 和 #）
+//   - clientID: 订阅该主题的客户端的唯一标识符
 //
-// Thread Safety: This method uses a mutex to ensure thread-safe access to
-// the shared clients map during the subscription process.
+// 线程安全：此方法使用互斥锁确保在订阅过程中对共享客户端映射的线程安全访问。
 func (tm *TopicMatcher) Subscribe(topic, clientID string) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -78,16 +74,15 @@ func (tm *TopicMatcher) Unsubscribe(topic, clientID string) {
 	}
 }
 
-// GetClientsForTopic retrieves all client IDs that match the specified topic.
-// This includes clients subscribed to the exact topic as well as clients
-// subscribed to wildcard patterns that match the topic (e.g., client subscribed
-// to "sensor/+" would receive messages sent to "sensor/temperature").
+// GetClientsForTopic 获取所有与指定主题匹配的客户端ID。
+// 这包括订阅了确切主题的客户端以及订阅了与主题匹配的通配符模式的客户端（例如，
+// 订阅了"sensor/+"的客户端将接收到发送到"sensor/temperature"的消息）。
 //
-// Parameters:
-//   - topic: The topic to match against existing subscriptions
+// 参数：
+//   - topic: 要与现有订阅匹配的主题
 //
-// Returns:
-//   - A slice of client IDs that should receive messages for the given topic
+// 返回值：
+//   - 应该接收给定主题消息的客户端ID切片
 func (tm *TopicMatcher) GetClientsForTopic(topic string) []string {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -118,17 +113,17 @@ func (tm *TopicMatcher) GetClientsForTopic(topic string) []string {
 	return result
 }
 
-// matchTopic implements MQTT topic pattern matching with wildcards.
-// Supports two types of wildcards:
-// - '+' matches a single topic level (e.g. "sport/+/player" matches "sport/tennis/player")
-// - '#' matches multiple topic levels (e.g. "sport/#" matches "sport/tennis/stats/players")
+// matchTopic 实现带有通配符的MQTT主题模式匹配。
+// 支持两种类型的通配符：
+// - '+' 匹配单个主题级别（例如 "sport/+/player" 匹配 "sport/tennis/player"）
+// - '#' 匹配多个主题级别（例如 "sport/#" 匹配 "sport/tennis/stats/players"）
 //
-// Parameters:
-//   - pattern: The topic pattern containing wildcards
-//   - topic: The actual topic to match against the pattern
+// 参数：
+//   - pattern: 包含通配符的主题模式
+//   - topic: 与模式匹配的实际主题
 //
-// Returns:
-//   - true if the topic matches the pattern, false otherwise
+// 返回值：
+//   - 如果主题与模式匹配则返回true，否则返回false
 func matchTopic(pattern, topic string) bool {
 	patternParts := strings.Split(pattern, "/")
 	topicParts := strings.Split(topic, "/")
