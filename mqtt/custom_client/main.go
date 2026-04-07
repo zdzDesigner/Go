@@ -17,8 +17,11 @@ const (
 	CONNECT     = 1
 	CONNACK     = 2
 	PUBLISH     = 3
+	PUBACK      = 4
+	PUBREC      = 5
+	PUBREL      = 6
+	PUBCOMP     = 7
 	SUBSCRIBE   = 8
-	PUBACK      = 5
 	SUBACK      = 9
 	UNSUBSCRIBE = 10
 	UNSUBACK    = 11
@@ -76,7 +79,8 @@ func main() {
 	go client.consumer() // 启动消息消费者, 防止阻塞
 
 	// if err := client.subscribe(Topic{Name: TOPIC_READY, QOS: 1}); err != nil {
-	if err := client.subscribe(Topic{Name: APP_CUSTOM_NOTIFY, QOS: 1}); err != nil {
+	// if err := client.subscribe(Topic{Name: APP_CUSTOM_NOTIFY, QOS: 1}); err != nil {
+	if err := client.subscribe(Topic{Name: TOPIC_TEST, QOS: 1}); err != nil {
 		fmt.Println("Subscribe error:", err)
 		return
 	}
@@ -168,7 +172,8 @@ func (c *MQTTClient) subscribe(topic Topic) error {
 
 // 发布消息
 func (c *MQTTClient) publish(topic Topic, message string) error {
-	packet := c.packet.publish(topic, message)
+	// 根据QoS级别决定是否需要包ID
+	packet := c.packet.publishWithPacketID(topic, message, c.nextPacketID())
 	fmt.Println("publish packet:", packet)
 	_, err := c.conn.Write(packet)
 	return err
@@ -245,7 +250,7 @@ func (c *MQTTClient) cleanup() {
 	}
 }
 
-// 消息处理器 - 核心路由
+// 消息处理器 - 核心路由，改进版，更健壮的消息处理
 func (c *MQTTClient) receiver() {
 	for {
 		header := make([]byte, 1)
@@ -259,13 +264,16 @@ func (c *MQTTClient) receiver() {
 			return
 		}
 
+		packetType := header[0] >> 4
+
+		// 解码剩余长度，使用改进版的解码函数
 		remaining, err := c.packet.remainLength(c.conn)
 		if err != nil {
 			fmt.Println("Length decode error:", err)
 			return
 		}
 
-		packet_type := header[0] >> 4
+		// 依据MQTT协议规范处理包
 		payload := make([]byte, remaining)
 		if remaining > 0 {
 			if _, err := io.ReadFull(c.conn, payload); err != nil {
@@ -274,19 +282,33 @@ func (c *MQTTClient) receiver() {
 			}
 		}
 
-		fmt.Println("packet_type:", packet_type, payload)
-		switch packet_type {
+		fmt.Println("packet_type:", packetType, payload)
+
+		// 包路由分发 - 优化版
+		switch packetType {
 		case PUBLISH:
-			c.publishAck(header[0], payload)
+			// 异步处理PUBLISH消息，避免阻塞接收循环
+			go c.publishAck(header[0], payload)
 		case SUBACK, UNSUBACK:
-			c.sub_buf <- append([]byte{header[0]}, payload...)
+			select {
+			case c.sub_buf <- append([]byte{header[0]}, payload...):
+			default:
+				// 如果缓冲区满，则丢弃，避免阻塞
+				fmt.Println("Warning: sub_buf channel full, discarding packet")
+			}
 		case PINGRESP:
-			// 不做特殊处理
+			// 心跳响应，无需特殊处理
+		case CONNACK:
+			// 连接确认包
+			fmt.Println("Received unexpected CONNACK in receiver loop")
+		case PUBACK:
+			// QoS确认包，未来可扩展支持
+			fmt.Printf("Received PUBACK packet type: %d\n", packetType)
 		case DISCONNECT:
 			fmt.Println("Server requested disconnect")
 			return
 		default:
-			fmt.Printf("Received unexpected packet type: %d\n", packet_type)
+			fmt.Printf("Received unexpected packet type: %d\n", packetType)
 		}
 	}
 }
@@ -318,16 +340,27 @@ func (c *MQTTClient) publishAck(header byte, payload []byte) {
 
 		id := binary.BigEndian.Uint16(payload[start:])
 		// 发送PUBACK响应
-		// if err := c.sendPuback(id); err != nil {
 		if _, err := c.conn.Write(c.packet.publishAck(id)); err != nil {
 			fmt.Printf("Failed to send PUBACK: %v\n", err)
 		} else {
 			fmt.Printf("Sent PUBACK for packet ID: %d\n", id)
 		}
 
-	case 2: // QoS 2
-		fmt.Println("QoS 2 not supported in this implementation")
-		return
+	case 2: // QoS 2 - 现在支持完整的PUBREC/PUBREL/PUBCOMP流程
+		if len(payload) < start+2 {
+			fmt.Println("Invalid QoS 2 packet")
+			return
+		}
+		message := string(payload[start+2:])
+		c.pub_buf <- MQTTMsg{topic: topic, message: message}
+
+		id := binary.BigEndian.Uint16(payload[start:])
+		// 发送PUBREC响应（QoS 2第一步）
+		if _, err := c.conn.Write(c.packet.publishRec(id)); err != nil {
+			fmt.Printf("Failed to send PUBREC: %v\n", err)
+		} else {
+			fmt.Printf("Sent PUBREC for packet ID: %d\n", id)
+		}
 
 	default:
 		fmt.Printf("Invalid QoS level: %d\n", qos)

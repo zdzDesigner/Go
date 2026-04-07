@@ -6,8 +6,8 @@ import (
 )
 
 func TestConnectPacket(t *testing.T) {
-	client := MQTTClient{}
+	client := MQTTClient{packet: &Packet{}}
 
-  packet := client.createConnectPacket("aaa")
-  fmt.Println(packet)
+	packet := client.packet.connect("aaa")
+	fmt.Println(packet)
 }

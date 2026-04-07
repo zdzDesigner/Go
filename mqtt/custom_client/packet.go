@@ -63,32 +63,37 @@ func (p *Packet) connectAck(conn net.Conn) error {
 	return nil
 }
 
-// packet 剩余长度
+// packet 剩余长度 - 改进版，更安全的长度解码
 func (p *Packet) remainLength(conn net.Conn) (int, error) {
-	extend := 1
+	multiplier := 1
 	length := 0
-	bytes := 0
+	bytesRead := 0
 
-	// 最大4字节
-	for bytes < 4 {
-		buf := make([]byte, 1)
-		if _, err := io.ReadFull(conn, buf); err != nil {
-			if err == io.EOF && bytes > 0 {
+	for bytesRead < 4 { // MQTT长度最多4字节
+		digitBuf := make([]byte, 1)
+		if _, err := io.ReadFull(conn, digitBuf); err != nil {
+			// 处理EOF
+			if err == io.EOF && bytesRead > 0 {
 				return 0, errors.New("unexpected EOF while reading length")
 			}
 			return 0, err
 		}
 
-		bytes++
-		digit := buf[0]
-		length += int(digit&0x7F) * extend
+		bytesRead++
+		digit := digitBuf[0]
 
-		if digit&0x80 == 0 {
+		// 累计值计算
+		length += int(digit&0x7F) * multiplier
+
+		// 检查连续位
+		if (digit & 0x80) == 0 {
 			break
 		}
 
-		extend *= 128
-		if extend > 128*128*128 {
+		// 更新乘数
+		multiplier *= 128
+		// 防止整数溢出
+		if multiplier > 128*128*128 {
 			return 0, errors.New("length too large")
 		}
 	}
@@ -189,29 +194,69 @@ func (p *Packet) parsePayload(header byte, payload []byte) (topic string, qos by
 	return
 }
 
-func (p *Packet) publish(topic Topic, message string) []byte {
+func (p *Packet) publishWithPacketID(topic Topic, message string, packet_id uint16) []byte {
 	topic_bytes := []byte(topic.Name)
 	msg_bytes := []byte(message)
 
-  // TODO:: 处理QOS/DUP/Retain
-	fixed_header := []byte{PUBLISH << 4}
+	// 构建固定头部，包含QoS, DUP, RETAIN标志位
+	var fixed_header byte = (PUBLISH << 4)  // 包类型
+	fixed_header |= (topic.Dup & 0x01) << 3 // DUP标志 (bit 3)
+	fixed_header |= (topic.QOS & 0x03) << 1 // QoS级别 (bits 2,1)
+	fixed_header |= (topic.Retain & 0x01)   // RETAIN标志 (bit 0)
 
-	// fmt.Println(len(topic_bytes), len(topic_bytes)>>8)
 	var_header := []byte{
 		byte(len(topic_bytes) >> 8), byte(len(topic_bytes)), // 长度, 因为占2个字节，所以>>8
 	}
 	var_header = append(var_header, topic_bytes...)
 
-	payload := msg_bytes
+	// 如果QoS > 0，添加包ID
+	var payload []byte
+	if topic.QOS > 0 {
+		var_header = append(var_header, byte(packet_id>>8), byte(packet_id))
+		payload = msg_bytes
+	} else {
+		payload = msg_bytes
+	}
 
 	full_packet := append(encodeLength(len(var_header)+len(payload)), var_header...)
-	full_packet = append(full_packet, payload...)
-	return append(fixed_header, full_packet...)
+	return append([]byte{fixed_header}, full_packet...)
+}
+
+// 保留旧函数用于向后兼容
+func (p *Packet) publish(topic Topic, message string) []byte {
+	return p.publishWithPacketID(topic, message, 1) // 默认包ID为1，仅用于向后兼容QoS 0
 }
 
 func (p *Packet) publishAck(packet_id uint16) []byte {
 	return []byte{
-		0x40,                                  // PUBACK包类型和标志
+		PUBACK << 4,                           // PUBACK包类型和标志
+		0x02,                                  // 剩余长度
+		byte(packet_id >> 8), byte(packet_id), // 包ID
+	}
+}
+
+// 创建PUBREC包 (用于QoS 2流程)
+func (p *Packet) publishRec(packet_id uint16) []byte {
+	return []byte{
+		PUBREC << 4,                           // PUBREC包类型和标志
+		0x02,                                  // 剩余长度
+		byte(packet_id >> 8), byte(packet_id), // 包ID
+	}
+}
+
+// 创建PUBREL包 (用于QoS 2流程)
+func (p *Packet) publishRel(packet_id uint16) []byte {
+	return []byte{
+		PUBREL << 4,                           // PUBREL包类型和标志
+		0x02,                                  // 剩余长度
+		byte(packet_id >> 8), byte(packet_id), // 包ID
+	}
+}
+
+// 创建PUBCOMP包 (用于QoS 2流程)
+func (p *Packet) publishComp(packet_id uint16) []byte {
+	return []byte{
+		PUBCOMP << 4,                          // PUBCOMP包类型和标志
 		0x02,                                  // 剩余长度
 		byte(packet_id >> 8), byte(packet_id), // 包ID
 	}
