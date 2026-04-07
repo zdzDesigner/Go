@@ -29,3 +29,10 @@ rtsp_demo
 
 battery/loadtest
 battery/server
+
+./mqtt/custom_client/custom_mqtt
+./mqtt/custom_client/mqtt_final
+./mqtt/custom_client/mqtt_client
+./mqtt/custom_client/mqtt_client_new
+./mqtt/custom_client/mqtt_client_updated
+./mqtt/custom_client/_cleanup_temp/test_client
