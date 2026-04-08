@@ -128,11 +128,12 @@ type H264Writer struct {
 // 实际管理通过H264Writer.clients映射进行
 // =============================================================================
 type WebSocketClient struct {
-	conn      *websocket.Conn // WebSocket连接
-	writer    *H264Writer     // 所属H264Writer引用
-	clientID  string          // 客户端标识符 (如 "client-0")
-	frameChan chan []byte     // 异步发送通道，避免阻塞RTP处理
-	closed    atomic.Bool    // 标记是否已关闭
+	conn         *websocket.Conn // WebSocket连接
+	writer       *H264Writer     // 所属H264Writer引用
+	clientID     string          // 客户端标识符 (如 "client-0")
+	frameChan    chan []byte     // 异步发送通道，避免阻塞RTP处理
+	closed       atomic.Bool    // 标记是否已关闭
+	needKeyframe atomic.Bool    // 丢帧后标记，等待下一个关键帧恢复
 }
 
 // writeLoop 独立的写goroutine，从channel读取帧并发送
@@ -156,23 +157,54 @@ func (c *WebSocketClient) close() {
 	}
 }
 
-// send 非阻塞发送帧数据到channel，channel满则丢弃旧帧保留最新
+// drainChan 清空channel中所有积压的帧
+func (c *WebSocketClient) drainChan() {
+	for {
+		select {
+		case <-c.frameChan:
+		default:
+			return
+		}
+	}
+}
+
+// send 非阻塞发送帧数据到channel
+// 核心策略：一旦发生丢帧，跳过所有后续P帧，直到下一个关键帧到来时
+// 清空channel重新开始，避免花屏
 func (c *WebSocketClient) send(data []byte) {
 	if c.closed.Load() {
 		return
 	}
+
+	// 二进制协议: data[0] bit0 = isKey
+	isKey := len(data) > 0 && (data[0]&1) != 0
+
+	// 如果之前丢过帧，必须等关键帧才能恢复
+	if c.needKeyframe.Load() {
+		if !isKey {
+			return // 丢弃P帧，等待关键帧
+		}
+		// 关键帧到了，清空积压的旧帧，从关键帧重新开始
+		c.drainChan()
+		c.needKeyframe.Store(false)
+		log.Printf("Client %s: 收到关键帧，从丢帧状态恢复", c.clientID)
+	}
+
 	select {
 	case c.frameChan <- data:
 	default:
-		// channel满，丢弃最旧的帧，放入最新的
-		select {
-		case <-c.frameChan:
-		default:
+		// channel满，标记需要等待关键帧
+		c.needKeyframe.Store(true)
+		if isKey {
+			// 当前就是关键帧，清空channel直接发送
+			c.drainChan()
+			c.needKeyframe.Store(false)
+			select {
+			case c.frameChan <- data:
+			default:
+			}
 		}
-		select {
-		case c.frameChan <- data:
-		default:
-		}
+		// 非关键帧直接丢弃，后续P帧也会被丢弃直到下一个关键帧
 	}
 }
 
