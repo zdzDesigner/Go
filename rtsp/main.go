@@ -43,11 +43,12 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/binary"
 	"fmt"
 	"log"
 	"net/http"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/bluenviron/gortsplib/v5"
@@ -87,6 +88,19 @@ type H264Frame struct {
 	IsKey     bool   `json:"is_key"`
 }
 
+// packBinaryFrame 将H264Frame打包为二进制格式
+// 格式: [1byte flags][8bytes timestamp big-endian][H264 data...]
+// flags: bit0 = isKey
+func packBinaryFrame(frame *H264Frame) []byte {
+	buf := make([]byte, 9+len(frame.Data))
+	if frame.IsKey {
+		buf[0] = 1
+	}
+	binary.BigEndian.PutUint64(buf[1:9], frame.Timestamp)
+	copy(buf[9:], frame.Data)
+	return buf
+}
+
 // H264Writer 管理H.264视频流的写入和分发
 // =============================================================================
 // 核心数据结构，负责:
@@ -114,9 +128,52 @@ type H264Writer struct {
 // 实际管理通过H264Writer.clients映射进行
 // =============================================================================
 type WebSocketClient struct {
-	conn     *websocket.Conn // WebSocket连接
-	writer   *H264Writer     // 所属H264Writer引用
-	clientID string          // 客户端标识符 (如 "client-0")
+	conn      *websocket.Conn // WebSocket连接
+	writer    *H264Writer     // 所属H264Writer引用
+	clientID  string          // 客户端标识符 (如 "client-0")
+	frameChan chan []byte     // 异步发送通道，避免阻塞RTP处理
+	closed    atomic.Bool    // 标记是否已关闭
+}
+
+// writeLoop 独立的写goroutine，从channel读取帧并发送
+// 设置写超时，避免慢客户端阻塞
+func (c *WebSocketClient) writeLoop() {
+	for data := range c.frameChan {
+		c.conn.SetWriteDeadline(time.Now().Add(1 * time.Second))
+		if err := c.conn.WriteMessage(websocket.BinaryMessage, data); err != nil {
+			log.Printf("Error sending frame to client %s: %v", c.clientID, err)
+			c.close()
+			return
+		}
+	}
+}
+
+// close 关闭客户端连接和channel
+func (c *WebSocketClient) close() {
+	if c.closed.CompareAndSwap(false, true) {
+		close(c.frameChan)
+		c.conn.Close()
+	}
+}
+
+// send 非阻塞发送帧数据到channel，channel满则丢弃旧帧保留最新
+func (c *WebSocketClient) send(data []byte) {
+	if c.closed.Load() {
+		return
+	}
+	select {
+	case c.frameChan <- data:
+	default:
+		// channel满，丢弃最旧的帧，放入最新的
+		select {
+		case <-c.frameChan:
+		default:
+		}
+		select {
+		case c.frameChan <- data:
+		default:
+		}
+	}
 }
 
 // =============================================================================
@@ -178,27 +235,23 @@ func NewH264Writer() *H264Writer {
 // 注意: 序列化的JSON包含Base64编码的数据，因为[]byte默认会Base64编码
 // =============================================================================
 func (w *H264Writer) broadcastFrame(frame *H264Frame) {
+	// 先序列化，避免持锁时做序列化
+	data := packBinaryFrame(frame)
+
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	for _, client := range w.clients {
-		if client.conn != nil {
-			data, err := json.Marshal(frame)
-			if err != nil {
-				log.Printf("Error marshaling frame to JSON for client %s: %v", client.clientID, err)
-				continue
-			}
-
-			if len(frame.Data) > 4 {
-				// naluType := frame.Data[4] & 0x1F
-				// log.Printf("Sending frame: NALU type=%d, isKey=%v, dataLen=%d", naluType, frame.IsKey, len(frame.Data))
-			}
-			if err := client.conn.WriteMessage(websocket.BinaryMessage, data); err != nil {
-				log.Printf("Error sending frame to client %s: %v", client.clientID, err)
-				client.conn.Close()
-				delete(w.clients, client.clientID)
-			}
+	for id, client := range w.clients {
+		if client.closed.Load() {
+			delete(w.clients, id)
+			continue
 		}
+		if len(frame.Data) > 4 {
+			// naluType := frame.Data[4] & 0x1F
+			// log.Printf("Sending frame: NALU type=%d, isKey=%v, dataLen=%d", naluType, frame.IsKey, len(frame.Data))
+		}
+		// 非阻塞发送到客户端channel，不会阻塞RTP处理
+		client.send(data)
 	}
 }
 
@@ -322,8 +375,7 @@ func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
 			w.pending = append(w.pending, payload[2:]...)
 
 			if isEnd {
-				// 最后一个分片，完成重组
-				w.pending = append(w.pending, payload[2:]...)
+				// 最后一个分片，完成重组（数据已在上面append过，不再重复追加）
 				nalType := w.pending[0] & 0x1F
 				if nalType == 7 {
 					w.sps = make([]byte, len(w.pending))
@@ -523,10 +575,14 @@ func startWebSocketServer(h264Writer *H264Writer) {
 		// 生成客户端ID
 		clientID := fmt.Sprintf("client-%d", len(h264Writer.clients))
 		client := &WebSocketClient{
-			conn:     conn,
-			writer:   h264Writer,
-			clientID: clientID,
+			conn:      conn,
+			writer:    h264Writer,
+			clientID:  clientID,
+			frameChan: make(chan []byte, 3), // 缓冲3帧，满则丢旧帧
 		}
+
+		// 启动独立的写goroutine
+		go client.writeLoop()
 
 		// 添加到客户端列表
 		h264Writer.mu.Lock()
@@ -554,23 +610,16 @@ func startWebSocketServer(h264Writer *H264Writer) {
 			spsData := append([]byte{0x00, 0x00, 0x00, 0x01}, h264Writer.sps...)
 			log.Printf("Preparing SPS for client %s: total length=%d, first 10 bytes=%v", clientID, len(spsData), spsData[:minInt(10, len(spsData))])
 
-			// 构建配置消息
-			configMsg, err := json.Marshal(H264Frame{
+			// 使用二进制协议发送
+			binMsg := packBinaryFrame(&H264Frame{
 				Data:      spsData,
 				Timestamp: currentTime,
-				IsKey:     true, // 标记为关键帧
+				IsKey:     true,
 			})
-			if err != nil {
-				log.Printf("Error marshaling SPS to JSON for client %s: %v", clientID, err)
+			if err := conn.WriteMessage(websocket.BinaryMessage, binMsg); err != nil {
+				log.Printf("Error sending SPS to client %s: %v", clientID, err)
 			} else {
-				log.Printf("SPS JSON length for client %s: %d", clientID, len(configMsg))
-
-				// 发送
-				if err := conn.WriteMessage(websocket.BinaryMessage, configMsg); err != nil {
-					log.Printf("Error sending SPS to client %s: %v", clientID, err)
-				} else {
-					log.Printf("Sent SPS to client %s, data length: %d", clientID, len(spsData))
-				}
+				log.Printf("Sent SPS to client %s, data length: %d", clientID, len(spsData))
 			}
 		}
 
@@ -583,24 +632,12 @@ func startWebSocketServer(h264Writer *H264Writer) {
 			ppsData := append([]byte{0x00, 0x00, 0x00, 0x01}, h264Writer.pps...)
 			log.Printf("Preparing PPS for client %s: total length=%d, first 10 bytes=%v", clientID, len(ppsData), ppsData[:minInt(10, len(ppsData))])
 
-			configMsg, err := json.Marshal(H264Frame{
+			binMsg := packBinaryFrame(&H264Frame{
 				Data:      ppsData,
 				Timestamp: currentTime,
 				IsKey:     true,
 			})
-			if err != nil {
-				log.Printf("Error marshaling PPS to JSON for client %s: %v", clientID, err)
-			} else {
-				log.Printf("PPS JSON length for client %s: %d", clientID, len(configMsg))
-
-				if err := conn.WriteMessage(websocket.BinaryMessage, configMsg); err != nil {
-					log.Printf("Error sending PPS to client %s: %v", clientID, err)
-				} else {
-					log.Printf("Sent PPS to client %s, data length: %d", clientID, len(ppsData))
-				}
-			}
-
-			if err := conn.WriteMessage(websocket.BinaryMessage, configMsg); err != nil {
+			if err := conn.WriteMessage(websocket.BinaryMessage, binMsg); err != nil {
 				log.Printf("Error sending PPS to client %s: %v", clientID, err)
 			} else {
 				log.Printf("Sent PPS to client %s, data length: %d", clientID, len(ppsData))
@@ -626,7 +663,7 @@ func startWebSocketServer(h264Writer *H264Writer) {
 		delete(h264Writer.clients, clientID)
 		h264Writer.mu.Unlock()
 
-		conn.Close()
+		client.close()
 		log.Printf("Client disconnected: %s", clientID)
 	})
 

@@ -230,36 +230,43 @@
         console.error("WebSocket 错误:", err)
       }
 
+      // ==========================================
+      // 解析二进制帧消息
+      // 格式: [1byte flags][8bytes timestamp big-endian][H264 data...]
+      // flags: bit0 = isKey
+      // ==========================================
+      function parseBinaryFrame(arrayBuffer) {
+        const view = new DataView(arrayBuffer)
+        const flags = view.getUint8(0)
+        const isKey = (flags & 1) !== 0
+        // 读取8字节大端序时间戳（微秒）
+        const timestampHi = view.getUint32(1, false)
+        const timestampLo = view.getUint32(5, false)
+        const timestamp = timestampHi * 0x100000000 + timestampLo
+        const h264Data = new Uint8Array(arrayBuffer, 9)
+        return { isKey, timestamp, h264Data }
+      }
+
+      // 解码队列深度阈值，超过此值丢弃非关键帧以控制延迟
+      const MAX_DECODE_QUEUE_SIZE = 3
+
       socket.onmessage = async (event) => {
-        // --- A. 解析 JSON ---
-        let jsonMsg
+        // --- A. 解析二进制消息（零拷贝，无JSON/Base64开销）---
+        let msg
         try {
-          const textDecoder = new TextDecoder()
-          const jsonString = textDecoder.decode(event.data)
-          jsonMsg = JSON.parse(jsonString)
+          msg = parseBinaryFrame(event.data)
         } catch (e) {
-          console.error("JSON 解析失败", e)
+          console.error("二进制帧解析失败", e)
           return
         }
 
-        if (jsonMsg.is_key) {
-          console.log({ jsonMsg })
-        }
-        // --- B. Base64 转 Uint8Array ---
-        let h264Data
-        try {
-          const binaryString = window.atob(jsonMsg.data)
-          const len = binaryString.length
-          h264Data = new Uint8Array(len)
-          for (let i = 0; i < len; i++) {
-            h264Data[i] = binaryString.charCodeAt(i)
-          }
-        } catch (e) {
-          console.error("Base64 解码失败", e)
-          return
+        const { isKey, timestamp, h264Data } = msg
+
+        if (isKey) {
+          console.log("收到关键帧, dataLen:", h264Data.length)
         }
 
-        // --- C. 解析 NALU (仅用于收集 SPS/PPS) ---
+        // --- B. 解析 NALU (仅用于收集 SPS/PPS) ---
         if (h264Data.length > 4) {
           const naluHeader = h264Data[4]
           const naluType = naluHeader & 0x1f
@@ -274,7 +281,7 @@
           }
         }
 
-        // --- D. 确保 Decoder 准备就绪 ---
+        // --- C. 确保 Decoder 准备就绪 ---
         const currentDecoder = ensureDecoderReady()
 
         // 尝试配置
@@ -284,16 +291,28 @@
           return
         }
 
-        // --- E. 解码 ---
+        // --- D. 解码（带背压控制）---
         if (isDecoderConfigured && currentDecoder.state === "configured") {
-          const chunkType = jsonMsg.is_key ? "key" : "delta"
+          // 背压: 如果解码队列太长，丢弃非关键帧以追赶实时
+          if (currentDecoder.decodeQueueSize > MAX_DECODE_QUEUE_SIZE) {
+            if (!isKey) {
+              // 丢弃非关键帧，等下一个关键帧追上实时
+              return
+            }
+            // 收到关键帧但队列积压，flush后重新开始
+            console.warn("解码队列积压, flush并从关键帧重新开始, queueSize:", currentDecoder.decodeQueueSize)
+            await currentDecoder.flush()
+            baseTimestamp = null // 重置时间戳基准
+          }
+
+          const chunkType = isKey ? "key" : "delta"
 
           // 修正时间戳
-          const timestamp = getMicroseconds(jsonMsg.timestamp)
+          const ts = getMicroseconds(timestamp)
 
           const chunk = new EncodedVideoChunk({
             type: chunkType,
-            timestamp: timestamp,
+            timestamp: ts,
             data: h264Data, // 直接发送 Annex B 数据 (00 00 00 01 ...)
           })
 
