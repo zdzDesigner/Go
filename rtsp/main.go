@@ -731,6 +731,7 @@ func main() {
 	// rtspURL := "rtsp://localhost:8554/mystream" // Adjust this to your actual RTSP stream URL
 	// rtspURL := "rtsp://172.16.40.35/ch1" // Adjust this to your actual RTSP stream URL
 	rtspURL := "rtsp://172.16.50.99/ch1" // Adjust this to your actual RTSP stream URL
+	// rtspURL := "rtsp://172.16.50.40/ch1" // Adjust this to your actual RTSP stream URL
 	// rtspURL := "rtsp://172.16.50.134:554" // Adjust this to your actual RTSP stream URL
 	// Common formats: "rtsp://ip:port/", "rtsp://ip:port/stream", "rtsp://ip:port/live.sdp"
 
