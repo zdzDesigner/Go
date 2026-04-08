@@ -247,8 +247,11 @@
         return { isKey, timestamp, h264Data }
       }
 
-      // 解码队列深度阈值，超过此值丢弃非关键帧以控制延迟
+      // 解码队列深度阈值，超过此值丢弃帧以控制延迟
+      // 注意：必须 GOP-aware 丢帧（丢 P 帧后要等下一个关键帧），
+      // 否则解码器基于缺失的参考帧产生残影
       const MAX_DECODE_QUEUE_SIZE = 3
+      let clientNeedKeyframe = false
 
       socket.onmessage = async (event) => {
         // --- A. 解析二进制消息（零拷贝，无JSON/Base64开销）---
@@ -291,18 +294,40 @@
           return
         }
 
-        // --- D. 解码（带背压控制）---
+        // --- D. 解码（GOP-aware 背压控制）---
         if (isDecoderConfigured && currentDecoder.state === "configured") {
-          // 背压: 如果解码队列太长，丢弃非关键帧以追赶实时
-          if (currentDecoder.decodeQueueSize > MAX_DECODE_QUEUE_SIZE) {
+          // 如果之前因队列积压丢过帧，必须等下一个关键帧才能恢复解码
+          // 否则 P 帧基于缺失的参考帧会产生残影
+          if (clientNeedKeyframe) {
             if (!isKey) {
-              // 丢弃非关键帧，等下一个关键帧追上实时
-              return
+              return // 丢弃 P 帧，等待关键帧
             }
-            // 收到关键帧但队列积压，flush后重新开始
-            console.warn("解码队列积压, flush并从关键帧重新开始, queueSize:", currentDecoder.decodeQueueSize)
-            await currentDecoder.flush()
-            baseTimestamp = null // 重置时间戳基准
+            // 关键帧到了，flush 解码器丢弃旧的参考帧状态
+            console.warn("客户端: 收到关键帧，从丢帧状态恢复")
+            try {
+              await currentDecoder.flush()
+            } catch (e) {
+              console.warn("flush 异常:", e)
+            }
+            clientNeedKeyframe = false
+            baseTimestamp = null
+          }
+
+          // 背压: 队列太长 → 进入等待关键帧状态
+          if (currentDecoder.decodeQueueSize > MAX_DECODE_QUEUE_SIZE) {
+            console.warn("解码队列积压，进入等待关键帧状态, queueSize:", currentDecoder.decodeQueueSize)
+            clientNeedKeyframe = true
+            if (!isKey) {
+              return // 丢弃当前 P 帧
+            }
+            // 当前就是关键帧，flush 后直接解码
+            try {
+              await currentDecoder.flush()
+            } catch (e) {
+              console.warn("flush 异常:", e)
+            }
+            clientNeedKeyframe = false
+            baseTimestamp = null
           }
 
           const chunkType = isKey ? "key" : "delta"

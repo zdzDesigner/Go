@@ -115,7 +115,6 @@ func packBinaryFrame(frame *H264Frame) []byte {
 type H264Writer struct {
 	mu             sync.Mutex                  // 互斥锁，保护共享数据
 	clients        map[string]*WebSocketClient // WebSocket客户端映射
-	pending        []byte                      // Fu-A分片累积缓冲区
 	firstTimestamp uint32                      // 起始时间戳(用于计算相对时间)
 	startTime      time.Time                   // 起始时间
 	sps            []byte                      // 序列参数集 (Sequence Parameter Set)
@@ -287,260 +286,67 @@ func (w *H264Writer) broadcastFrame(frame *H264Frame) {
 	}
 }
 
-// processRTPPacket 处理RTP数据包，提取H.264帧
+// buildFrameFromNALUs 从 gortsplib 解包器返回的 NALU 列表构建 H264Frame
 // =============================================================================
-// 核心函数，处理来自RTSP流的RTP包
+// 输入: nalus [][]byte - 一个 access unit 中的所有 NALU（由 rtph264.Decoder 解包）
 //
-// 输入: RTP包 (来自gortsplib的回调)
-//
-// 输出: H264Frame (用于广播) 或 nil (不需广播)
+// 输出: *H264Frame（含 Annex B 起始码，可直接广播）或 nil（仅含 SPS/PPS 时）
 //
 // 处理逻辑:
-//
-// 1. 提取RTP负载 (payload)
-// 2. 检查NALU类型:
-//   - Fu-A分片 (type=28): 需要重组
-//   - 完整NALU (type=1-12): 直接处理
-//   - SPS (type=7): 缓存，不广播
-//   - PPS (type=8): 缓存，不广播
-//   - 其他: 忽略
-//
-// 3. Fu-A分片处理:
-//   - isStart=true: 开始新的分片
-//   - isStart=false, isEnd=false: 中间分片，累积
-//   - isEnd=true: 最后一个分片，完成重组
-//
-// 4. 重组完成后:
-//   - 如果是SPS/PPS: 缓存到writer.sps/writer.pps
-//   - 如果是视频帧: 调用buildFrame()构建H264Frame
-//
-// 注意: 此函数在持有互斥锁的情况下调用
+// 1. 遍历所有 NALU
+// 2. SPS(type=7)/PPS(type=8) → 缓存到 writer，不加入帧数据
+// 3. IDR(type=5) → 标记为关键帧，在帧数据前拼接 SPS+PPS
+// 4. 其他 Slice(type=1-12) → 拼接到帧数据
+// 5. 每个 NALU 前添加 4 字节 Annex B 起始码 [00 00 00 01]
 // =============================================================================
-func (w *H264Writer) processRTPPacket(pkt *rtp.Packet) *H264Frame {
+func (w *H264Writer) buildFrameFromNALUs(nalus [][]byte) *H264Frame {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	// RTP负载: [1 byte NALU头] [可选: Fu-Indicator + Fu-Header] [数据]
-	payload := pkt.Payload
-
-	// 负载太小，无法包含有效的NALU
-	if len(payload) < 2 {
-		return nil
-	}
-
-	// 解析NALU头
-	// =============================================================================
-	// RTP负载第一个字节结构:
-	// bit7: F (1位) -  forbidden_zero_bit，必须为0
-	// bit6-5: NRI (2位) -  nal_ref_idc，参考帧指示
-	// bit4-0: type (5位) - NALU类型
-	//
-	// 常见类型值:
-	// type=1: 非IDR Slice (P帧)
-	// type=5: IDR Slice (I帧/关键帧)
-	// type=7: SPS (Sequence Parameter Set)
-	// type=8: PPS (Picture Parameter Set)
-	// type=28: FU-A (分片单元)
-	// =============================================================================
-	naluType := payload[0] & 0x1F // 后7位
-	nal := payload[0] & 0x60      // 保留NRI位，用于重组
-	// log.Println("naluType:", naluType)
-
-	// 处理Fu-A分片
-	// =============================================================================
-	// Fu-A分片结构:
-	// [Fu-Indicator] [Fu-Header] [片段数据...]
-	//
-	// Fu-Indicator (1字节):
-	//   bit7: F
-	//   bit6-5: NRI (来自原NALU头)
-	//   bit4-0: 28 (Fu-A类型)
-	//
-	// Fu-Header (1字节):
-	//   bit7: S (Start bit) - 1=第一个分片
-	//   bit6: E (End bit) - 1=最后一个分片
-	//   bit5: R (Reserved) - 保留，必须为0
-	//   bit4-0: type (原始NALU类型)
-	// =============================================================================
-	if naluType == 28 {
-		if len(payload) < 2 {
-			return nil
-		}
-
-		fuHeader := payload[1]
-		isStart := fuHeader&0x80 != 0    // S位: 第一个分片
-		isEnd := fuHeader&0x40 != 0      // E位: 最后一个分片
-		nalType := fuHeader & 0x1F       // 原始NALU类型
-		isreserved := fuHeader&0x20 != 0 // R 位，必须为 0
-		// log.Println("Fu-A nalType:", isStart, isEnd, nalType)
-		if isreserved {
-			log.Println("FU-A invalid: reserved bit != 0, discarding")
-			return nil
-		}
-
-		// 重组NALU头: NRI位 + 原始类型
-		reconstructed := []byte{nal | nalType}
-
-		if isStart {
-			// 第一个分片: 开始累积
-			w.pending = append(reconstructed, payload[2:]...)
-
-			if isEnd {
-				// 单分片NALU (既start又end)
-				// w.pending = append(w.pending, payload[2:]...)
-				if nalType == 7 {
-					w.sps = make([]byte, len(w.pending))
-					copy(w.sps, w.pending)
-				} else if nalType == 8 {
-					w.pps = make([]byte, len(w.pending))
-					copy(w.pps, w.pending)
-				} else {
-					frame := w.buildFrame(w.pending)
-					w.pending = nil
-					return frame
-				}
-				w.pending = nil
-				return nil
-			}
-		} else if len(w.pending) > 0 {
-			// 中间或最后一个分片
-			w.pending = append(w.pending, payload[2:]...)
-
-			if isEnd {
-				// 最后一个分片，完成重组（数据已在上面append过，不再重复追加）
-				nalType := w.pending[0] & 0x1F
-				if nalType == 7 {
-					w.sps = make([]byte, len(w.pending))
-					copy(w.sps, w.pending)
-					w.pending = nil
-					return nil
-				} else if nalType == 8 {
-					w.pps = make([]byte, len(w.pending))
-					copy(w.pps, w.pending)
-					w.pending = nil
-					return nil
-				} else {
-					frame := w.buildFrame(w.pending)
-					w.pending = nil
-					return frame
-				}
-			} else {
-				// 中间分片，继续累积
-				return nil
-			}
-		}
-
-		return nil
-	}
-
-	// 处理完整NALU (非分片)
-	// =============================================================================
-	// 完整NALU直接包含数据，不需要分片重组
-	// 但需要注意SPS/PPS只需要缓存，不需要广播
-	// =============================================================================
-	if naluType == 7 {
-		// SPS (Sequence Parameter Set) - 包含视频编码参数
-		// =============================================================================
-		// SPS包含:
-		// - Profile (编码配置，如Baseline, Main, High)
-		// - Level (编码级别，如3.1表示720p@30fps)
-		// - 分辨率信息
-		// - 参考帧数量等
-		//
-		// SPS在视频流开始时发送，后续只需要在关键帧前重复
-		// 解码器必须先有SPS才能解码
-		// =============================================================================
-		w.sps = payload
-		return nil
-	}
-	if naluType == 8 {
-		// PPS (Picture Parameter Set) - 包含图像参数
-		// =============================================================================
-		// PPS包含:
-		// - 熵编码模式 (CABAC/CAVLC)
-		// - 量化参数
-		// - 去块滤波器参数等
-		//
-		// PPS通常紧跟在SPS后面
-		// 解码器需要SPS+PPS才能正常工作
-		// =============================================================================
-		w.pps = payload
-		return nil
-	}
-
-	// 检查是否是有效的视频帧类型 (1-12是有效的Slice类型)
-	if naluType >= 1 && naluType <= 12 {
-		return w.buildFrame(payload)
-	}
-
-	return nil
-}
-
-// buildFrame 从NALU数据构建H264Frame
-// =============================================================================
-// 输入: 原始NALU数据 (不含起始码)
-//
-// 输出: H264Frame (含起始码，可直接广播)
-//
-// 处理步骤:
-// 1. 判断是否为关键帧 (type=5是IDR帧)
-// 2. 生成时间戳
-// 3. 添加H.264起始码 [00 00 00 01]
-// 4. 构建H264Frame结构
-//
-// H.264起始码:
-// - 4字节: [00 00 00 01] - 首选
-// - 3字节: [00 00 01] - 备选
-//
-// 这里统一使用4字节起始码
-func (w *H264Writer) buildFrame(data []byte) *H264Frame {
-	// 提取NALU类型
-	nalType := data[0] & 0x1F
-	// 判断是否为关键帧
-	// =============================================================================
-	// 关键帧 (IDR, Instantaneous Decoder Refresh):
-	// - 可以独立解码，不需要参考其他帧
-	// - 视频流中的随机访问点
-	// - 通常在场景切换时产生
-	// - 解码器配置后必须以关键帧开始
-	//
-	// P帧 (Predicted):
-	// - 需要参考前面的帧才能解码
-	// - 压缩率更高，但依赖性也更高
-	// =============================================================================
-	isKey := nalType == 5
-	timestamp := w.getTimestamp()
-
-	// 添加4字节起始码
-	// =============================================================================
-	// H.264原始数据通常不包含起始码
-	// 但Web端解码需要起始码来识别NALU边界
-	// 添加 [00 00 00 01] 作为起始码
-	// =============================================================================
 	startCode := []byte{0x00, 0x00, 0x00, 0x01}
-	frameData := make([]byte, 0)
+	var frameData []byte
+	isKey := false
 
-	// 对于关键帧，附加 SPS 和 PPS（如果存在）
-	if isKey && len(w.sps) > 0 && len(w.pps) > 0 {
-		frameData = append(frameData, startCode...)
-		frameData = append(frameData, w.sps...)
-		frameData = append(frameData, startCode...)
-		frameData = append(frameData, w.pps...)
+	for _, nalu := range nalus {
+		if len(nalu) == 0 {
+			continue
+		}
+		nalType := nalu[0] & 0x1F
+
+		switch nalType {
+		case 7: // SPS
+			w.sps = make([]byte, len(nalu))
+			copy(w.sps, nalu)
+			log.Printf("RTP decoder: 更新 SPS, len=%d", len(nalu))
+		case 8: // PPS
+			w.pps = make([]byte, len(nalu))
+			copy(w.pps, nalu)
+			log.Printf("RTP decoder: 更新 PPS, len=%d", len(nalu))
+		default:
+			if nalType >= 1 && nalType <= 12 {
+				if nalType == 5 {
+					isKey = true
+				}
+				// 关键帧前先拼 SPS+PPS（仅在首个 slice NALU 前拼一次）
+				if isKey && frameData == nil && len(w.sps) > 0 && len(w.pps) > 0 {
+					frameData = append(frameData, startCode...)
+					frameData = append(frameData, w.sps...)
+					frameData = append(frameData, startCode...)
+					frameData = append(frameData, w.pps...)
+				}
+				frameData = append(frameData, startCode...)
+				frameData = append(frameData, nalu...)
+			}
+		}
 	}
 
-	// 附加 Slice NALU
-	frameData = append(frameData, startCode...)
-	frameData = append(frameData, data...)
-
-	// 调试日志: 打印前10个字节和NALU类型
-	if len(data) > 10 {
-		// log.Printf("BuildFrame input: first bytes = %v, NALU type = %d", data[:10], nalType)
+	if frameData == nil {
+		return nil // 只有 SPS/PPS，不构建帧
 	}
 
-	// 构建输出帧
 	return &H264Frame{
 		Data:      frameData,
-		Timestamp: timestamp,
+		Timestamp: w.getTimestamp(),
 		IsKey:     isKey,
 	}
 }
@@ -837,16 +643,17 @@ func main() {
 	}
 
 	// =================================================================
-	// 从SDP加载SPS/PPS
+	// 从SDP中查找H264 format和对应的media
 	// =================================================================
-	// SDP中的extradata包含H.264编码参数
-	// 包括SPS (序列参数集) 和 PPS (图像参数集)
-	// 这些参数对于解码至关重要
-	// =================================================================
+	var h264Format *format.H264
+	var h264Media *description.Media
+
 	log.Printf("Loading SPS/PPS from SDP:")
 	for _, media := range desc.Medias {
 		for _, f := range media.Formats {
 			if h264, ok := f.(*format.H264); ok {
+				h264Format = h264
+				h264Media = media
 				log.Printf("  Found H264 format, SPS len=%d, PPS len=%d", len(h264.SPS), len(h264.PPS))
 				if len(h264.SPS) > 0 {
 					h264Writer.sps = h264.SPS
@@ -860,6 +667,24 @@ func main() {
 		}
 	}
 
+	if h264Format == nil {
+		panic("RTSP流中未找到H264格式")
+	}
+
+	// 创建 gortsplib 内置的 RTP/H264 解包器
+	// =================================================================
+	// 相比手写的 FU-A 重组，内置解包器提供:
+	// - FU-A 分片重组 + RTP 序列号校验（丢包检测）
+	// - STAP-A 聚合包解析（4K编码器常用）
+	// - Marker bit 帧边界检测
+	// - 自动处理 PacketizationMode
+	// =================================================================
+	rtpDec, err := h264Format.CreateDecoder()
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("RTP H264 decoder created successfully")
+
 	// 设置传输会话
 	err = c.SetupAll(desc.BaseURL, desc.Medias)
 	if err != nil {
@@ -867,21 +692,28 @@ func main() {
 	}
 
 	// =================================================================
-	// 注册RTP包回调
+	// 注册RTP包回调（使用 OnPacketRTP 替代 OnPacketRTPAny）
 	// =================================================================
-	// OnPacketRTPAny在收到每个RTP包时调用
-	// 我们在这里处理RTP包，提取H.264帧
+	// OnPacketRTP 自动过滤出指定 format 的 RTP 包
+	// rtpDec.Decode() 返回完整的 NALU 列表（一个 access unit）
 	// =================================================================
-	c.OnPacketRTPAny(func(medi *description.Media, ffmt format.Format, pkt *rtp.Packet) {
-		// 处理RTP包
-		frame := h264Writer.processRTPPacket(pkt)
+	c.OnPacketRTP(h264Media, h264Format, func(pkt *rtp.Packet) {
+		// 使用内置解包器解析 RTP 包
+		nalus, err := rtpDec.Decode(pkt)
+		if err != nil {
+			// ErrMorePacketsNeeded: 正常，FU-A分片还没收完
+			// 其他错误: 丢包等，解包器已自动丢弃损坏的分片
+			return
+		}
+
+		// nalus 是一个完整 access unit 中的所有 NALU
+		frame := h264Writer.buildFrameFromNALUs(nalus)
 		if frame != nil {
-			// 如果成功提取帧，广播到所有WebSocket客户端
 			h264Writer.broadcastFrame(frame)
 		}
 	})
 
-	// RTCP回调 (用于QoS监控，未实现)
+	// RTCP回调 (用于QoS监控)
 	c.OnPacketRTCPAny(func(medi *description.Media, pkt rtcp.Packet) {
 		log.Printf("RTCP packet from media %v, type %T\n", medi, pkt)
 	})
