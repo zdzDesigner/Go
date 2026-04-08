@@ -13,13 +13,14 @@
 
 ### 1.2 技术栈
 
-| 层级        | 技术                   | 作用                      |
-| ------      | ------                 | ------                    |
-| RTSP 客户端 | gortsplib/v5           | 连接 RTSP 源、接收 RTP 包 |
-| RTP 解析    | pion/rtp, pion/rtcp    | RTP/RTCP 包解析           |
-| WebSocket   | gorilla/websocket      | 向浏览器推送视频帧        |
-| 前端解码    | WebCodecs VideoDecoder | 浏览器端 H.264 硬件解码   |
-| 前端渲染    | Canvas 2D              | 视频帧绘制                |
+| 层级        | 技术                           | 作用                                         |
+| ------      | ------                         | ------                                       |
+| RTSP 客户端 | gortsplib/v5                   | 连接 RTSP 源、接收 RTP 包                    |
+| RTP 解包    | gortsplib rtph264.Decoder      | H.264 RTP 解包（FU-A/STAP-A/丢包检测）       |
+| RTP 底层    | pion/rtp, pion/rtcp            | RTP/RTCP 包定义                              |
+| WebSocket   | gorilla/websocket              | 向浏览器推送视频帧                           |
+| 前端解码    | WebCodecs VideoDecoder         | 浏览器端 H.264 硬件解码                      |
+| 前端渲染    | Canvas 2D                      | 视频帧绘制                                   |
 
 ### 1.3 源文件
 

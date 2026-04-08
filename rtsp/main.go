@@ -55,6 +55,7 @@ import (
 	"github.com/bluenviron/gortsplib/v5/pkg/base"
 	"github.com/bluenviron/gortsplib/v5/pkg/description"
 	"github.com/bluenviron/gortsplib/v5/pkg/format"
+	"github.com/bluenviron/gortsplib/v5/pkg/format/rtph264"
 	"github.com/gorilla/websocket"
 	"github.com/pion/rtcp"
 	"github.com/pion/rtp"
@@ -113,12 +114,13 @@ func packBinaryFrame(frame *H264Frame) []byte {
 // 线程安全: 使用sync.Mutex保护所有成员变量
 // =============================================================================
 type H264Writer struct {
-	mu             sync.Mutex                  // 互斥锁，保护共享数据
-	clients        map[string]*WebSocketClient // WebSocket客户端映射
-	firstTimestamp uint32                      // 起始时间戳(用于计算相对时间)
-	startTime      time.Time                   // 起始时间
-	sps            []byte                      // 序列参数集 (Sequence Parameter Set)
-	pps            []byte                      // 图像参数集 (Picture Parameter Set)
+	mu                 sync.Mutex                  // 互斥锁，保护共享数据
+	clients            map[string]*WebSocketClient // WebSocket客户端映射
+	firstTimestamp     uint32                      // 起始时间戳(用于计算相对时间)
+	startTime          time.Time                   // 起始时间
+	sps                []byte                      // 序列参数集 (Sequence Parameter Set)
+	pps                []byte                      // 图像参数集 (Picture Parameter Set)
+	streamNeedKeyframe atomic.Bool                 // 流级别丢包标记：RTP层丢包后丢弃所有P帧，等待下一个IDR
 }
 
 // WebSocketClient 表示一个连接的WebSocket客户端
@@ -303,17 +305,16 @@ func (w *H264Writer) buildFrameFromNALUs(nalus [][]byte) *H264Frame {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	startCode := []byte{0x00, 0x00, 0x00, 0x01}
-	var frameData []byte
-	isKey := false
-
+	// 先扫描一遍判断是否包含关键帧（IDR）和更新 SPS/PPS
+	hasIDR := false
 	for _, nalu := range nalus {
 		if len(nalu) == 0 {
 			continue
 		}
 		nalType := nalu[0] & 0x1F
-
 		switch nalType {
+		case 5: // IDR
+			hasIDR = true
 		case 7: // SPS
 			w.sps = make([]byte, len(nalu))
 			copy(w.sps, nalu)
@@ -322,21 +323,39 @@ func (w *H264Writer) buildFrameFromNALUs(nalus [][]byte) *H264Frame {
 			w.pps = make([]byte, len(nalu))
 			copy(w.pps, nalu)
 			log.Printf("RTP decoder: 更新 PPS, len=%d", len(nalu))
-		default:
-			if nalType >= 1 && nalType <= 12 {
-				if nalType == 5 {
-					isKey = true
-				}
-				// 关键帧前先拼 SPS+PPS（仅在首个 slice NALU 前拼一次）
-				if isKey && frameData == nil && len(w.sps) > 0 && len(w.pps) > 0 {
-					frameData = append(frameData, startCode...)
-					frameData = append(frameData, w.sps...)
-					frameData = append(frameData, startCode...)
-					frameData = append(frameData, w.pps...)
-				}
-				frameData = append(frameData, startCode...)
-				frameData = append(frameData, nalu...)
-			}
+		}
+	}
+
+	// 流级别丢包恢复：如果之前丢过包，只有关键帧才能恢复
+	if w.streamNeedKeyframe.Load() {
+		if !hasIDR {
+			return nil // 丢弃所有P帧，等关键帧
+		}
+		w.streamNeedKeyframe.Store(false)
+		log.Printf("收到关键帧，流从丢包状态恢复")
+	}
+
+	startCode := []byte{0x00, 0x00, 0x00, 0x01}
+	var frameData []byte
+	isKey := hasIDR
+
+	// 关键帧前先拼 SPS+PPS
+	if isKey && len(w.sps) > 0 && len(w.pps) > 0 {
+		frameData = append(frameData, startCode...)
+		frameData = append(frameData, w.sps...)
+		frameData = append(frameData, startCode...)
+		frameData = append(frameData, w.pps...)
+	}
+
+	// 拼接所有 slice NALU（跳过 SPS/PPS，已经在上面拼过）
+	for _, nalu := range nalus {
+		if len(nalu) == 0 {
+			continue
+		}
+		nalType := nalu[0] & 0x1F
+		if nalType >= 1 && nalType <= 12 && nalType != 7 && nalType != 8 {
+			frameData = append(frameData, startCode...)
+			frameData = append(frameData, nalu...)
 		}
 	}
 
@@ -702,7 +721,14 @@ func main() {
 		nalus, err := rtpDec.Decode(pkt)
 		if err != nil {
 			// ErrMorePacketsNeeded: 正常，FU-A分片还没收完
-			// 其他错误: 丢包等，解包器已自动丢弃损坏的分片
+			if err != rtph264.ErrMorePacketsNeeded && err != rtph264.ErrNonStartingPacketAndNoPrevious {
+				// 真正的丢包/协议错误：标记流需要等待下一个关键帧
+				// 否则后续P帧依赖的参考帧缺失，客户端解码会产生残影
+				if !h264Writer.streamNeedKeyframe.Load() {
+					log.Printf("RTP层丢包/错误，等待下一个关键帧: %v", err)
+					h264Writer.streamNeedKeyframe.Store(true)
+				}
+			}
 			return
 		}
 
