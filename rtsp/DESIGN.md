@@ -47,35 +47,63 @@ index.html    — 浏览器前端（WebSocket 客户端 + WebCodecs 解码 + Can
 ```
 gortsplib RTSP Client
         │
-        │ OnPacketRTPAny 回调（每个 RTP 包触发一次）
+        │ OnPacketRTP 回调（按 H264 format 过滤）
         ▼
-┌─────────────────────┐
-│  processRTPPacket() │  持 mu 锁
-│                     │
-│  1. 解析 NALU 类型  │
-│  2. FU-A 分片重组   │
-│  3. 缓存 SPS/PPS    │
-│  4. buildFrame()    │
-└────────┬────────────┘
-         │ 返回 *H264Frame（或 nil）
-         ▼
-┌─────────────────────┐
-│  broadcastFrame()   │  持 mu 锁（仅读取 clients 列表）
-│                     │
-│  1. packBinaryFrame │  序列化在锁外完成
-│  2. 遍历 clients    │
-│  3. client.send()   │  非阻塞写入 channel
-└────────┬────────────┘
+┌───────────────────────────┐
+│  rtpDec.Decode(pkt)       │  gortsplib 内置 rtph264.Decoder
+│                           │
+│  内置处理:                │
+│  - FU-A 分片重组          │
+│  - STAP-A 聚合解析        │
+│  - RTP 序列号校验(丢包)   │
+│  - Marker bit 帧边界      │
+└────────┬──────────────────┘
+         │ 返回 [][]byte NALU 列表 或 error
          │
-         ▼ （每个客户端独立）
-┌─────────────────────┐
-│  writeLoop()        │  独立 goroutine
-│                     │
-│  1. 从 frameChan 读 │
-│  2. SetWriteDeadline│
-│  3. WriteMessage    │
-│  4. 超时则断开      │
-└─────────────────────┘
+         │ error (非 ErrMorePacketsNeeded)
+         │  → streamNeedKeyframe = true (层1 背压)
+         │
+         ▼
+┌───────────────────────────┐
+│  buildFrameFromNALUs()    │  持 mu 锁
+│                           │
+│  1. 扫描 NALU 检测 IDR    │
+│  2. 缓存 SPS/PPS          │
+│  3. streamNeedKeyframe    │
+│     且无 IDR → 返回 nil   │
+│  4. 拼接 Annex B 帧数据   │
+└────────┬──────────────────┘
+         │ *H264Frame 或 nil
+         ▼
+┌───────────────────────────┐
+│  broadcastFrame()         │
+│                           │
+│  packBinaryFrame() (锁外) │
+│  持 mu 锁: 遍历 clients   │
+│  client.send() (非阻塞)   │
+└────────┬──────────────────┘
+         │
+         ▼ 每个客户端独立
+┌───────────────────────────┐
+│  client.send()            │
+│                           │
+│  needKeyframe 且非IDR     │
+│    → 丢弃 (层2 背压)      │
+│  channel 满               │
+│    → needKeyframe = true  │
+│                           │
+│  frameChan <- data        │
+└────────┬──────────────────┘
+         │
+         ▼
+┌───────────────────────────┐
+│  writeLoop()              │  独立 goroutine
+│                           │
+│  从 frameChan 读          │
+│  SetWriteDeadline(1s)     │
+│  WriteMessage             │
+│  超时则断开               │
+└───────────────────────────┘
 ```
 
 ### 2.3 客户端内部流程
@@ -83,12 +111,12 @@ gortsplib RTSP Client
 ```
 WebSocket onmessage
         │
-        │ ArrayBuffer（二进制）
+        │ ArrayBuffer (二进制)
         ▼
 ┌─────────────────────┐
 │  parseBinaryFrame() │  DataView 零拷贝解析
 │                     │
-│  提取: flags,       │
+│  提取: isKey,       │
 │    timestamp,       │
 │    h264Data         │
 └────────┬────────────┘
@@ -103,14 +131,19 @@ WebSocket onmessage
 └────────┬────────────┘
          │
          ▼
-┌─────────────────────┐
-│  背压控制           │
-│                     │
-│  decodeQueueSize>3? │
-│    非关键帧 → 丢弃  │
-│    关键帧 → flush   │
-│      并重置时间戳   │
-└────────┬────────────┘
+┌──────────────────────────┐
+│  GOP-aware 背压 (层3)    │
+│                          │
+│  clientNeedKeyframe      │
+│    非IDR → 丢弃          │
+│    IDR → flush恢复       │
+│                          │
+│  decodeQueueSize > 3     │
+│    → clientNeedKeyframe  │
+│      = true              │
+│    非IDR → 丢弃          │
+│    IDR → flush + 解码    │
+└────────┬─────────────────┘
          │
          ▼
 ┌─────────────────────┐
