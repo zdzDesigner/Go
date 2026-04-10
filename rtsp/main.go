@@ -133,8 +133,8 @@ type WebSocketClient struct {
 	writer       *H264Writer     // 所属H264Writer引用
 	clientID     string          // 客户端标识符 (如 "client-0")
 	frameChan    chan []byte     // 异步发送通道，避免阻塞RTP处理
-	closed       atomic.Bool    // 标记是否已关闭
-	needKeyframe atomic.Bool    // 丢帧后标记，等待下一个关键帧恢复
+	closed       atomic.Bool     // 标记是否已关闭
+	needKeyframe atomic.Bool     // 丢帧后标记，等待下一个关键帧恢复
 }
 
 // writeLoop 独立的写goroutine，从channel读取帧并发送
@@ -624,7 +624,8 @@ func main() {
 	// rtspURL := "rtsp://localhost:8554/live" // Adjust this to your actual RTSP stream URL
 	// rtspURL := "rtsp://localhost:8554/mystream" // Adjust this to your actual RTSP stream URL
 	// rtspURL := "rtsp://172.16.40.35/ch1" // Adjust this to your actual RTSP stream URL
-	rtspURL := "rtsp://172.16.50.99/ch1" // Adjust this to your actual RTSP stream URL
+	// rtspURL := "rtsp://172.16.50.99/ch1" // Adjust this to your actual RTSP stream URL
+	rtspURL := "rtsp://172.16.50.66:8554/live/video" // Adjust this to your actual RTSP stream URL
 	// rtspURL := "rtsp://172.16.50.40/ch1" // Adjust this to your actual RTSP stream URL
 	// rtspURL := "rtsp://172.16.50.134:554" // Adjust this to your actual RTSP stream URL
 	// Common formats: "rtsp://ip:port/", "rtsp://ip:port/stream", "rtsp://ip:port/live.sdp"
