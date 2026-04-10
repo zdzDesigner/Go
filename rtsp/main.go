@@ -706,6 +706,18 @@ func main() {
 	log.Printf("RTP H264 decoder created successfully")
 
 	// 设置传输会话
+  // ● c.SetupAll(desc.BaseURL, desc.Medias) 的作用是向 RTSP 服务器发送 SETUP 请求，为 SDP 中描述的所有媒体流建立传输会话。
+  // 具体来说:
+  // 1. 协议层面：对 desc.Medias 里的每一个媒体（视频、音频等）发送一个 RTSP SETUP 命令，协商传输参数（RTP/RTCP 端口、传输模式 UDP/TCP
+  // 等）。
+  // 2. desc.BaseURL 的作用：作为拼接每个 media control URL 的基址。SDP 里每个 media 有一个 a=control: 属性（可能是相对路径也可能是绝对
+  // URL），gortsplib 用 BaseURL + control 拼出每个 media 的 SETUP 目标 URL。
+  // 3. 为什么必须调用：
+  //   - 没有 SETUP，服务器不会为客户端分配 RTP 通道，后续的 c.Play() 会失败。
+  //   - SETUP 完成后，gortsplib 内部才知道该在哪些通道上接收 RTP 包，OnPacketRTP(h264Media, ...) 注册的回调才能真正收到包。
+  // 4. 与 Setup 的区别：SetupAll 是便捷方法，一次性为所有 media 调用 Setup。如果你只想订阅视频轨，可以只对 h264Media 调
+  // Setup，能省掉音频流的带宽。
+  // 在 main.go 的流程里顺序是：Describe（拿 SDP） → SetupAll（建立传输） → OnPacketRTP（注册回调） → Play（开始推流）。
 	err = c.SetupAll(desc.BaseURL, desc.Medias)
 	if err != nil {
 		panic(err)
