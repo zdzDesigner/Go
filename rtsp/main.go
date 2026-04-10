@@ -116,8 +116,7 @@ func packBinaryFrame(frame *H264Frame) []byte {
 type H264Writer struct {
 	mu                 sync.Mutex                  // 互斥锁，保护共享数据
 	clients            map[string]*WebSocketClient // WebSocket客户端映射
-	firstTimestamp     uint32                      // 起始时间戳(用于计算相对时间)
-	startTime          time.Time                   // 起始时间
+	startTime          time.Time                   // 起始时间(首帧时记录，用于计算相对时间戳)
 	sps                []byte                      // 序列参数集 (Sequence Parameter Set)
 	pps                []byte                      // 图像参数集 (Picture Parameter Set)
 	streamNeedKeyframe atomic.Bool                 // 流级别丢包标记：RTP层丢包后丢弃所有P帧，等待下一个IDR
@@ -381,13 +380,10 @@ func (w *H264Writer) buildFrameFromNALUs(nalus [][]byte) *H264Frame {
 // 注意: 返回值会随时间递增，用于视频帧同步
 // =============================================================================
 func (w *H264Writer) getTimestamp() uint64 {
-	if w.firstTimestamp == 0 {
-		w.firstTimestamp = 0
+	if w.startTime.IsZero() {
 		w.startTime = time.Now()
 	}
-
-	elapsed := time.Since(w.startTime).Microseconds()
-	return uint64(elapsed)
+	return uint64(time.Since(w.startTime).Microseconds())
 }
 
 // =============================================================================
@@ -435,7 +431,7 @@ func startWebSocketServer(h264Writer *H264Writer) {
 			conn:      conn,
 			writer:    h264Writer,
 			clientID:  clientID,
-			frameChan: make(chan []byte, 3), // 缓冲3帧，满则丢旧帧
+			frameChan: make(chan []byte, 60), // 缓冲60帧(~2秒@30fps)，减少溢出触发丢帧
 		}
 
 		// 启动独立的写goroutine
@@ -740,6 +736,10 @@ func main() {
 				if !h264Writer.streamNeedKeyframe.Load() {
 					log.Printf("RTP层丢包/错误，等待下一个关键帧: %v", err)
 					h264Writer.streamNeedKeyframe.Store(true)
+					// 发送PLI请求服务器立即发送关键帧，避免被动等待整个GOP周期
+					c.WritePacketRTCP(h264Media, &rtcp.PictureLossIndication{
+						MediaSSRC: pkt.SSRC,
+					})
 				}
 			}
 			return

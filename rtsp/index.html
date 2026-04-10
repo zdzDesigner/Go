@@ -248,9 +248,10 @@
       }
 
       // 解码队列深度阈值，超过此值丢弃帧以控制延迟
+      // 硬件解码管线天然积攒2-4帧，阈值过小会频繁误触发丢帧
       // 注意：必须 GOP-aware 丢帧（丢 P 帧后要等下一个关键帧），
       // 否则解码器基于缺失的参考帧产生残影
-      const MAX_DECODE_QUEUE_SIZE = 3
+      const MAX_DECODE_QUEUE_SIZE = 15
       let clientNeedKeyframe = false
 
       socket.onmessage = async (event) => {
@@ -302,12 +303,16 @@
             if (!isKey) {
               return // 丢弃 P 帧，等待关键帧
             }
-            // 关键帧到了，flush 解码器丢弃旧的参考帧状态
+            // 关键帧到了，reset 解码器丢弃积压帧和旧参考帧状态
             console.warn("客户端: 收到关键帧，从丢帧状态恢复")
             try {
-              await currentDecoder.flush()
+              currentDecoder.reset()
+              isDecoderConfigured = false
+              const ok = await tryConfigureDecoder(currentDecoder)
+              if (!ok) return
             } catch (e) {
-              console.warn("flush 异常:", e)
+              console.warn("reset/reconfigure 异常:", e)
+              return
             }
             clientNeedKeyframe = false
             baseTimestamp = null
@@ -320,11 +325,15 @@
             if (!isKey) {
               return // 丢弃当前 P 帧
             }
-            // 当前就是关键帧，flush 后直接解码
+            // 当前就是关键帧，reset 后直接解码
             try {
-              await currentDecoder.flush()
+              currentDecoder.reset()
+              isDecoderConfigured = false
+              const ok = await tryConfigureDecoder(currentDecoder)
+              if (!ok) return
             } catch (e) {
-              console.warn("flush 异常:", e)
+              console.warn("reset/reconfigure 异常:", e)
+              return
             }
             clientNeedKeyframe = false
             baseTimestamp = null
