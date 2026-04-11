@@ -44,6 +44,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -60,6 +62,39 @@ import (
 	"github.com/pion/rtcp"
 	"github.com/pion/rtp"
 )
+
+// 后端诊断统计。RtpLastTimeNs / RtpMaxGapNs 只在 RTP 单一回调 goroutine 内读写，
+// 非 atomic；其余计数器跨 goroutine (HTTP handler vs RTP 回调) 访问用 atomic。
+type ServerStats struct {
+	RtpRecv     atomic.Int64
+	FrameBuilt  atomic.Int64
+	RtpErrors   atomic.Int64
+	KeyWaiting  atomic.Int64
+	RtpMaxGapNs atomic.Int64 // 由 RTP 回调写、HTTP handler Swap 读
+}
+
+var (
+	stats        ServerStats
+	rtpLastTimeNs int64 // RTP 回调私有状态，用于计算间隔
+)
+
+type StatsSnapshot struct {
+	RtpRecv     int64 `json:"rtp_recv"`
+	FrameBuilt  int64 `json:"frame_built"`
+	RtpErrors   int64 `json:"rtp_errors"`
+	KeyWaiting  int64 `json:"key_waiting"`
+	RtpMaxGapMs int64 `json:"rtp_max_gap_ms"`
+}
+
+func getStatsSnapshot() StatsSnapshot {
+	return StatsSnapshot{
+		RtpRecv:     stats.RtpRecv.Swap(0),
+		FrameBuilt:  stats.FrameBuilt.Swap(0),
+		RtpErrors:   stats.RtpErrors.Swap(0),
+		KeyWaiting:  stats.KeyWaiting.Swap(0),
+		RtpMaxGapMs: stats.RtpMaxGapNs.Swap(0) / 1e6,
+	}
+}
 
 // =============================================================================
 // 数据结构定义
@@ -328,6 +363,7 @@ func (w *H264Writer) buildFrameFromNALUs(nalus [][]byte) *H264Frame {
 	// 流级别丢包恢复：如果之前丢过包，只有关键帧才能恢复
 	if w.streamNeedKeyframe.Load() {
 		if !hasIDR {
+			stats.KeyWaiting.Add(1)
 			return nil // 丢弃所有P帧，等关键帧
 		}
 		w.streamNeedKeyframe.Store(false)
@@ -412,9 +448,16 @@ func (w *H264Writer) getTimestamp() uint64 {
 // - SPS/PPS在客户端连接时发送一次
 // - 后续的视频帧通过broadcastFrame持续发送
 // =============================================================================
-func startWebSocketServer(h264Writer *H264Writer) {
+func startWebSocketServer(h264Writer *H264Writer, port int) {
 	// 创建HTTP多路复用器
 	httpMux := http.NewServeMux()
+
+	// 诊断统计端点
+	httpMux.HandleFunc("/api/stats", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		json.NewEncoder(w).Encode(getStatsSnapshot())
+	})
 
 	// WebSocket端点
 	httpMux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
@@ -520,10 +563,10 @@ func startWebSocketServer(h264Writer *H264Writer) {
 		log.Printf("Client disconnected: %s", clientID)
 	})
 
-	// 启动HTTP服务器
+	addr := fmt.Sprintf(":%d", port)
 	go func() {
-		log.Printf("WebSocket server listening on :8080")
-		if err := http.ListenAndServe(":8080", httpMux); err != nil && err != http.ErrServerClosed {
+		log.Printf("WebSocket server listening on %s", addr)
+		if err := http.ListenAndServe(addr, httpMux); err != nil && err != http.ErrServerClosed {
 			log.Printf("WebSocket server error: %v", err)
 		}
 	}()
@@ -602,34 +645,16 @@ func findNALUStartCode(data []byte) int {
 // =============================================================================
 
 func main() {
-	// 创建H264Writer实例
+	rtspURL := flag.String("url", "rtsp://172.16.50.66:8554/live/video", "RTSP 流地址")
+	port := flag.Int("port", 8080, "WebSocket/HTTP 服务端口")
+	flag.Parse()
+
 	h264Writer := NewH264Writer()
+	startWebSocketServer(h264Writer, *port)
 
-	// 启动WebSocket服务器
-	startWebSocketServer(h264Writer)
-
-	// RTSP流URL配置
-	// =============================================================================
-	// 示例URL:
-	// - 本地测试: rtsp://localhost:8554/live
-	// - IP摄像头: rtsp://192.168.1.100:554/stream
-	// - 海康威视: rtsp://admin:password@192.168.1.100:554/h264/ch1/main/av_stream
-	// =============================================================================
-	// rtspURL := "rtsp://172.16.40.9:554" // Adjust this to your actual RTSP stream URL
-	// rtspURL := "rtsp://172.16.50.134:554"
-	// rtspURL := "rtsp://localhost:8554/live" // Adjust this to your actual RTSP stream URL
-	// rtspURL := "rtsp://localhost:8554/mystream" // Adjust this to your actual RTSP stream URL
-	// rtspURL := "rtsp://172.16.40.35/ch1" // Adjust this to your actual RTSP stream URL
-	// rtspURL := "rtsp://172.16.50.99/ch1" // Adjust this to your actual RTSP stream URL
-	rtspURL := "rtsp://172.16.50.66:8554/live/video" // Adjust this to your actual RTSP stream URL
-	// rtspURL := "rtsp://172.16.50.40/ch1" // Adjust this to your actual RTSP stream URL
-	// rtspURL := "rtsp://172.16.50.134:554" // Adjust this to your actual RTSP stream URL
-	// Common formats: "rtsp://ip:port/", "rtsp://ip:port/stream", "rtsp://ip:port/live.sdp"
-
-	// 解析RTSP URL
-	u, err := base.ParseURL(rtspURL)
+	u, err := base.ParseURL(*rtspURL)
 	if err != nil {
-		log.Printf("Error parsing URL %s: %v", rtspURL, err)
+		log.Printf("Error parsing URL %s: %v", *rtspURL, err)
 		panic(err)
 	}
 
@@ -726,17 +751,26 @@ func main() {
 	// rtpDec.Decode() 返回完整的 NALU 列表（一个 access unit）
 	// =================================================================
 	c.OnPacketRTP(h264Media, h264Format, func(pkt *rtp.Packet) {
-		// 使用内置解包器解析 RTP 包
+		stats.RtpRecv.Add(1)
+		// 单写者场景：rtpLastTimeNs 由本回调独占，非 atomic
+		nowNs := time.Now().UnixNano()
+		if rtpLastTimeNs > 0 {
+			if gap := nowNs - rtpLastTimeNs; gap > stats.RtpMaxGapNs.Load() {
+				stats.RtpMaxGapNs.Store(gap)
+			}
+		}
+		rtpLastTimeNs = nowNs
+
 		nalus, err := rtpDec.Decode(pkt)
 		if err != nil {
-			// ErrMorePacketsNeeded: 正常，FU-A分片还没收完
+			// ErrMorePacketsNeeded/ErrNonStartingPacketAndNoPrevious 是 FU-A 正常状态
 			if err != rtph264.ErrMorePacketsNeeded && err != rtph264.ErrNonStartingPacketAndNoPrevious {
-				// 真正的丢包/协议错误：标记流需要等待下一个关键帧
-				// 否则后续P帧依赖的参考帧缺失，客户端解码会产生残影
+				stats.RtpErrors.Add(1)
+				// 丢包后 P 帧依赖的参考帧缺失，必须等下一个 IDR 否则会产生残影
 				if !h264Writer.streamNeedKeyframe.Load() {
 					log.Printf("RTP层丢包/错误，等待下一个关键帧: %v", err)
 					h264Writer.streamNeedKeyframe.Store(true)
-					// 发送PLI请求服务器立即发送关键帧，避免被动等待整个GOP周期
+					// 主动发 PLI 请求关键帧，避免等整个 GOP
 					c.WritePacketRTCP(h264Media, &rtcp.PictureLossIndication{
 						MediaSSRC: pkt.SSRC,
 					})
@@ -745,9 +779,9 @@ func main() {
 			return
 		}
 
-		// nalus 是一个完整 access unit 中的所有 NALU
 		frame := h264Writer.buildFrameFromNALUs(nalus)
 		if frame != nil {
+			stats.FrameBuilt.Add(1)
 			h264Writer.broadcastFrame(frame)
 		}
 	})

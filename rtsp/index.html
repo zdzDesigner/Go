@@ -5,39 +5,145 @@
     <title>WebCodecs H.264 WebSocket Player (Fixed Annex B)</title>
     <style>
       body {
-        background: #1a1a1a;
+        background: #000;
         color: #fff;
         font-family: sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         margin: 0;
+        width: 100vw;
         height: 100vh;
         overflow: hidden;
       }
       canvas {
         background: #000;
-        border: 1px solid #333;
-        max-width: 100%;
-        max-height: 80vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        object-fit: contain;
+      }
+      h2 {
+        position: fixed;
+        top: 8px;
+        left: 12px;
+        margin: 0;
+        font-size: 14px;
+        color: #888;
+        z-index: 10;
+        text-shadow: 0 0 3px #000;
       }
       .status {
-        margin-top: 15px;
+        position: fixed;
+        bottom: 8px;
+        left: 12px;
+        z-index: 10;
         font-size: 14px;
         color: #aaa;
         font-family: monospace;
+        text-shadow: 0 0 3px #000;
       }
+      #diagPanel {
+        position: fixed;
+        top: 8px;
+        right: 8px;
+        background: rgba(0,0,0,0.8);
+        color: #0f0;
+        font-family: monospace;
+        font-size: 13px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        line-height: 1.6;
+        z-index: 9999;
+        min-width: 260px;
+      }
+      #diagPanel .warn { color: #ff0; }
+      #diagPanel .err  { color: #f44; }
     </style>
   </head>
   <body>
     <h2>WebCodecs 实时视频流 (Annex B 模式)</h2>
     <canvas id="videoCanvas" width="640" height="480"></canvas>
     <div id="status" class="status">等待连接...</div>
+    <div id="diagPanel"></div>
 
     <script>
       const canvas = document.getElementById("videoCanvas")
       const ctx = canvas.getContext("2d")
       const statusDiv = document.getElementById("status")
+
+      // 诊断计数器：每秒被 setInterval 读取并清零
+      const diag = {
+        wsRecv: 0,
+        decoded: 0,
+        rendered: 0,
+        dropped: 0,
+        lastRecvTime: 0,
+        maxGap: 0,
+        srv: null,
+      }
+
+      const diagPanel = document.getElementById("diagPanel")
+
+      async function fetchServerStats() {
+        const ctrl = new AbortController()
+        const timer = setTimeout(() => ctrl.abort(), 800)
+        try {
+          const resp = await fetch('http://localhost:8080/api/stats', { signal: ctrl.signal })
+          diag.srv = resp.ok ? await resp.json() : null
+        } catch (_) {
+          diag.srv = null
+        } finally {
+          clearTimeout(timer)
+        }
+      }
+
+      setInterval(async () => {
+        await fetchServerStats()
+
+        const wsRecv = diag.wsRecv, decoded = diag.decoded, rendered = diag.rendered
+        const dropped = diag.dropped, maxGap = diag.maxGap
+        diag.wsRecv = diag.decoded = diag.rendered = diag.dropped = diag.maxGap = 0
+
+        const qSize = decoder ? (decoder.decodeQueueSize || 0) : 0
+        const srv = diag.srv
+
+        let source
+        if (srv && srv.rtp_recv === 0) {
+          source = '<span class="err">源流无数据(RTSP源断开)</span>'
+        } else if (srv && srv.rtp_recv > 0 && srv.frame_built === 0) {
+          source = '<span class="err">服务端处理卡(等关键帧/锁竞争)</span>'
+        } else if (srv && srv.rtp_max_gap_ms > 500) {
+          source = `<span class="warn">源流不稳(RTP间隔${srv.rtp_max_gap_ms}ms)</span>`
+        } else if (wsRecv === 0 && srv && srv.frame_built > 0) {
+          source = '<span class="err">WS传输卡(网络/连接问题)</span>'
+        } else if (dropped > 0) {
+          source = '<span class="warn">前端丢帧(背压/等关键帧)</span>'
+        } else if (rendered < decoded * 0.8) {
+          source = '<span class="warn">渲染瓶颈(GPU/Canvas)</span>'
+        } else {
+          source = '<span style="color:#0f0">正常</span>'
+        }
+
+        const srvHtml = srv
+          ? `<b>--- 后端(RTSP→服务) ---</b><br>` +
+            `RTP到达: ${srv.rtp_recv} pkt/s<br>` +
+            `构建帧: ${srv.frame_built} fps<br>` +
+            `RTP错误: ${srv.rtp_errors}${srv.rtp_errors > 0 ? ' <span class="warn">!</span>' : ''}<br>` +
+            `等关键帧丢弃: ${srv.key_waiting}<br>` +
+            `RTP最大间隔: ${srv.rtp_max_gap_ms} ms<br>`
+          : `<span class="warn">后端统计不可用</span><br>`
+
+        diagPanel.innerHTML =
+          srvHtml +
+          `<b>--- 前端(WS→渲染) ---</b><br>` +
+          `WS接收: ${wsRecv} fps<br>` +
+          `送解码: ${decoded} fps<br>` +
+          `已渲染: ${rendered} fps<br>` +
+          `前端丢帧: ${dropped}<br>` +
+          `WS最大间隔: ${maxGap} ms<br>` +
+          `解码队列: ${qSize}<br>` +
+          `<b>归因: ${source}</b>`
+      }, 1000)
 
       // ==========================================
       // 全局变量配置
@@ -146,6 +252,7 @@
                 console.log(`画布尺寸更新: ${canvas.width}x${canvas.height}`)
               }
               ctx.drawImage(frame, 0, 0)
+              diag.rendered++
 
               frame.close()
             },
@@ -266,6 +373,15 @@
 
         const { isKey, timestamp, h264Data } = msg
 
+        // 诊断: 记录WS接收
+        const now = performance.now()
+        diag.wsRecv++
+        if (diag.lastRecvTime > 0) {
+          const gap = now - diag.lastRecvTime
+          if (gap > diag.maxGap) diag.maxGap = Math.round(gap)
+        }
+        diag.lastRecvTime = now
+
         if (isKey) {
           console.log("收到关键帧, dataLen:", h264Data.length)
         }
@@ -301,6 +417,7 @@
           // 否则 P 帧基于缺失的参考帧会产生残影
           if (clientNeedKeyframe) {
             if (!isKey) {
+              diag.dropped++
               return // 丢弃 P 帧，等待关键帧
             }
             // 关键帧到了，reset 解码器丢弃积压帧和旧参考帧状态
@@ -323,6 +440,7 @@
             console.warn("解码队列积压，进入等待关键帧状态, queueSize:", currentDecoder.decodeQueueSize)
             clientNeedKeyframe = true
             if (!isKey) {
+              diag.dropped++
               return // 丢弃当前 P 帧
             }
             // 当前就是关键帧，reset 后直接解码
@@ -352,6 +470,7 @@
 
           try {
             currentDecoder.decode(chunk)
+            diag.decoded++
           } catch (err) {
             console.error("decode 调用失败:", err)
             // 出错时重置配置状态，尝试恢复
