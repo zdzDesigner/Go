@@ -799,14 +799,19 @@ interface ImageDecoder {
 
 ## 📋 API 方法详解表格（完整版）
 
-| 方法 | 返回值 | 异步性 | 所有接口 |
-|------|---------|---------|-----------|
-| configure(config) | undefined | ✅ 异步 | VideoDecoder, AudioDecoder, VideoEncoder, AudioEncoder |
-| decode(chunk) | undefined | ✅ 异步 | VideoDecoder, AudioDecoder |
-| encode(frame) | undefined | ✅ 异步 | VideoEncoder, AudioEncoder |
-| flush() | Promise<void> | ✅ 异步 | VideoDecoder, AudioDecoder, VideoEncoder, AudioEncoder, ImageDecoder |
-| reset() | undefined | ❌ 同步 | VideoDecoder, AudioDecoder, VideoEncoder, AudioEncoder, ImageDecoder |
-| close() | undefined | ❌ 同步 | VideoDecoder, AudioDecoder, VideoEncoder, AudioEncoder, ImageDecoder |
+| 方法 | 具体作用 | 返回值 | 异步性 | 状态影响 | 所有接口 |
+|------|----------|--------|--------|----------|----------|
+| configure(config) | 向控制队列提交配置请求，按给定参数准备底层 codec | undefined | ✅ 异步 | unconfigured → configured | VideoDecoder, AudioDecoder, VideoEncoder, AudioEncoder |
+| decode(chunk) | 向控制队列提交一个待解码的数据块 | undefined | ✅ 异步 | 保持 configured | VideoDecoder, AudioDecoder |
+| encode(frame) | 向控制队列提交一个待编码的原始帧/音频数据 | undefined | ✅ 异步 | 保持 configured | VideoEncoder, AudioEncoder |
+| flush() | 等待队列中已提交任务全部完成（排空队列） | Promise<void> | ✅ 异步 | 保持当前状态 | VideoDecoder, AudioDecoder, VideoEncoder, AudioEncoder, ImageDecoder |
+| reset() | 立即取消未完成工作；编解码器丢弃配置，ImageDecoder 中止 pending decode() | undefined | ❌ 同步 | 编解码器回到 unconfigured | VideoDecoder, AudioDecoder, VideoEncoder, AudioEncoder, ImageDecoder |
+| close() | 结束所有待处理工作并释放系统资源，进入终态 | undefined | ❌ 同步 | 进入 closed（不可恢复） | VideoDecoder, AudioDecoder, VideoEncoder, AudioEncoder, ImageDecoder |
+
+> 说明：
+> - `configure()`、`decode()`、`encode()` 返回 `undefined` 不代表工作已完成，仅表示请求已入队。
+> - `flush()` 是等待已入队任务真正执行完的方法。
+> - `reset()` 立即丢弃未完成工作并重置，`close()` 释放资源进入终态，两者不可混用。
 
 ### 静态方法
 
