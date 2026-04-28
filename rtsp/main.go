@@ -645,7 +645,14 @@ func findNALUStartCode(data []byte) int {
 // =============================================================================
 
 func main() {
-	rtspURL := flag.String("url", "rtsp://172.16.50.66:8554/live/video", "RTSP 流地址")
+  
+	// rtspURL := flag.String("url", "rtsp://172.16.50.66:8554/live/video", "RTSP 流地址")
+	// rtspURL := flag.String("url", "rtsp://172.16.50.122:554/ch2", "RTSP 流地址")
+	rtspURL := flag.String("url", "rtsp://172.16.50.130:554/ch2", "RTSP 流地址")
+	// rtspURL := flag.String("url", "rtsp://169.254.11.32:554/ch2", "RTSP 流地址")
+	// rtspURL := flag.String("url", "rtsp://169.254.11.31:554/ch2", "RTSP 流地址")
+  
+  
 	port := flag.Int("port", 8080, "WebSocket/HTTP 服务端口")
 	flag.Parse()
 
@@ -659,7 +666,7 @@ func main() {
 	}
 
 	log.Printf("Parsed URL - Scheme: %s, Host: %s, Path: %s", u.Scheme, u.Host, u.Path)
-	log.Println("RTSP_SERVER_READY")
+	fmt.Println("RTSP_SERVER_READY")
 
 	// 创建RTSP客户端
 	c := gortsplib.Client{

@@ -46,7 +46,7 @@
         position: fixed;
         top: 8px;
         right: 8px;
-        background: rgba(0,0,0,0.8);
+        background: rgba(0, 0, 0, 0.8);
         color: #0f0;
         font-family: monospace;
         font-size: 13px;
@@ -56,8 +56,12 @@
         z-index: 9999;
         min-width: 260px;
       }
-      #diagPanel .warn { color: #ff0; }
-      #diagPanel .err  { color: #f44; }
+      #diagPanel .warn {
+        color: #ff0;
+      }
+      #diagPanel .err {
+        color: #f44;
+      }
     </style>
   </head>
   <body>
@@ -84,11 +88,17 @@
 
       const diagPanel = document.getElementById("diagPanel")
 
+      const port = "8080"
+
+
       async function fetchServerStats() {
         const ctrl = new AbortController()
         const timer = setTimeout(() => ctrl.abort(), 800)
         try {
-          const resp = await fetch('http://localhost:8080/api/stats', { signal: ctrl.signal })
+          // const resp = await fetch('http://localhost:8080/api/stats', { signal: ctrl.signal })
+          const resp = await fetch(`http://localhost:${port}/api/stats`, {
+            signal: ctrl.signal,
+          })
           diag.srv = resp.ok ? await resp.json() : null
         } catch (_) {
           diag.srv = null
@@ -100,11 +110,19 @@
       setInterval(async () => {
         await fetchServerStats()
 
-        const wsRecv = diag.wsRecv, decoded = diag.decoded, rendered = diag.rendered
-        const dropped = diag.dropped, maxGap = diag.maxGap
-        diag.wsRecv = diag.decoded = diag.rendered = diag.dropped = diag.maxGap = 0
+        const wsRecv = diag.wsRecv,
+          decoded = diag.decoded,
+          rendered = diag.rendered
+        const dropped = diag.dropped,
+          maxGap = diag.maxGap
+        diag.wsRecv =
+          diag.decoded =
+          diag.rendered =
+          diag.dropped =
+          diag.maxGap =
+            0
 
-        const qSize = decoder ? (decoder.decodeQueueSize || 0) : 0
+        const qSize = decoder ? decoder.decodeQueueSize || 0 : 0
         const srv = diag.srv
 
         let source
@@ -128,7 +146,7 @@
           ? `<b>--- 后端(RTSP→服务) ---</b><br>` +
             `RTP到达: ${srv.rtp_recv} pkt/s<br>` +
             `构建帧: ${srv.frame_built} fps<br>` +
-            `RTP错误: ${srv.rtp_errors}${srv.rtp_errors > 0 ? ' <span class="warn">!</span>' : ''}<br>` +
+            `RTP错误: ${srv.rtp_errors}${srv.rtp_errors > 0 ? ' <span class="warn">!</span>' : ""}<br>` +
             `等关键帧丢弃: ${srv.key_waiting}<br>` +
             `RTP最大间隔: ${srv.rtp_max_gap_ms} ms<br>`
           : `<span class="warn">后端统计不可用</span><br>`
@@ -153,82 +171,99 @@
       let savedSPS = null
       let savedPPS = null
 
-       // H.264 Codec 字符串
-       // 从SPS数据中推导出的默认值，用于在尚未收到SPS时的初始化
-       let codecString = "avc1.42E01E" // 默认 baseline profile
+      // H.264 Codec 字符串
+      // 从SPS数据中推导出的默认值，用于在尚未收到SPS时的初始化
+      let codecString = "avc1.42E01E" // 默认 baseline profile
 
       // ==========================================
       // 辅助：处理时间戳 (确保是微秒，并且相对基准，避免过大的时间戳值)
       // ==========================================
       let baseTimestamp = null
-      
-       function getMicroseconds(ts) {
-         // 如果时间戳非常小（小于 10000），可能是毫秒，需要 * 1000
-         if (ts < 10000) {
-           ts = ts * 1000
-         }
-         // 如果时间戳非常大（大于 1e16，即纳秒），需要 / 1000
-         // 1秒 = 1,000,000 微秒 = 1,000,000,000 纳秒
-         if (ts > 1e16) {
-           ts = ts / 1000
-         }
-         // 设置基准时间戳（首次调用时），或者使用已经设置的基准
-         if (baseTimestamp === null) {
-           baseTimestamp = ts
-           return 0 // 从0开始计时
-         }
-         
-         // 返回相对于基准的时间戳，避免使用过大的数值
-         const relativeTs = ts - baseTimestamp
-         
-         // 如果相对时间戳为负，说明时间戳混乱或重置，重新设置基准
-         if (relativeTs < 0) {
-           baseTimestamp = ts
-           return 0
-         }
-         
-         return relativeTs
-       }
-       
-       // 从SPS数据推导codec字符串
-       function deriveCodecString(sps) {
-         if (!sps || sps.length < 4) {
-           return codecString // 返回默认值
-         }
-         
-         // H.264 SPS NALU结构: [起始码(可能有)][NAL Header(0x67)][profile_idc][constraint_set_x_flag][level_idc]...
-         // 跳过NALU header (0x67) 和可能的起始码，找到实际的SPS参数
-         try {
-           // 遍历数组寻找NALU单元开始
-           let offset = 0;
-           
-           // 如果数据以起始码开始，需要跳过
-           if (sps.length >= 5 && sps[0] === 0 && sps[1] === 0 && sps[2] === 0 && sps[3] === 1) {
-             offset = 4; // 跳过 00 00 00 01 起始码
-           } else if (sps.length >= 4 && sps[0] === 0 && sps[1] === 0 && sps[2] === 1) {
-             offset = 3; // 跳过 00 00 01 起始码
-           }
-           
-           // 现在sps[offset]应该是NALU类型 (0x67 for SPS)
-           if (sps.length > offset + 3) {
-             const profile_idc = sps[offset + 1]; // Profile IDC
-             const level_idc = sps[offset + 3];   // Level IDC
-             
-             // 使用十六进制格式组装codec字符串: avc1.profile_level (6位十六进制)
-             const profileHex = profile_idc.toString(16).padStart(2, '0').toUpperCase();
-             const levelHex = level_idc.toString(16).padStart(2, '0').toUpperCase();
-             
-             // 只使用profile_idc和level_idc构建标准的codec字符串
-             codecString = `avc1.${profileHex}00${levelHex}`;
-             console.log(`根据SPS推导出的codec: ${codecString}`);
-             return codecString;
-           }
-         } catch (e) {
-           console.warn("无法从SPS推导codec字符串，使用默认值:", e);
-         }
-         
-         return codecString; // 返回默认值
-       }
+
+      function getMicroseconds(ts) {
+        // 如果时间戳非常小（小于 10000），可能是毫秒，需要 * 1000
+        if (ts < 10000) {
+          ts = ts * 1000
+        }
+        // 如果时间戳非常大（大于 1e16，即纳秒），需要 / 1000
+        // 1秒 = 1,000,000 微秒 = 1,000,000,000 纳秒
+        if (ts > 1e16) {
+          ts = ts / 1000
+        }
+        // 设置基准时间戳（首次调用时），或者使用已经设置的基准
+        if (baseTimestamp === null) {
+          baseTimestamp = ts
+          return 0 // 从0开始计时
+        }
+
+        // 返回相对于基准的时间戳，避免使用过大的数值
+        const relativeTs = ts - baseTimestamp
+
+        // 如果相对时间戳为负，说明时间戳混乱或重置，重新设置基准
+        if (relativeTs < 0) {
+          baseTimestamp = ts
+          return 0
+        }
+
+        return relativeTs
+      }
+
+      // 从SPS数据推导codec字符串
+      function deriveCodecString(sps) {
+        if (!sps || sps.length < 4) {
+          return codecString // 返回默认值
+        }
+
+        // H.264 SPS NALU结构: [起始码(可能有)][NAL Header(0x67)][profile_idc][constraint_set_x_flag][level_idc]...
+        // 跳过NALU header (0x67) 和可能的起始码，找到实际的SPS参数
+        try {
+          // 遍历数组寻找NALU单元开始
+          let offset = 0
+
+          // 如果数据以起始码开始，需要跳过
+          if (
+            sps.length >= 5 &&
+            sps[0] === 0 &&
+            sps[1] === 0 &&
+            sps[2] === 0 &&
+            sps[3] === 1
+          ) {
+            offset = 4 // 跳过 00 00 00 01 起始码
+          } else if (
+            sps.length >= 4 &&
+            sps[0] === 0 &&
+            sps[1] === 0 &&
+            sps[2] === 1
+          ) {
+            offset = 3 // 跳过 00 00 01 起始码
+          }
+
+          // 现在sps[offset]应该是NALU类型 (0x67 for SPS)
+          if (sps.length > offset + 3) {
+            const profile_idc = sps[offset + 1] // Profile IDC
+            const level_idc = sps[offset + 3] // Level IDC
+
+            // 使用十六进制格式组装codec字符串: avc1.profile_level (6位十六进制)
+            const profileHex = profile_idc
+              .toString(16)
+              .padStart(2, "0")
+              .toUpperCase()
+            const levelHex = level_idc
+              .toString(16)
+              .padStart(2, "0")
+              .toUpperCase()
+
+            // 只使用profile_idc和level_idc构建标准的codec字符串
+            codecString = `avc1.${profileHex}00${levelHex}`
+            console.log(`根据SPS推导出的codec: ${codecString}`)
+            return codecString
+          }
+        } catch (e) {
+          console.warn("无法从SPS推导codec字符串，使用默认值:", e)
+        }
+
+        return codecString // 返回默认值
+      }
 
       // ==========================================
       // 1. 初始化/重建 VideoDecoder
@@ -268,8 +303,6 @@
         return decoder
       }
 
-
-
       // ==========================================
       // 2. 尝试配置解码器 (修复版：不使用 description)
       // ==========================================
@@ -289,13 +322,13 @@
           // 浏览器会自动从码流中解析 SPS/PPS。
           // 我们只需要指定 codec 字符串。
 
-           // 从SPS数据推导codec字符串
-           const derivedCodec = deriveCodecString(savedSPS)
-           const config = {
-             codec: derivedCodec,
-             // 注意：这里没有 description 属性！
-             optimizeForLatency: true,
-           }
+          // 从SPS数据推导codec字符串
+          const derivedCodec = deriveCodecString(savedSPS)
+          const config = {
+            codec: derivedCodec,
+            // 注意：这里没有 description 属性！
+            optimizeForLatency: true,
+          }
 
           // 检查支持情况
           const support = await VideoDecoder.isConfigSupported(config)
@@ -320,7 +353,8 @@
       // ==========================================
       // 3. WebSocket 连接与主循环
       // ==========================================
-      const wsUrl = "ws://localhost:8080/ws"
+      // const wsUrl = "ws://localhost:8080/ws"
+      const wsUrl = `ws://localhost:${port}/ws`
       const socket = new WebSocket(wsUrl)
       socket.binaryType = "arraybuffer"
 
@@ -437,7 +471,10 @@
 
           // 背压: 队列太长 → 进入等待关键帧状态
           if (currentDecoder.decodeQueueSize > MAX_DECODE_QUEUE_SIZE) {
-            console.warn("解码队列积压，进入等待关键帧状态, queueSize:", currentDecoder.decodeQueueSize)
+            console.warn(
+              "解码队列积压，进入等待关键帧状态, queueSize:",
+              currentDecoder.decodeQueueSize,
+            )
             clientNeedKeyframe = true
             if (!isKey) {
               diag.dropped++
