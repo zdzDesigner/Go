@@ -384,6 +384,7 @@
         if (!decoder) {
           decoder = new VideoDecoder({
             output: (frame) => {
+              console.log({frame})
               if (
                 canvas.width !== frame.displayWidth ||
                 canvas.height !== frame.displayHeight

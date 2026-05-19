@@ -649,7 +649,8 @@ func main() {
 	// rtspURL := flag.String("url", "rtsp://172.16.50.66:8554/live/video", "RTSP 流地址")
 	// rtspURL := flag.String("url", "rtsp://172.16.50.122:554/ch2", "RTSP 流地址")
 	// rtspURL := flag.String("url", "rtsp://172.16.50.130:554/ch2", "RTSP 流地址")
-	rtspURL := flag.String("url", "rtsp://172.16.50.40", "RTSP 流地址")
+	// rtspURL := flag.String("url", "rtsp://172.16.50.40", "RTSP 流地址")
+	rtspURL := flag.String("url", "rtsp://172.16.50.126:554/ch2", "RTSP 流地址")
 	// rtspURL := flag.String("url", "rtsp://169.254.11.32:554/ch2", "RTSP 流地址")
 	// rtspURL := flag.String("url", "rtsp://169.254.11.31:554/ch2", "RTSP 流地址")
   
