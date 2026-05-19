@@ -480,13 +480,6 @@ func startWebSocketServer(h264Writer *H264Writer, port int) {
 		// 启动独立的写goroutine
 		go client.writeLoop()
 
-		// 添加到客户端列表
-		h264Writer.mu.Lock()
-		h264Writer.clients[clientID] = client
-		h264Writer.mu.Unlock()
-
-		log.Printf("Client connected: %s", clientID)
-
 		// =================================================================
 		// 发送SPS/PPS配置
 		// =================================================================
@@ -494,7 +487,9 @@ func startWebSocketServer(h264Writer *H264Writer, port int) {
 		// 解码器需要这些参数才能正确解码视频
 		// =================================================================
 		h264Writer.mu.Lock()
+		h264Writer.clients[clientID] = client
 		currentTime := uint64(time.Now().UnixNano() / 1000)
+		var initFrames []*H264Frame
 
 		// 发送SPS (Sequence Parameter Set)
 		// =================================================================
@@ -505,18 +500,11 @@ func startWebSocketServer(h264Writer *H264Writer, port int) {
 			// 格式: [00 00 00 01] + SPS数据
 			spsData := append([]byte{0x00, 0x00, 0x00, 0x01}, h264Writer.sps...)
 			log.Printf("Preparing SPS for client %s: total length=%d, first 10 bytes=%v", clientID, len(spsData), spsData[:minInt(10, len(spsData))])
-
-			// 使用二进制协议发送
-			binMsg := packBinaryFrame(&H264Frame{
+			initFrames = append(initFrames, &H264Frame{
 				Data:      spsData,
 				Timestamp: currentTime,
-				IsKey:     true,
+				IsKey:     false,
 			})
-			if err := conn.WriteMessage(websocket.BinaryMessage, binMsg); err != nil {
-				log.Printf("Error sending SPS to client %s: %v", clientID, err)
-			} else {
-				log.Printf("Sent SPS to client %s, data length: %d", clientID, len(spsData))
-			}
 		}
 
 		// 发送PPS (Picture Parameter Set)
@@ -527,19 +515,19 @@ func startWebSocketServer(h264Writer *H264Writer, port int) {
 		if len(h264Writer.pps) > 0 {
 			ppsData := append([]byte{0x00, 0x00, 0x00, 0x01}, h264Writer.pps...)
 			log.Printf("Preparing PPS for client %s: total length=%d, first 10 bytes=%v", clientID, len(ppsData), ppsData[:minInt(10, len(ppsData))])
-
-			binMsg := packBinaryFrame(&H264Frame{
+			initFrames = append(initFrames, &H264Frame{
 				Data:      ppsData,
 				Timestamp: currentTime,
-				IsKey:     true,
+				IsKey:     false,
 			})
-			if err := conn.WriteMessage(websocket.BinaryMessage, binMsg); err != nil {
-				log.Printf("Error sending PPS to client %s: %v", clientID, err)
-			} else {
-				log.Printf("Sent PPS to client %s, data length: %d", clientID, len(ppsData))
-			}
 		}
 		h264Writer.mu.Unlock()
+
+		for _, frame := range initFrames {
+			client.send(packBinaryFrame(frame))
+		}
+
+		log.Printf("Client connected: %s", clientID)
 
 		// =================================================================
 		// 消息循环: 保持连接活跃

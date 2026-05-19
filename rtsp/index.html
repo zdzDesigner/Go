@@ -176,6 +176,8 @@
         let isDecoderConfigured = false;
         let savedSPS = null;
         let savedPPS = null;
+        let configurePromise = null;
+        let decoderNeedsKeyChunk = true;
 
         // H.264 Codec 字符串
         let codecString = "avc1.42E01E"; // 默认 baseline profile
@@ -204,6 +206,105 @@
           return relativeTs;
         }
 
+        function getStartCodeLength(data, offset = 0) {
+          if (
+            data.length >= offset + 4 &&
+            data[offset] === 0 &&
+            data[offset + 1] === 0 &&
+            data[offset + 2] === 0 &&
+            data[offset + 3] === 1
+          ) {
+            return 4;
+          }
+          if (
+            data.length >= offset + 3 &&
+            data[offset] === 0 &&
+            data[offset + 1] === 0 &&
+            data[offset + 2] === 1
+          ) {
+            return 3;
+          }
+          return 0;
+        }
+
+        function findStartCode(data, from = 0) {
+          for (let i = from; i <= data.length - 3; i++) {
+            const startCodeLength = getStartCodeLength(data, i);
+            if (startCodeLength > 0) {
+              return { index: i, startCodeLength };
+            }
+          }
+          return null;
+        }
+
+        function splitAnnexBNALUs(data) {
+          const nalus = [];
+          let current = findStartCode(data, 0);
+
+          if (!current) {
+            return data.length > 0 ? [data] : [];
+          }
+
+          while (current) {
+            const searchFrom = current.index + current.startCodeLength;
+            const next = findStartCode(data, searchFrom);
+            const end = next ? next.index : data.length;
+
+            if (end > current.index + current.startCodeLength) {
+              nalus.push(data.subarray(current.index, end));
+            }
+
+            current = next;
+          }
+
+          return nalus;
+        }
+
+        function getNALUType(nalu) {
+          const startCodeLength = getStartCodeLength(nalu, 0);
+          const headerIndex = startCodeLength;
+          if (headerIndex >= nalu.length) {
+            return -1;
+          }
+          return nalu[headerIndex] & 0x1f;
+        }
+
+        function inspectAccessUnit(h264Data) {
+          const nalus = splitAnnexBNALUs(h264Data);
+          const result = {
+            hasVCL: false,
+            hasIDR: false,
+            hasSPS: false,
+            hasPPS: false,
+          };
+
+          for (const nalu of nalus) {
+            const naluType = getNALUType(nalu);
+            switch (naluType) {
+              case 1:
+              case 2:
+              case 3:
+              case 4:
+              case 5:
+                result.hasVCL = true;
+                if (naluType === 5) {
+                  result.hasIDR = true;
+                }
+                break;
+              case 7:
+                result.hasSPS = true;
+                savedSPS = nalu.slice();
+                break;
+              case 8:
+                result.hasPPS = true;
+                savedPPS = nalu.slice();
+                break;
+            }
+          }
+
+          return result;
+        }
+
         // 从SPS数据推导codec字符串
         function deriveCodecString(sps) {
           if (!sps || sps.length < 4) {
@@ -229,8 +330,13 @@
             }
             if (sps.length > offset + 3) {
               const profile_idc = sps[offset + 1];
+              const compatibility = sps[offset + 2];
               const level_idc = sps[offset + 3];
               const profileHex = profile_idc
+                .toString(16)
+                .padStart(2, "0")
+                .toUpperCase();
+              const compatibilityHex = compatibility
                 .toString(16)
                 .padStart(2, "0")
                 .toUpperCase();
@@ -238,7 +344,7 @@
                 .toString(16)
                 .padStart(2, "0")
                 .toUpperCase();
-              codecString = `avc1.${profileHex}00${levelHex}`;
+              codecString = `avc1.${profileHex}${compatibilityHex}${levelHex}`;
               // console.log(`根据SPS推导出的codec: ${codecString}`)
               return codecString;
             }
@@ -284,6 +390,7 @@
                 console.error("VideoDecoder 内部错误:", e);
                 statusEl.innerText = "解码错误: " + e.message;
                 isDecoderConfigured = false;
+                decoderNeedsKeyChunk = true;
               },
             });
             console.log("新的 VideoDecoder 已创建");
@@ -296,36 +403,42 @@
         // ==========================================
         async function tryConfigureDecoder(currentDecoder) {
           if (isDecoderConfigured) return true;
+          if (configurePromise) return configurePromise;
 
           if (!savedSPS || !savedPPS) {
             statusEl.innerText = "等待 SPS/PPS 配置信息...";
             return false;
           }
 
-          try {
-            const derivedCodec = deriveCodecString(savedSPS);
-            const config = {
-              codec: derivedCodec,
-              optimizeForLatency: true,
-            };
+          configurePromise = (async () => {
+            try {
+              const derivedCodec = deriveCodecString(savedSPS);
+              const config = {
+                codec: derivedCodec,
+                optimizeForLatency: true,
+              };
 
-            const support = await VideoDecoder.isConfigSupported(config);
-            if (!support.supported) {
-              console.error("浏览器不支持该配置:", config);
-              statusEl.innerText = "浏览器不支持该配置 (请检查 Codec 字符串)";
+              const support = await VideoDecoder.isConfigSupported(config);
+              if (!support.supported) {
+                console.error("浏览器不支持该配置:", config);
+                statusEl.innerText = "浏览器不支持该配置 (请检查 Codec 字符串)";
+                return false;
+              }
+
+              await currentDecoder.configure(config);
+              isDecoderConfigured = true;
+              decoderNeedsKeyChunk = true;
+              statusEl.innerText = "解码器配置成功 (Annex B 模式)";
+              return true;
+            } catch (e) {
+              statusEl.innerText = "解码器配置失败: " + e.message;
               return false;
+            } finally {
+              configurePromise = null;
             }
+          })();
 
-            await currentDecoder.configure(config);
-            isDecoderConfigured = true;
-            statusEl.innerText = "解码器配置成功 (Annex B 模式)";
-            // console.log('解码器配置成功', config)
-            return true;
-          } catch (e) {
-            // console.error('配置失败:', e)
-            statusEl.innerText = "解码器配置失败: " + e.message;
-            return false;
-          }
+          return configurePromise;
         }
 
         // ==========================================
@@ -342,6 +455,7 @@
         socket.onclose = () => {
           statusEl.innerText = "连接已断开";
           isDecoderConfigured = false;
+          decoderNeedsKeyChunk = true;
         };
 
         socket.onerror = (err) => {
@@ -377,7 +491,7 @@
             return;
           }
 
-          const { isKey, timestamp, h264Data } = msg;
+          const { isKey: isKeyFlag, timestamp, h264Data } = msg;
 
           // 诊断: 记录WS接收
           const now = performance.now();
@@ -388,22 +502,29 @@
           }
           diag.lastRecvTime = now;
 
-          if (isKey) {
-            // console.log('收到关键帧, dataLen:', h264Data.length)
+          const accessUnit = inspectAccessUnit(h264Data);
+          const chunkIsKey = accessUnit.hasIDR;
+
+          if (isKeyFlag !== chunkIsKey) {
+            console.warn("关键帧标记与实际 access unit 不一致", {
+              isKeyFlag,
+              chunkIsKey,
+              dataLen: h264Data.length,
+            });
           }
 
-          // --- B. 解析 NALU (仅用于收集 SPS/PPS) ---
-          if (h264Data.length > 4) {
-            const naluHeader = h264Data[4];
-            const naluType = naluHeader & 0x1f;
+          if (accessUnit.hasSPS) {
+            console.log("收到 SPS");
+          }
+          if (accessUnit.hasPPS) {
+            console.log("收到 PPS");
+          }
+          if (chunkIsKey) {
+            console.log("收到 IDR access unit, dataLen:", h264Data.length);
+          }
 
-            if (naluType === 7) {
-              if (!savedSPS) console.log("收到 SPS");
-              savedSPS = h264Data;
-            } else if (naluType === 8) {
-              if (!savedPPS) console.log("收到 PPS");
-              savedPPS = h264Data;
-            }
+          if (!accessUnit.hasVCL) {
+            return;
           }
 
           // --- C. 确保 Decoder 准备就绪 ---
@@ -421,6 +542,7 @@
             try {
               currentDecoder.reset();
               isDecoderConfigured = false;
+              decoderNeedsKeyChunk = true;
               const ok = await tryConfigureDecoder(currentDecoder);
               if (!ok) return false;
             } catch (e) {
@@ -434,7 +556,7 @@
 
           if (isDecoderConfigured && currentDecoder.state === "configured") {
             if (clientNeedKeyframe) {
-              if (!isKey) {
+              if (!chunkIsKey) {
                 diag.dropped++;
                 return;
               }
@@ -448,14 +570,22 @@
                 currentDecoder.decodeQueueSize,
               );
               clientNeedKeyframe = true;
-              if (!isKey) {
+              if (!chunkIsKey) {
                 diag.dropped++;
                 return;
               }
               if (!(await resetAndReconfigure())) return;
             }
 
-            const chunkType = isKey ? "key" : "delta";
+            if (decoderNeedsKeyChunk) {
+              if (!chunkIsKey) {
+                diag.dropped++;
+                return;
+              }
+              decoderNeedsKeyChunk = false;
+            }
+
+            const chunkType = chunkIsKey ? "key" : "delta";
 
             // 修正时间戳
             const ts = getMicroseconds(timestamp);
@@ -472,6 +602,7 @@
             } catch (err) {
               console.error("decode 调用失败:", err);
               isDecoderConfigured = false;
+              decoderNeedsKeyChunk = true;
             }
           }
         };
@@ -500,6 +631,8 @@
           isDecoderConfigured = false;
           savedSPS = null;
           savedPPS = null;
+          configurePromise = null;
+          decoderNeedsKeyChunk = true;
           baseTimestamp = null;
         };
 
