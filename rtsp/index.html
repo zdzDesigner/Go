@@ -178,6 +178,8 @@
         let savedPPS = null;
         let configurePromise = null;
         let decoderNeedsKeyChunk = true;
+        let preferredBitstreamFormat = "annexb";
+        let currentBitstreamFormat = "annexb";
 
         // H.264 Codec 字符串
         let codecString = "avc1.42E01E"; // 默认 baseline profile
@@ -305,8 +307,60 @@
           return result;
         }
 
+        function stripStartCode(nalu) {
+          const startCodeLength = getStartCodeLength(nalu, 0);
+          return startCodeLength > 0 ? nalu.subarray(startCodeLength) : nalu;
+        }
+
+        function buildAvccDescription(sps, pps) {
+          const rawSPS = stripStartCode(sps);
+          const rawPPS = stripStartCode(pps);
+
+          const description = new Uint8Array(4 + rawSPS.length + 4 + rawPPS.length);
+          const view = new DataView(description.buffer);
+          view.setUint32(0, rawSPS.length, false);
+          description.set(rawSPS, 4);
+
+          const ppsOffset = 4 + rawSPS.length;
+          view.setUint32(ppsOffset, rawPPS.length, false);
+          description.set(rawPPS, ppsOffset + 4);
+
+          return description;
+        }
+
+        function convertAnnexBToAvcc(h264Data) {
+          const nalus = splitAnnexBNALUs(h264Data);
+          let totalLength = 0;
+
+          for (const nalu of nalus) {
+            const raw = stripStartCode(nalu);
+            if (raw.length === 0) {
+              continue;
+            }
+            totalLength += 4 + raw.length;
+          }
+
+          const avcc = new Uint8Array(totalLength);
+          const view = new DataView(avcc.buffer);
+          let offset = 0;
+
+          for (const nalu of nalus) {
+            const raw = stripStartCode(nalu);
+            if (raw.length === 0) {
+              continue;
+            }
+
+            view.setUint32(offset, raw.length, false);
+            offset += 4;
+            avcc.set(raw, offset);
+            offset += raw.length;
+          }
+
+          return avcc;
+        }
+
         // 从SPS数据推导codec字符串
-        function deriveCodecString(sps) {
+        function deriveCodecString(sps, codecPrefix = "avc1") {
           if (!sps || sps.length < 4) {
             return codecString;
           }
@@ -344,7 +398,7 @@
                 .toString(16)
                 .padStart(2, "0")
                 .toUpperCase();
-              codecString = `avc1.${profileHex}${compatibilityHex}${levelHex}`;
+              codecString = `${codecPrefix}.${profileHex}${compatibilityHex}${levelHex}`;
               // console.log(`根据SPS推导出的codec: ${codecString}`)
               return codecString;
             }
@@ -352,6 +406,33 @@
             console.warn("无法从SPS推导codec字符串，使用默认值:", e);
           }
           return codecString;
+        }
+
+        function createDecoderConfig(bitstreamFormat) {
+          const config = {
+            codec: deriveCodecString(savedSPS),
+            optimizeForLatency: true,
+          };
+
+          if (bitstreamFormat === "avcc") {
+            config.description = buildAvccDescription(savedSPS, savedPPS);
+          }
+
+          return config;
+        }
+
+        function scheduleAvccFallback(reason) {
+          if (preferredBitstreamFormat === "avcc") {
+            return;
+          }
+
+          console.warn("Annex B 模式解码失败，切换到 AVCC 回退模式", reason);
+          preferredBitstreamFormat = "avcc";
+          isDecoderConfigured = false;
+          decoderNeedsKeyChunk = true;
+          clientNeedKeyframe = true;
+          baseTimestamp = null;
+          statusEl.innerText = "Annex B 解码失败，等待关键帧切换 AVCC";
         }
 
         // ==========================================
@@ -388,6 +469,9 @@
               },
               error: (e) => {
                 console.error("VideoDecoder 内部错误:", e);
+                if (currentBitstreamFormat === "annexb") {
+                  scheduleAvccFallback(e);
+                }
                 statusEl.innerText = "解码错误: " + e.message;
                 isDecoderConfigured = false;
                 decoderNeedsKeyChunk = true;
@@ -399,7 +483,7 @@
         }
 
         // ==========================================
-        // 2. 尝试配置解码器 (Annex B 模式，无 description)
+        // 2. 尝试配置解码器 (优先 Annex B，失败时回退 AVCC)
         // ==========================================
         async function tryConfigureDecoder(currentDecoder) {
           if (isDecoderConfigured) return true;
@@ -412,26 +496,38 @@
 
           configurePromise = (async () => {
             try {
-              const derivedCodec = deriveCodecString(savedSPS);
-              const config = {
-                codec: derivedCodec,
-                optimizeForLatency: true,
-              };
+              const candidateFormats =
+                preferredBitstreamFormat === "annexb"
+                  ? ["annexb", "avcc"]
+                  : ["avcc"];
 
-              const support = await VideoDecoder.isConfigSupported(config);
-              if (!support.supported) {
-                console.error("浏览器不支持该配置:", config);
-                statusEl.innerText = "浏览器不支持该配置 (请检查 Codec 字符串)";
-                return false;
+              for (const bitstreamFormat of candidateFormats) {
+                try {
+                  const config = createDecoderConfig(bitstreamFormat);
+                  const support = await VideoDecoder.isConfigSupported(config);
+                  if (!support.supported) {
+                    console.warn("浏览器不支持当前解码配置", {
+                      bitstreamFormat,
+                      config,
+                    });
+                    continue;
+                  }
+
+                  await currentDecoder.configure(config);
+                  isDecoderConfigured = true;
+                  decoderNeedsKeyChunk = true;
+                  currentBitstreamFormat = bitstreamFormat;
+                  statusEl.innerText = `解码器配置成功 (${bitstreamFormat.toUpperCase()} 模式)`;
+                  return true;
+                } catch (e) {
+                  console.warn(`解码器配置失败 (${bitstreamFormat})`, e);
+                  if (bitstreamFormat === "annexb") {
+                    preferredBitstreamFormat = "avcc";
+                  }
+                }
               }
 
-              await currentDecoder.configure(config);
-              isDecoderConfigured = true;
-              decoderNeedsKeyChunk = true;
-              statusEl.innerText = "解码器配置成功 (Annex B 模式)";
-              return true;
-            } catch (e) {
-              statusEl.innerText = "解码器配置失败: " + e.message;
+              statusEl.innerText = "解码器配置失败: 当前 H.264 模式不兼容";
               return false;
             } finally {
               configurePromise = null;
@@ -593,7 +689,10 @@
             const chunk = new EncodedVideoChunk({
               type: chunkType,
               timestamp: ts,
-              data: h264Data, // 直接发送 Annex B 数据 (00 00 00 01 ...)
+              data:
+                currentBitstreamFormat === "annexb"
+                  ? h264Data
+                  : convertAnnexBToAvcc(h264Data),
             });
 
             try {
@@ -601,6 +700,9 @@
               diag.decoded++;
             } catch (err) {
               console.error("decode 调用失败:", err);
+              if (currentBitstreamFormat === "annexb") {
+                scheduleAvccFallback(err);
+              }
               isDecoderConfigured = false;
               decoderNeedsKeyChunk = true;
             }
@@ -633,6 +735,8 @@
           savedPPS = null;
           configurePromise = null;
           decoderNeedsKeyChunk = true;
+          preferredBitstreamFormat = "annexb";
+          currentBitstreamFormat = "annexb";
           baseTimestamp = null;
         };
 
