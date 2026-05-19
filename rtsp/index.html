@@ -170,6 +170,8 @@
       let isDecoderConfigured = false
       let savedSPS = null
       let savedPPS = null
+      let configurePromise = null
+      let decoderNeedsKeyChunk = true
 
       // H.264 Codec 字符串
       // 从SPS数据中推导出的默认值，用于在尚未收到SPS时的初始化
@@ -208,6 +210,106 @@
         return relativeTs
       }
 
+      function getStartCodeLength(data, offset = 0) {
+        if (
+          data.length >= offset + 4 &&
+          data[offset] === 0 &&
+          data[offset + 1] === 0 &&
+          data[offset + 2] === 0 &&
+          data[offset + 3] === 1
+        ) {
+          return 4
+        }
+        if (
+          data.length >= offset + 3 &&
+          data[offset] === 0 &&
+          data[offset + 1] === 0 &&
+          data[offset + 2] === 1
+        ) {
+          return 3
+        }
+        return 0
+      }
+
+      function findStartCode(data, from = 0) {
+        for (let i = from; i <= data.length - 3; i++) {
+          const startCodeLength = getStartCodeLength(data, i)
+          if (startCodeLength > 0) {
+            return { index: i, startCodeLength }
+          }
+        }
+        return null
+      }
+
+      function splitAnnexBNALUs(data) {
+        const nalus = []
+        let current = findStartCode(data, 0)
+
+        if (!current) {
+          return data.length > 0 ? [data] : []
+        }
+
+        while (current) {
+          const searchFrom = current.index + current.startCodeLength
+          const next = findStartCode(data, searchFrom)
+          const end = next ? next.index : data.length
+
+          if (end > current.index + current.startCodeLength) {
+            nalus.push(data.subarray(current.index, end))
+          }
+
+          current = next
+        }
+
+        return nalus
+      }
+
+      function getNALUType(nalu) {
+        const startCodeLength = getStartCodeLength(nalu, 0)
+        const headerIndex = startCodeLength
+        if (headerIndex >= nalu.length) {
+          return -1
+        }
+        return nalu[headerIndex] & 0x1f
+      }
+
+      function inspectAccessUnit(h264Data) {
+        const nalus = splitAnnexBNALUs(h264Data)
+        const result = {
+          nalus,
+          hasVCL: false,
+          hasIDR: false,
+          hasSPS: false,
+          hasPPS: false,
+        }
+
+        for (const nalu of nalus) {
+          const naluType = getNALUType(nalu)
+          switch (naluType) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+              result.hasVCL = true
+              if (naluType === 5) {
+                result.hasIDR = true
+              }
+              break
+            case 7:
+              result.hasSPS = true
+              savedSPS = nalu.slice()
+              break
+            case 8:
+              result.hasPPS = true
+              savedPPS = nalu.slice()
+              break
+          }
+        }
+
+        return result
+      }
+
       // 从SPS数据推导codec字符串
       function deriveCodecString(sps) {
         if (!sps || sps.length < 4) {
@@ -241,10 +343,15 @@
           // 现在sps[offset]应该是NALU类型 (0x67 for SPS)
           if (sps.length > offset + 3) {
             const profile_idc = sps[offset + 1] // Profile IDC
+            const compatibility = sps[offset + 2] // constraint_set flags / compatibility
             const level_idc = sps[offset + 3] // Level IDC
 
             // 使用十六进制格式组装codec字符串: avc1.profile_level (6位十六进制)
             const profileHex = profile_idc
+              .toString(16)
+              .padStart(2, "0")
+              .toUpperCase()
+            const compatibilityHex = compatibility
               .toString(16)
               .padStart(2, "0")
               .toUpperCase()
@@ -253,8 +360,7 @@
               .padStart(2, "0")
               .toUpperCase()
 
-            // 只使用profile_idc和level_idc构建标准的codec字符串
-            codecString = `avc1.${profileHex}00${levelHex}`
+            codecString = `avc1.${profileHex}${compatibilityHex}${levelHex}`
             console.log(`根据SPS推导出的codec: ${codecString}`)
             return codecString
           }
@@ -296,6 +402,7 @@
               statusDiv.innerText = "解码错误: " + e.message
               // 如果是因为配置问题，强制重置
               isDecoderConfigured = false
+              decoderNeedsKeyChunk = true
             },
           })
           console.log("✅ 新的 VideoDecoder 已创建")
@@ -308,6 +415,7 @@
       // ==========================================
       async function tryConfigureDecoder(currentDecoder) {
         if (isDecoderConfigured) return true
+        if (configurePromise) return configurePromise
 
         // 如果还没收到 SPS/PPS，我们也可以尝试直接配置 codec，
         // 但为了稳妥，这里依然等待 SPS，确保流是活的。
@@ -316,38 +424,39 @@
           return false
         }
 
-        try {
-          // 核心修复：
-          // 对于 Annex B 格式（带起始码 00 00 00 01）的流，通常不需要 description。
-          // 浏览器会自动从码流中解析 SPS/PPS。
-          // 我们只需要指定 codec 字符串。
+        configurePromise = (async () => {
+          try {
+            // 对于 Annex B 格式（带起始码 00 00 00 01）的流，不传 description，
+            // 但 configure 后送给解码器的第一个可解码 chunk 必须是真实的 IDR access unit。
+            const derivedCodec = deriveCodecString(savedSPS)
+            const config = {
+              codec: derivedCodec,
+              optimizeForLatency: true,
+            }
 
-          // 从SPS数据推导codec字符串
-          const derivedCodec = deriveCodecString(savedSPS)
-          const config = {
-            codec: derivedCodec,
-            // 注意：这里没有 description 属性！
-            optimizeForLatency: true,
-          }
+            const support = await VideoDecoder.isConfigSupported(config)
+            if (!support.supported) {
+              console.error("浏览器不支持该配置:", config)
+              statusDiv.innerText = "浏览器不支持该配置 (请检查 Codec 字符串)"
+              return false
+            }
 
-          // 检查支持情况
-          const support = await VideoDecoder.isConfigSupported(config)
-          if (!support.supported) {
-            console.error("浏览器不支持该配置:", config)
-            statusDiv.innerText = "浏览器不支持该配置 (请检查 Codec 字符串)"
+            await currentDecoder.configure(config)
+            isDecoderConfigured = true
+            decoderNeedsKeyChunk = true
+            statusDiv.innerText = "解码器配置成功 (Annex B 自动模式)"
+            console.log("🚀 解码器配置成功", config)
+            return true
+          } catch (e) {
+            console.error("配置失败:", e)
+            statusDiv.innerText = "解码器配置失败: " + e.message
             return false
+          } finally {
+            configurePromise = null
           }
+        })()
 
-          await currentDecoder.configure(config)
-          isDecoderConfigured = true
-          statusDiv.innerText = "解码器配置成功 (Annex B 自动模式)"
-          console.log("🚀 解码器配置成功", config)
-          return true
-        } catch (e) {
-          console.error("配置失败:", e)
-          statusDiv.innerText = "解码器配置失败: " + e.message
-          return false
-        }
+        return configurePromise
       }
 
       // ==========================================
@@ -365,6 +474,7 @@
       socket.onclose = () => {
         statusDiv.innerText = "连接已断开"
         isDecoderConfigured = false
+        decoderNeedsKeyChunk = true
       }
 
       socket.onerror = (err) => {
@@ -405,7 +515,7 @@
           return
         }
 
-        const { isKey, timestamp, h264Data } = msg
+        const { isKey: isKeyFlag, timestamp, h264Data } = msg
 
         // 诊断: 记录WS接收
         const now = performance.now()
@@ -416,23 +526,31 @@
         }
         diag.lastRecvTime = now
 
-        if (isKey) {
-          console.log("收到关键帧, dataLen:", h264Data.length)
+        // --- B. 扫描整个 Annex B access unit，提取 SPS/PPS 并判断是否真的可解码 ---
+        const accessUnit = inspectAccessUnit(h264Data)
+        const chunkIsKey = accessUnit.hasIDR
+
+        if (isKeyFlag !== chunkIsKey) {
+          console.warn("关键帧标记与实际 access unit 不一致", {
+            isKeyFlag,
+            chunkIsKey,
+            dataLen: h264Data.length,
+          })
         }
 
-        // --- B. 解析 NALU (仅用于收集 SPS/PPS) ---
-        if (h264Data.length > 4) {
-          const naluHeader = h264Data[4]
-          const naluType = naluHeader & 0x1f
-          // console.log({ naluType });
+        if (chunkIsKey) {
+          console.log("收到 IDR access unit, dataLen:", h264Data.length)
+        }
 
-          if (naluType === 7) {
-            if (!savedSPS) console.log("收到 SPS")
-            savedSPS = h264Data
-          } else if (naluType === 8) {
-            if (!savedPPS) console.log("收到 PPS")
-            savedPPS = h264Data
-          }
+        if (accessUnit.hasSPS) {
+          console.log("收到 SPS")
+        }
+        if (accessUnit.hasPPS) {
+          console.log("收到 PPS")
+        }
+
+        if (!accessUnit.hasVCL) {
+          return
         }
 
         // --- C. 确保 Decoder 准备就绪 ---
@@ -450,7 +568,7 @@
           // 如果之前因队列积压丢过帧，必须等下一个关键帧才能恢复解码
           // 否则 P 帧基于缺失的参考帧会产生残影
           if (clientNeedKeyframe) {
-            if (!isKey) {
+            if (!chunkIsKey) {
               diag.dropped++
               return // 丢弃 P 帧，等待关键帧
             }
@@ -459,6 +577,7 @@
             try {
               currentDecoder.reset()
               isDecoderConfigured = false
+              decoderNeedsKeyChunk = true
               const ok = await tryConfigureDecoder(currentDecoder)
               if (!ok) return
             } catch (e) {
@@ -476,7 +595,7 @@
               currentDecoder.decodeQueueSize,
             )
             clientNeedKeyframe = true
-            if (!isKey) {
+            if (!chunkIsKey) {
               diag.dropped++
               return // 丢弃当前 P 帧
             }
@@ -484,6 +603,7 @@
             try {
               currentDecoder.reset()
               isDecoderConfigured = false
+              decoderNeedsKeyChunk = true
               const ok = await tryConfigureDecoder(currentDecoder)
               if (!ok) return
             } catch (e) {
@@ -494,7 +614,15 @@
             baseTimestamp = null
           }
 
-          const chunkType = isKey ? "key" : "delta"
+          if (decoderNeedsKeyChunk) {
+            if (!chunkIsKey) {
+              diag.dropped++
+              return
+            }
+            decoderNeedsKeyChunk = false
+          }
+
+          const chunkType = chunkIsKey ? "key" : "delta"
 
           // 修正时间戳
           const ts = getMicroseconds(timestamp)
@@ -512,6 +640,7 @@
             console.error("decode 调用失败:", err)
             // 出错时重置配置状态，尝试恢复
             isDecoderConfigured = false
+            decoderNeedsKeyChunk = true
           }
         }
       }

@@ -460,20 +460,22 @@ SPS/PPS 有两个获取来源（优先级从高到低）：
 
 ### 7.3 前端处理
 
-前端在 `onmessage` 中检查 NALU 类型:
-- type=7(SPS): 保存到 `savedSPS`，用于推导 codec 字符串（如 `avc1.640033`）
-- type=8(PPS): 保存到 `savedPPS`
+前端在 `onmessage` 中扫描整条 Annex B access unit：
+- 任意位置的 type=7(SPS): 保存到 `savedSPS`，用于推导 codec 字符串（如 `avc1.640033`）
+- 任意位置的 type=8(PPS): 保存到 `savedPPS`
+- 只有包含 VCL NALU 的 access unit 才会进入解码路径
 
-两者都收到后才配置 VideoDecoder。解码器使用 Annex B 模式（`optimizeForLatency: true`，无 `description` 属性），浏览器从码流中自动解析参数集。
+两者都收到后才配置 VideoDecoder。解码器使用 Annex B 模式（`optimizeForLatency: true`，无 `description` 属性），浏览器从码流中自动解析参数集。`configure()` 之后前端会等待下一个真实 IDR access unit，避免把仅含 SPS/PPS 的消息错误地作为 key chunk 送入解码器。
 
 ### 7.4 Codec 字符串推导
 
 ```javascript
-// 从 SPS NALU 中提取 profile_idc 和 level_idc
+// 从 SPS NALU 中提取 profile_idc、compatibility 和 level_idc
 // SPS 结构: [起始码][NALU Header(0x67)][profile_idc][constraint_flags][level_idc]...
 const profile_idc = sps[offset + 1]  // 如 0x64 = High Profile
+const compatibility = sps[offset + 2]
 const level_idc   = sps[offset + 3]  // 如 0x33 = Level 5.1 (4K)
-codecString = `avc1.${profileHex}00${levelHex}`  // 如 "avc1.640033"
+codecString = `avc1.${profileHex}${compatHex}${levelHex}`  // 如 "avc1.640033"
 ```
 
 ---
@@ -602,9 +604,10 @@ output: (frame) => {
 
 ### 10.3 错误恢复
 
-- VideoDecoder 内部错误 → 重置 `isDecoderConfigured`，下次 onmessage 时重新配置
+- VideoDecoder 内部错误 → 重置 `isDecoderConfigured`，并要求从下一个真实 IDR access unit 恢复
 - Decoder 状态变为 `"closed"` → `ensureDecoderReady()` 创建新实例
 - decode 调用异常 → 重置配置状态，等待重新配置
+- 背压 `reset()` 之后，前端同样要求下一个 access unit 必须是 IDR，防止旧参考帧残留导致花屏/绿屏
 
 ---
 
