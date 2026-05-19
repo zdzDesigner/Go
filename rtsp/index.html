@@ -409,8 +409,9 @@
         }
 
         function createDecoderConfig(bitstreamFormat) {
+          const codecPrefix = bitstreamFormat === "annexb" ? "avc3" : "avc1";
           const config = {
-            codec: deriveCodecString(savedSPS),
+            codec: deriveCodecString(savedSPS, codecPrefix),
             optimizeForLatency: true,
           };
 
