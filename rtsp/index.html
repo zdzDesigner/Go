@@ -71,580 +71,449 @@
     <div id="diagPanel"></div>
 
     <script>
-      const canvas = document.getElementById("videoCanvas")
-      const ctx = canvas.getContext("2d")
-      const statusDiv = document.getElementById("status")
+      const canvas = document.getElementById("videoCanvas");
+      const statusEl = document.getElementById("status");
+      const diagPanelEl = document.getElementById("diagPanel");
 
-      // 诊断计数器：每秒被 setInterval 读取并清零
-      const diag = {
-        wsRecv: 0,
-        decoded: 0,
-        rendered: 0,
-        dropped: 0,
-        lastRecvTime: 0,
-        maxGap: 0,
-        srv: null,
-      }
+      const port = "8080";
 
-      const diagPanel = document.getElementById("diagPanel")
+      const createRtspReander = ({
+        canvas,
+        statusEl,
+        diagPanelEl,
+        port,
+        rtsp,
+        onResize,
+      }) => {
+        const ctx = canvas.getContext("2d");
 
-      const port = "8080"
+        // 诊断计数器：每秒被 setInterval 读取并清零
+        const diag = {
+          wsRecv: 0,
+          decoded: 0,
+          rendered: 0,
+          dropped: 0,
+          lastRecvTime: 0,
+          maxGap: 0,
+          srv: null,
+        };
 
-
-      async function fetchServerStats() {
-        const ctrl = new AbortController()
-        const timer = setTimeout(() => ctrl.abort(), 800)
-        try {
-          // const resp = await fetch('http://localhost:8080/api/stats', { signal: ctrl.signal })
-          const resp = await fetch(`http://localhost:${port}/api/stats`, {
-            signal: ctrl.signal,
-          })
-          diag.srv = resp.ok ? await resp.json() : null
-        } catch (_) {
-          diag.srv = null
-        } finally {
-          clearTimeout(timer)
-        }
-      }
-
-      setInterval(async () => {
-        await fetchServerStats()
-
-        const wsRecv = diag.wsRecv,
-          decoded = diag.decoded,
-          rendered = diag.rendered
-        const dropped = diag.dropped,
-          maxGap = diag.maxGap
-        diag.wsRecv =
-          diag.decoded =
-          diag.rendered =
-          diag.dropped =
-          diag.maxGap =
-            0
-
-        const qSize = decoder ? decoder.decodeQueueSize || 0 : 0
-        const srv = diag.srv
-
-        let source
-        if (srv && srv.rtp_recv === 0) {
-          source = '<span class="err">源流无数据(RTSP源断开)</span>'
-        } else if (srv && srv.rtp_recv > 0 && srv.frame_built === 0) {
-          source = '<span class="err">服务端处理卡(等关键帧/锁竞争)</span>'
-        } else if (srv && srv.rtp_max_gap_ms > 500) {
-          source = `<span class="warn">源流不稳(RTP间隔${srv.rtp_max_gap_ms}ms)</span>`
-        } else if (wsRecv === 0 && srv && srv.frame_built > 0) {
-          source = '<span class="err">WS传输卡(网络/连接问题)</span>'
-        } else if (dropped > 0) {
-          source = '<span class="warn">前端丢帧(背压/等关键帧)</span>'
-        } else if (rendered < decoded * 0.8) {
-          source = '<span class="warn">渲染瓶颈(GPU/Canvas)</span>'
-        } else {
-          source = '<span style="color:#0f0">正常</span>'
-        }
-
-        const srvHtml = srv
-          ? `<b>--- 后端(RTSP→服务) ---</b><br>` +
-            `RTP到达: ${srv.rtp_recv} pkt/s<br>` +
-            `构建帧: ${srv.frame_built} fps<br>` +
-            `RTP错误: ${srv.rtp_errors}${srv.rtp_errors > 0 ? ' <span class="warn">!</span>' : ""}<br>` +
-            `等关键帧丢弃: ${srv.key_waiting}<br>` +
-            `RTP最大间隔: ${srv.rtp_max_gap_ms} ms<br>`
-          : `<span class="warn">后端统计不可用</span><br>`
-
-        diagPanel.innerHTML =
-          srvHtml +
-          `<b>--- 前端(WS→渲染) ---</b><br>` +
-          `WS接收: ${wsRecv} fps<br>` +
-          `送解码: ${decoded} fps<br>` +
-          `已渲染: ${rendered} fps<br>` +
-          `前端丢帧: ${dropped}<br>` +
-          `WS最大间隔: ${maxGap} ms<br>` +
-          `解码队列: ${qSize}<br>` +
-          `<b>归因: ${source}</b>`
-      }, 1000)
-
-      // ==========================================
-      // 全局变量配置
-      // ==========================================
-      let decoder = null
-      let isDecoderConfigured = false
-      let savedSPS = null
-      let savedPPS = null
-      let configurePromise = null
-      let decoderNeedsKeyChunk = true
-
-      // H.264 Codec 字符串
-      // 从SPS数据中推导出的默认值，用于在尚未收到SPS时的初始化
-      let codecString = "avc1.42E01E" // 默认 baseline profile
-
-      // ==========================================
-      // 辅助：处理时间戳 (确保是微秒，并且相对基准，避免过大的时间戳值)
-      // ==========================================
-      let baseTimestamp = null
-
-      function getMicroseconds(ts) {
-        // 如果时间戳非常小（小于 10000），可能是毫秒，需要 * 1000
-        if (ts < 10000) {
-          ts = ts * 1000
-        }
-        // 如果时间戳非常大（大于 1e16，即纳秒），需要 / 1000
-        // 1秒 = 1,000,000 微秒 = 1,000,000,000 纳秒
-        if (ts > 1e16) {
-          ts = ts / 1000
-        }
-        // 设置基准时间戳（首次调用时），或者使用已经设置的基准
-        if (baseTimestamp === null) {
-          baseTimestamp = ts
-          return 0 // 从0开始计时
-        }
-
-        // 返回相对于基准的时间戳，避免使用过大的数值
-        const relativeTs = ts - baseTimestamp
-
-        // 如果相对时间戳为负，说明时间戳混乱或重置，重新设置基准
-        if (relativeTs < 0) {
-          baseTimestamp = ts
-          return 0
-        }
-
-        return relativeTs
-      }
-
-      function getStartCodeLength(data, offset = 0) {
-        if (
-          data.length >= offset + 4 &&
-          data[offset] === 0 &&
-          data[offset + 1] === 0 &&
-          data[offset + 2] === 0 &&
-          data[offset + 3] === 1
-        ) {
-          return 4
-        }
-        if (
-          data.length >= offset + 3 &&
-          data[offset] === 0 &&
-          data[offset + 1] === 0 &&
-          data[offset + 2] === 1
-        ) {
-          return 3
-        }
-        return 0
-      }
-
-      function findStartCode(data, from = 0) {
-        for (let i = from; i <= data.length - 3; i++) {
-          const startCodeLength = getStartCodeLength(data, i)
-          if (startCodeLength > 0) {
-            return { index: i, startCodeLength }
-          }
-        }
-        return null
-      }
-
-      function splitAnnexBNALUs(data) {
-        const nalus = []
-        let current = findStartCode(data, 0)
-
-        if (!current) {
-          return data.length > 0 ? [data] : []
-        }
-
-        while (current) {
-          const searchFrom = current.index + current.startCodeLength
-          const next = findStartCode(data, searchFrom)
-          const end = next ? next.index : data.length
-
-          if (end > current.index + current.startCodeLength) {
-            nalus.push(data.subarray(current.index, end))
-          }
-
-          current = next
-        }
-
-        return nalus
-      }
-
-      function getNALUType(nalu) {
-        const startCodeLength = getStartCodeLength(nalu, 0)
-        const headerIndex = startCodeLength
-        if (headerIndex >= nalu.length) {
-          return -1
-        }
-        return nalu[headerIndex] & 0x1f
-      }
-
-      function inspectAccessUnit(h264Data) {
-        const nalus = splitAnnexBNALUs(h264Data)
-        const result = {
-          nalus,
-          hasVCL: false,
-          hasIDR: false,
-          hasSPS: false,
-          hasPPS: false,
-        }
-
-        for (const nalu of nalus) {
-          const naluType = getNALUType(nalu)
-          switch (naluType) {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-              result.hasVCL = true
-              if (naluType === 5) {
-                result.hasIDR = true
-              }
-              break
-            case 7:
-              result.hasSPS = true
-              savedSPS = nalu.slice()
-              break
-            case 8:
-              result.hasPPS = true
-              savedPPS = nalu.slice()
-              break
-          }
-        }
-
-        return result
-      }
-
-      // 从SPS数据推导codec字符串
-      function deriveCodecString(sps) {
-        if (!sps || sps.length < 4) {
-          return codecString // 返回默认值
-        }
-
-        // H.264 SPS NALU结构: [起始码(可能有)][NAL Header(0x67)][profile_idc][constraint_set_x_flag][level_idc]...
-        // 跳过NALU header (0x67) 和可能的起始码，找到实际的SPS参数
-        try {
-          // 遍历数组寻找NALU单元开始
-          let offset = 0
-
-          // 如果数据以起始码开始，需要跳过
-          if (
-            sps.length >= 5 &&
-            sps[0] === 0 &&
-            sps[1] === 0 &&
-            sps[2] === 0 &&
-            sps[3] === 1
-          ) {
-            offset = 4 // 跳过 00 00 00 01 起始码
-          } else if (
-            sps.length >= 4 &&
-            sps[0] === 0 &&
-            sps[1] === 0 &&
-            sps[2] === 1
-          ) {
-            offset = 3 // 跳过 00 00 01 起始码
-          }
-
-          // 现在sps[offset]应该是NALU类型 (0x67 for SPS)
-          if (sps.length > offset + 3) {
-            const profile_idc = sps[offset + 1] // Profile IDC
-            const compatibility = sps[offset + 2] // constraint_set flags / compatibility
-            const level_idc = sps[offset + 3] // Level IDC
-
-            // 使用十六进制格式组装codec字符串: avc1.profile_level (6位十六进制)
-            const profileHex = profile_idc
-              .toString(16)
-              .padStart(2, "0")
-              .toUpperCase()
-            const compatibilityHex = compatibility
-              .toString(16)
-              .padStart(2, "0")
-              .toUpperCase()
-            const levelHex = level_idc
-              .toString(16)
-              .padStart(2, "0")
-              .toUpperCase()
-
-            codecString = `avc1.${profileHex}${compatibilityHex}${levelHex}`
-            console.log(`根据SPS推导出的codec: ${codecString}`)
-            return codecString
-          }
-        } catch (e) {
-          console.warn("无法从SPS推导codec字符串，使用默认值:", e)
-        }
-
-        return codecString // 返回默认值
-      }
-
-      // ==========================================
-      // 1. 初始化/重建 VideoDecoder
-      // ==========================================
-      function ensureDecoderReady() {
-        if (decoder && decoder.state === "closed") {
-          console.warn("⚠️ 检测到 Decoder 已关闭，准备重建...")
-          decoder = null
-          isDecoderConfigured = false
-        }
-
-        if (!decoder) {
-          decoder = new VideoDecoder({
-            output: (frame) => {
-              console.log({frame})
-              if (
-                canvas.width !== frame.displayWidth ||
-                canvas.height !== frame.displayHeight
-              ) {
-                canvas.width = frame.displayWidth
-                canvas.height = frame.displayHeight
-                console.log(`画布尺寸更新: ${canvas.width}x${canvas.height}`)
-              }
-              ctx.drawImage(frame, 0, 0)
-              diag.rendered++
-
-              frame.close()
-            },
-            error: (e) => {
-              console.error("❌ VideoDecoder 内部错误:", e)
-              statusDiv.innerText = "解码错误: " + e.message
-              // 如果是因为配置问题，强制重置
-              isDecoderConfigured = false
-              decoderNeedsKeyChunk = true
-            },
-          })
-          console.log("✅ 新的 VideoDecoder 已创建")
-        }
-        return decoder
-      }
-
-      // ==========================================
-      // 2. 尝试配置解码器 (修复版：不使用 description)
-      // ==========================================
-      async function tryConfigureDecoder(currentDecoder) {
-        if (isDecoderConfigured) return true
-        if (configurePromise) return configurePromise
-
-        // 如果还没收到 SPS/PPS，我们也可以尝试直接配置 codec，
-        // 但为了稳妥，这里依然等待 SPS，确保流是活的。
-        if (!savedSPS || !savedPPS) {
-          statusDiv.innerText = "等待 SPS/PPS 配置信息..."
-          return false
-        }
-
-        configurePromise = (async () => {
+        async function fetchServerStats() {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 800);
           try {
-            // 对于 Annex B 格式（带起始码 00 00 00 01）的流，不传 description，
-            // 但 configure 后送给解码器的第一个可解码 chunk 必须是真实的 IDR access unit。
-            const derivedCodec = deriveCodecString(savedSPS)
+            const resp = await fetch(`http://localhost:${port}/api/stats`, {
+              signal: ctrl.signal,
+            });
+            diag.srv = resp.ok ? await resp.json() : null;
+          } catch (_) {
+            diag.srv = null;
+          } finally {
+            clearTimeout(timer);
+          }
+        }
+
+        const diagTimerId = setInterval(async () => {
+          await fetchServerStats();
+
+          const wsRecv = diag.wsRecv,
+            decoded = diag.decoded,
+            rendered = diag.rendered;
+          const dropped = diag.dropped,
+            maxGap = diag.maxGap;
+          diag.wsRecv =
+            diag.decoded =
+            diag.rendered =
+            diag.dropped =
+            diag.maxGap =
+              0;
+
+          const qSize = decoder ? decoder.decodeQueueSize || 0 : 0;
+          const srv = diag.srv;
+
+          let source;
+          if (srv && srv.rtp_recv === 0) {
+            source = '<span class="err">源流无数据(RTSP源断开)</span>';
+          } else if (srv && srv.rtp_recv > 0 && srv.frame_built === 0) {
+            source = '<span class="err">服务端处理卡(等关键帧/锁竞争)</span>';
+          } else if (srv && srv.rtp_max_gap_ms > 500) {
+            source = `<span class="warn">源流不稳(RTP间隔${srv.rtp_max_gap_ms}ms)</span>`;
+          } else if (wsRecv === 0 && srv && srv.frame_built > 0) {
+            source = '<span class="err">WS传输卡(网络/连接问题)</span>';
+          } else if (dropped > 0) {
+            source = '<span class="warn">前端丢帧(背压/等关键帧)</span>';
+          } else if (rendered < decoded * 0.8) {
+            source = '<span class="warn">渲染瓶颈(GPU/Canvas)</span>';
+          } else {
+            source = '<span style="color:#0f0">正常</span>';
+          }
+
+          const srvHtml = srv
+            ? `<b>--- 后端(RTSP→服务) ---</b><br>` +
+              `RTP到达: ${srv.rtp_recv} pkt/s<br>` +
+              `构建帧: ${srv.frame_built} fps<br>` +
+              `RTP错误: ${srv.rtp_errors}${srv.rtp_errors > 0 ? ' <span class="warn">!</span>' : ""}<br>` +
+              `等关键帧丢弃: ${srv.key_waiting}<br>` +
+              `RTP最大间隔: ${srv.rtp_max_gap_ms} ms<br>`
+            : `<span class="warn">后端统计不可用</span><br>`;
+
+          diagPanelEl.innerHTML =
+            srvHtml +
+            `<b>--- 前端(WS→渲染) ---</b><br>` +
+            `WS接收: ${wsRecv} fps<br>` +
+            `送解码: ${decoded} fps<br>` +
+            `已渲染: ${rendered} fps<br>` +
+            `前端丢帧: ${dropped}<br>` +
+            `WS最大间隔: ${maxGap} ms<br>` +
+            `解码队列: ${qSize}<br>` +
+            `<b>归因: ${source}</b>`;
+        }, 1000);
+
+        // ==========================================
+        // 全局变量配置
+        // ==========================================
+        let decoder = null;
+        let isDecoderConfigured = false;
+        let savedSPS = null;
+        let savedPPS = null;
+
+        // H.264 Codec 字符串
+        let codecString = "avc1.42E01E"; // 默认 baseline profile
+
+        // ==========================================
+        // 辅助：处理时间戳 (确保是微秒，并且相对基准，避免过大的时间戳值)
+        // ==========================================
+        let baseTimestamp = null;
+
+        function getMicroseconds(ts) {
+          if (ts < 10000) {
+            ts = ts * 1000;
+          }
+          if (ts > 1e16) {
+            ts = ts / 1000;
+          }
+          if (baseTimestamp === null) {
+            baseTimestamp = ts;
+            return 0;
+          }
+          const relativeTs = ts - baseTimestamp;
+          if (relativeTs < 0) {
+            baseTimestamp = ts;
+            return 0;
+          }
+          return relativeTs;
+        }
+
+        // 从SPS数据推导codec字符串
+        function deriveCodecString(sps) {
+          if (!sps || sps.length < 4) {
+            return codecString;
+          }
+          try {
+            let offset = 0;
+            if (
+              sps.length >= 5 &&
+              sps[0] === 0 &&
+              sps[1] === 0 &&
+              sps[2] === 0 &&
+              sps[3] === 1
+            ) {
+              offset = 4;
+            } else if (
+              sps.length >= 4 &&
+              sps[0] === 0 &&
+              sps[1] === 0 &&
+              sps[2] === 1
+            ) {
+              offset = 3;
+            }
+            if (sps.length > offset + 3) {
+              const profile_idc = sps[offset + 1];
+              const level_idc = sps[offset + 3];
+              const profileHex = profile_idc
+                .toString(16)
+                .padStart(2, "0")
+                .toUpperCase();
+              const levelHex = level_idc
+                .toString(16)
+                .padStart(2, "0")
+                .toUpperCase();
+              codecString = `avc1.${profileHex}00${levelHex}`;
+              // console.log(`根据SPS推导出的codec: ${codecString}`)
+              return codecString;
+            }
+          } catch (e) {
+            console.warn("无法从SPS推导codec字符串，使用默认值:", e);
+          }
+          return codecString;
+        }
+
+        // ==========================================
+        // 1. 初始化/重建 VideoDecoder
+        // ==========================================
+        function ensureDecoderReady() {
+          if (decoder && decoder.state === "closed") {
+            console.warn("检测到 Decoder 已关闭，准备重建...");
+            decoder = null;
+            isDecoderConfigured = false;
+          }
+
+          if (!decoder) {
+            decoder = new VideoDecoder({
+              output: (frame) => {
+                let isequal =
+                  canvas.width === frame.displayWidth &&
+                  canvas.height === frame.displayHeight;
+                if (!isequal) {
+                  canvas.width = frame.displayWidth;
+                  canvas.height = frame.displayHeight;
+                  console.log(`画布尺寸更新: ${canvas.width}x${canvas.height}`);
+                }
+                if (
+                  !onResize?.(
+                    { width: canvas.width, height: canvas.height, rtsp },
+                    isequal,
+                  )
+                ) {
+                  ctx.drawImage(frame, 0, 0);
+                }
+                diag.rendered++;
+                frame.close();
+              },
+              error: (e) => {
+                console.error("VideoDecoder 内部错误:", e);
+                statusEl.innerText = "解码错误: " + e.message;
+                isDecoderConfigured = false;
+              },
+            });
+            console.log("新的 VideoDecoder 已创建");
+          }
+          return decoder;
+        }
+
+        // ==========================================
+        // 2. 尝试配置解码器 (Annex B 模式，无 description)
+        // ==========================================
+        async function tryConfigureDecoder(currentDecoder) {
+          if (isDecoderConfigured) return true;
+
+          if (!savedSPS || !savedPPS) {
+            statusEl.innerText = "等待 SPS/PPS 配置信息...";
+            return false;
+          }
+
+          try {
+            const derivedCodec = deriveCodecString(savedSPS);
             const config = {
               codec: derivedCodec,
               optimizeForLatency: true,
-            }
+            };
 
-            const support = await VideoDecoder.isConfigSupported(config)
+            const support = await VideoDecoder.isConfigSupported(config);
             if (!support.supported) {
-              console.error("浏览器不支持该配置:", config)
-              statusDiv.innerText = "浏览器不支持该配置 (请检查 Codec 字符串)"
-              return false
+              console.error("浏览器不支持该配置:", config);
+              statusEl.innerText = "浏览器不支持该配置 (请检查 Codec 字符串)";
+              return false;
             }
 
-            await currentDecoder.configure(config)
-            isDecoderConfigured = true
-            decoderNeedsKeyChunk = true
-            statusDiv.innerText = "解码器配置成功 (Annex B 自动模式)"
-            console.log("🚀 解码器配置成功", config)
-            return true
+            await currentDecoder.configure(config);
+            isDecoderConfigured = true;
+            statusEl.innerText = "解码器配置成功 (Annex B 模式)";
+            // console.log('解码器配置成功', config)
+            return true;
           } catch (e) {
-            console.error("配置失败:", e)
-            statusDiv.innerText = "解码器配置失败: " + e.message
-            return false
-          } finally {
-            configurePromise = null
+            // console.error('配置失败:', e)
+            statusEl.innerText = "解码器配置失败: " + e.message;
+            return false;
           }
-        })()
-
-        return configurePromise
-      }
-
-      // ==========================================
-      // 3. WebSocket 连接与主循环
-      // ==========================================
-      // const wsUrl = "ws://localhost:8080/ws"
-      const wsUrl = `ws://localhost:${port}/ws`
-      const socket = new WebSocket(wsUrl)
-      socket.binaryType = "arraybuffer"
-
-      socket.onopen = () => {
-        statusDiv.innerText = "WebSocket 已连接"
-      }
-
-      socket.onclose = () => {
-        statusDiv.innerText = "连接已断开"
-        isDecoderConfigured = false
-        decoderNeedsKeyChunk = true
-      }
-
-      socket.onerror = (err) => {
-        console.error("WebSocket 错误:", err)
-      }
-
-      // ==========================================
-      // 解析二进制帧消息
-      // 格式: [1byte flags][8bytes timestamp big-endian][H264 data...]
-      // flags: bit0 = isKey
-      // ==========================================
-      function parseBinaryFrame(arrayBuffer) {
-        const view = new DataView(arrayBuffer)
-        const flags = view.getUint8(0)
-        const isKey = (flags & 1) !== 0
-        // 读取8字节大端序时间戳（微秒）
-        const timestampHi = view.getUint32(1, false)
-        const timestampLo = view.getUint32(5, false)
-        const timestamp = timestampHi * 0x100000000 + timestampLo
-        const h264Data = new Uint8Array(arrayBuffer, 9)
-        return { isKey, timestamp, h264Data }
-      }
-
-      // 解码队列深度阈值，超过此值丢弃帧以控制延迟
-      // 硬件解码管线天然积攒2-4帧，阈值过小会频繁误触发丢帧
-      // 注意：必须 GOP-aware 丢帧（丢 P 帧后要等下一个关键帧），
-      // 否则解码器基于缺失的参考帧产生残影
-      const MAX_DECODE_QUEUE_SIZE = 15
-      let clientNeedKeyframe = false
-
-      socket.onmessage = async (event) => {
-        // --- A. 解析二进制消息（零拷贝，无JSON/Base64开销）---
-        let msg
-        try {
-          msg = parseBinaryFrame(event.data)
-        } catch (e) {
-          console.error("二进制帧解析失败", e)
-          return
         }
 
-        const { isKey: isKeyFlag, timestamp, h264Data } = msg
+        // ==========================================
+        // 3. WebSocket 连接与主循环
+        // ==========================================
+        const wsUrl = `ws://localhost:${port}/ws`;
+        const socket = new WebSocket(wsUrl);
+        socket.binaryType = "arraybuffer";
 
-        // 诊断: 记录WS接收
-        const now = performance.now()
-        diag.wsRecv++
-        if (diag.lastRecvTime > 0) {
-          const gap = now - diag.lastRecvTime
-          if (gap > diag.maxGap) diag.maxGap = Math.round(gap)
-        }
-        diag.lastRecvTime = now
+        socket.onopen = () => {
+          statusEl.innerText = "WebSocket 已连接";
+        };
 
-        // --- B. 扫描整个 Annex B access unit，提取 SPS/PPS 并判断是否真的可解码 ---
-        const accessUnit = inspectAccessUnit(h264Data)
-        const chunkIsKey = accessUnit.hasIDR
+        socket.onclose = () => {
+          statusEl.innerText = "连接已断开";
+          isDecoderConfigured = false;
+        };
 
-        if (isKeyFlag !== chunkIsKey) {
-          console.warn("关键帧标记与实际 access unit 不一致", {
-            isKeyFlag,
-            chunkIsKey,
-            dataLen: h264Data.length,
-          })
-        }
+        socket.onerror = (err) => {
+          console.error("WebSocket 错误:", err);
+        };
 
-        if (chunkIsKey) {
-          console.log("收到 IDR access unit, dataLen:", h264Data.length)
-        }
-
-        if (accessUnit.hasSPS) {
-          console.log("收到 SPS")
-        }
-        if (accessUnit.hasPPS) {
-          console.log("收到 PPS")
-        }
-
-        if (!accessUnit.hasVCL) {
-          return
+        // ==========================================
+        // 解析二进制帧消息
+        // 格式: [1byte flags][8bytes timestamp big-endian][H264 data...]
+        // flags: bit0 = isKey
+        // ==========================================
+        function parseBinaryFrame(arrayBuffer) {
+          const view = new DataView(arrayBuffer);
+          const flags = view.getUint8(0);
+          const isKey = (flags & 1) !== 0;
+          const timestampHi = view.getUint32(1, false);
+          const timestampLo = view.getUint32(5, false);
+          const timestamp = timestampHi * 0x100000000 + timestampLo;
+          const h264Data = new Uint8Array(arrayBuffer, 9);
+          return { isKey, timestamp, h264Data };
         }
 
-        // --- C. 确保 Decoder 准备就绪 ---
-        const currentDecoder = ensureDecoderReady()
+        const MAX_DECODE_QUEUE_SIZE = 15;
+        let clientNeedKeyframe = false;
 
-        // 尝试配置
-        const configSuccess = await tryConfigureDecoder(currentDecoder)
-        if (!configSuccess) {
-          // 如果还没配置好，这帧数据丢弃或暂存（这里简单丢弃）
-          return
-        }
-
-        // --- D. 解码（GOP-aware 背压控制）---
-        if (isDecoderConfigured && currentDecoder.state === "configured") {
-          // 如果之前因队列积压丢过帧，必须等下一个关键帧才能恢复解码
-          // 否则 P 帧基于缺失的参考帧会产生残影
-          if (clientNeedKeyframe) {
-            if (!chunkIsKey) {
-              diag.dropped++
-              return // 丢弃 P 帧，等待关键帧
-            }
-            // 关键帧到了，reset 解码器丢弃积压帧和旧参考帧状态
-            console.warn("客户端: 收到关键帧，从丢帧状态恢复")
-            try {
-              currentDecoder.reset()
-              isDecoderConfigured = false
-              decoderNeedsKeyChunk = true
-              const ok = await tryConfigureDecoder(currentDecoder)
-              if (!ok) return
-            } catch (e) {
-              console.warn("reset/reconfigure 异常:", e)
-              return
-            }
-            clientNeedKeyframe = false
-            baseTimestamp = null
-          }
-
-          // 背压: 队列太长 → 进入等待关键帧状态
-          if (currentDecoder.decodeQueueSize > MAX_DECODE_QUEUE_SIZE) {
-            console.warn(
-              "解码队列积压，进入等待关键帧状态, queueSize:",
-              currentDecoder.decodeQueueSize,
-            )
-            clientNeedKeyframe = true
-            if (!chunkIsKey) {
-              diag.dropped++
-              return // 丢弃当前 P 帧
-            }
-            // 当前就是关键帧，reset 后直接解码
-            try {
-              currentDecoder.reset()
-              isDecoderConfigured = false
-              decoderNeedsKeyChunk = true
-              const ok = await tryConfigureDecoder(currentDecoder)
-              if (!ok) return
-            } catch (e) {
-              console.warn("reset/reconfigure 异常:", e)
-              return
-            }
-            clientNeedKeyframe = false
-            baseTimestamp = null
-          }
-
-          if (decoderNeedsKeyChunk) {
-            if (!chunkIsKey) {
-              diag.dropped++
-              return
-            }
-            decoderNeedsKeyChunk = false
-          }
-
-          const chunkType = chunkIsKey ? "key" : "delta"
-
-          // 修正时间戳
-          const ts = getMicroseconds(timestamp)
-
-          const chunk = new EncodedVideoChunk({
-            type: chunkType,
-            timestamp: ts,
-            data: h264Data, // 直接发送 Annex B 数据 (00 00 00 01 ...)
-          })
-
+        socket.onmessage = async (event) => {
+          // --- A. 解析二进制消息 ---
+          let msg;
           try {
-            currentDecoder.decode(chunk)
-            diag.decoded++
-          } catch (err) {
-            console.error("decode 调用失败:", err)
-            // 出错时重置配置状态，尝试恢复
-            isDecoderConfigured = false
-            decoderNeedsKeyChunk = true
+            msg = parseBinaryFrame(event.data);
+          } catch (e) {
+            console.error("二进制帧解析失败", e);
+            return;
           }
-        }
-      }
+
+          const { isKey, timestamp, h264Data } = msg;
+
+          // 诊断: 记录WS接收
+          const now = performance.now();
+          diag.wsRecv++;
+          if (diag.lastRecvTime > 0) {
+            const gap = now - diag.lastRecvTime;
+            if (gap > diag.maxGap) diag.maxGap = Math.round(gap);
+          }
+          diag.lastRecvTime = now;
+
+          if (isKey) {
+            // console.log('收到关键帧, dataLen:', h264Data.length)
+          }
+
+          // --- B. 解析 NALU (仅用于收集 SPS/PPS) ---
+          if (h264Data.length > 4) {
+            const naluHeader = h264Data[4];
+            const naluType = naluHeader & 0x1f;
+
+            if (naluType === 7) {
+              if (!savedSPS) console.log("收到 SPS");
+              savedSPS = h264Data;
+            } else if (naluType === 8) {
+              if (!savedPPS) console.log("收到 PPS");
+              savedPPS = h264Data;
+            }
+          }
+
+          // --- C. 确保 Decoder 准备就绪 ---
+          const currentDecoder = ensureDecoderReady();
+
+          // 尝试配置
+          const configSuccess = await tryConfigureDecoder(currentDecoder);
+          if (!configSuccess) {
+            return;
+          }
+
+          // --- D. 解码（GOP-aware 背压控制）---
+          // 重置解码器并重新配置，等待下一个关键帧恢复
+          const resetAndReconfigure = async () => {
+            try {
+              currentDecoder.reset();
+              isDecoderConfigured = false;
+              const ok = await tryConfigureDecoder(currentDecoder);
+              if (!ok) return false;
+            } catch (e) {
+              console.warn("reset/reconfigure 异常:", e);
+              return false;
+            }
+            clientNeedKeyframe = false;
+            baseTimestamp = null;
+            return true;
+          };
+
+          if (isDecoderConfigured && currentDecoder.state === "configured") {
+            if (clientNeedKeyframe) {
+              if (!isKey) {
+                diag.dropped++;
+                return;
+              }
+              console.warn("客户端: 收到关键帧，从丢帧状态恢复");
+              if (!(await resetAndReconfigure())) return;
+            }
+
+            if (currentDecoder.decodeQueueSize > MAX_DECODE_QUEUE_SIZE) {
+              console.warn(
+                "解码队列积压，进入等待关键帧状态, queueSize:",
+                currentDecoder.decodeQueueSize,
+              );
+              clientNeedKeyframe = true;
+              if (!isKey) {
+                diag.dropped++;
+                return;
+              }
+              if (!(await resetAndReconfigure())) return;
+            }
+
+            const chunkType = isKey ? "key" : "delta";
+
+            // 修正时间戳
+            const ts = getMicroseconds(timestamp);
+
+            const chunk = new EncodedVideoChunk({
+              type: chunkType,
+              timestamp: ts,
+              data: h264Data, // 直接发送 Annex B 数据 (00 00 00 01 ...)
+            });
+
+            try {
+              currentDecoder.decode(chunk);
+              diag.decoded++;
+            } catch (err) {
+              console.error("decode 调用失败:", err);
+              isDecoderConfigured = false;
+            }
+          }
+        };
+
+        // ==========================================
+        // 销毁：关闭所有资源
+        // ==========================================
+        const destroy = () => {
+          clearInterval(diagTimerId);
+
+          if (
+            socket.readyState === WebSocket.OPEN ||
+            socket.readyState === WebSocket.CONNECTING
+          ) {
+            socket.close();
+          }
+
+          if (decoder && decoder.state !== "closed") {
+            try {
+              decoder.close();
+            } catch (e) {
+              console.warn("关闭 VideoDecoder 异常:", e);
+            }
+          }
+          decoder = null;
+          isDecoderConfigured = false;
+          savedSPS = null;
+          savedPPS = null;
+          baseTimestamp = null;
+        };
+
+        return { destroy };
+      };
+
+      createRtspReander({
+        canvas,
+        statusEl,
+        diagPanelEl,
+        port,
+        rtsp: "xx",
+        onResize: () => {},
+      });
     </script>
   </body>
 </html>
