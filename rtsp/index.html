@@ -71,11 +71,13 @@
     <div id="diagPanel"></div>
 
     <script>
-      const canvas = document.getElementById("videoCanvas");
-      const statusEl = document.getElementById("status");
-      const diagPanelEl = document.getElementById("diagPanel");
+      const canvas = document.getElementById("videoCanvas")
+      const statusEl = document.getElementById("status")
+      const diagPanelEl = document.getElementById("diagPanel")
 
-      const port = "8080";
+      const port = "8080"
+      const ip = "172.16.50.45"
+      // const ip = "localhost"
 
       const createRtspReander = ({
         canvas,
@@ -85,7 +87,7 @@
         rtsp,
         onResize,
       }) => {
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d")
 
         // 诊断计数器：每秒被 setInterval 读取并清零
         const diag = {
@@ -96,56 +98,56 @@
           lastRecvTime: 0,
           maxGap: 0,
           srv: null,
-        };
+        }
 
         async function fetchServerStats() {
-          const ctrl = new AbortController();
-          const timer = setTimeout(() => ctrl.abort(), 800);
+          const ctrl = new AbortController()
+          const timer = setTimeout(() => ctrl.abort(), 800)
           try {
-            const resp = await fetch(`http://localhost:${port}/api/stats`, {
+            const resp = await fetch(`http://${ip}:${port}/api/stats`, {
               signal: ctrl.signal,
-            });
-            diag.srv = resp.ok ? await resp.json() : null;
+            })
+            diag.srv = resp.ok ? await resp.json() : null
           } catch (_) {
-            diag.srv = null;
+            diag.srv = null
           } finally {
-            clearTimeout(timer);
+            clearTimeout(timer)
           }
         }
 
         const diagTimerId = setInterval(async () => {
-          await fetchServerStats();
+          await fetchServerStats()
 
           const wsRecv = diag.wsRecv,
             decoded = diag.decoded,
-            rendered = diag.rendered;
+            rendered = diag.rendered
           const dropped = diag.dropped,
-            maxGap = diag.maxGap;
+            maxGap = diag.maxGap
           diag.wsRecv =
             diag.decoded =
             diag.rendered =
             diag.dropped =
             diag.maxGap =
-              0;
+              0
 
-          const qSize = decoder ? decoder.decodeQueueSize || 0 : 0;
-          const srv = diag.srv;
+          const qSize = decoder ? decoder.decodeQueueSize || 0 : 0
+          const srv = diag.srv
 
-          let source;
+          let source
           if (srv && srv.rtp_recv === 0) {
-            source = '<span class="err">源流无数据(RTSP源断开)</span>';
+            source = '<span class="err">源流无数据(RTSP源断开)</span>'
           } else if (srv && srv.rtp_recv > 0 && srv.frame_built === 0) {
-            source = '<span class="err">服务端处理卡(等关键帧/锁竞争)</span>';
+            source = '<span class="err">服务端处理卡(等关键帧/锁竞争)</span>'
           } else if (srv && srv.rtp_max_gap_ms > 500) {
-            source = `<span class="warn">源流不稳(RTP间隔${srv.rtp_max_gap_ms}ms)</span>`;
+            source = `<span class="warn">源流不稳(RTP间隔${srv.rtp_max_gap_ms}ms)</span>`
           } else if (wsRecv === 0 && srv && srv.frame_built > 0) {
-            source = '<span class="err">WS传输卡(网络/连接问题)</span>';
+            source = '<span class="err">WS传输卡(网络/连接问题)</span>'
           } else if (dropped > 0) {
-            source = '<span class="warn">前端丢帧(背压/等关键帧)</span>';
+            source = '<span class="warn">前端丢帧(背压/等关键帧)</span>'
           } else if (rendered < decoded * 0.8) {
-            source = '<span class="warn">渲染瓶颈(GPU/Canvas)</span>';
+            source = '<span class="warn">渲染瓶颈(GPU/Canvas)</span>'
           } else {
-            source = '<span style="color:#0f0">正常</span>';
+            source = '<span style="color:#0f0">正常</span>'
           }
 
           const srvHtml = srv
@@ -155,7 +157,7 @@
               `RTP错误: ${srv.rtp_errors}${srv.rtp_errors > 0 ? ' <span class="warn">!</span>' : ""}<br>` +
               `等关键帧丢弃: ${srv.key_waiting}<br>` +
               `RTP最大间隔: ${srv.rtp_max_gap_ms} ms<br>`
-            : `<span class="warn">后端统计不可用</span><br>`;
+            : `<span class="warn">后端统计不可用</span><br>`
 
           diagPanelEl.innerHTML =
             srvHtml +
@@ -166,46 +168,46 @@
             `前端丢帧: ${dropped}<br>` +
             `WS最大间隔: ${maxGap} ms<br>` +
             `解码队列: ${qSize}<br>` +
-            `<b>归因: ${source}</b>`;
-        }, 1000);
+            `<b>归因: ${source}</b>`
+        }, 1000)
 
         // ==========================================
         // 全局变量配置
         // ==========================================
-        let decoder = null;
-        let isDecoderConfigured = false;
-        let savedSPS = null;
-        let savedPPS = null;
-        let configurePromise = null;
-        let decoderNeedsKeyChunk = true;
-        let preferredBitstreamFormat = "annexb";
-        let currentBitstreamFormat = "annexb";
+        let decoder = null
+        let isDecoderConfigured = false
+        let savedSPS = null
+        let savedPPS = null
+        let configurePromise = null
+        let decoderNeedsKeyChunk = true
+        let preferredBitstreamFormat = "annexb"
+        let currentBitstreamFormat = "annexb"
 
         // H.264 Codec 字符串
-        let codecString = "avc1.42E01E"; // 默认 baseline profile
+        let codecString = "avc1.42E01E" // 默认 baseline profile
 
         // ==========================================
         // 辅助：处理时间戳 (确保是微秒，并且相对基准，避免过大的时间戳值)
         // ==========================================
-        let baseTimestamp = null;
+        let baseTimestamp = null
 
         function getMicroseconds(ts) {
           if (ts < 10000) {
-            ts = ts * 1000;
+            ts = ts * 1000
           }
           if (ts > 1e16) {
-            ts = ts / 1000;
+            ts = ts / 1000
           }
           if (baseTimestamp === null) {
-            baseTimestamp = ts;
-            return 0;
+            baseTimestamp = ts
+            return 0
           }
-          const relativeTs = ts - baseTimestamp;
+          const relativeTs = ts - baseTimestamp
           if (relativeTs < 0) {
-            baseTimestamp = ts;
-            return 0;
+            baseTimestamp = ts
+            return 0
           }
-          return relativeTs;
+          return relativeTs
         }
 
         function getStartCodeLength(data, offset = 0) {
@@ -216,7 +218,7 @@
             data[offset + 2] === 0 &&
             data[offset + 3] === 1
           ) {
-            return 4;
+            return 4
           }
           if (
             data.length >= offset + 3 &&
@@ -224,148 +226,150 @@
             data[offset + 1] === 0 &&
             data[offset + 2] === 1
           ) {
-            return 3;
+            return 3
           }
-          return 0;
+          return 0
         }
 
         function findStartCode(data, from = 0) {
           for (let i = from; i <= data.length - 3; i++) {
-            const startCodeLength = getStartCodeLength(data, i);
+            const startCodeLength = getStartCodeLength(data, i)
             if (startCodeLength > 0) {
-              return { index: i, startCodeLength };
+              return { index: i, startCodeLength }
             }
           }
-          return null;
+          return null
         }
 
         function splitAnnexBNALUs(data) {
-          const nalus = [];
-          let current = findStartCode(data, 0);
+          const nalus = []
+          let current = findStartCode(data, 0)
 
           if (!current) {
-            return data.length > 0 ? [data] : [];
+            return data.length > 0 ? [data] : []
           }
 
           while (current) {
-            const searchFrom = current.index + current.startCodeLength;
-            const next = findStartCode(data, searchFrom);
-            const end = next ? next.index : data.length;
+            const searchFrom = current.index + current.startCodeLength
+            const next = findStartCode(data, searchFrom)
+            const end = next ? next.index : data.length
 
             if (end > current.index + current.startCodeLength) {
-              nalus.push(data.subarray(current.index, end));
+              nalus.push(data.subarray(current.index, end))
             }
 
-            current = next;
+            current = next
           }
 
-          return nalus;
+          return nalus
         }
 
         function getNALUType(nalu) {
-          const startCodeLength = getStartCodeLength(nalu, 0);
-          const headerIndex = startCodeLength;
+          const startCodeLength = getStartCodeLength(nalu, 0)
+          const headerIndex = startCodeLength
           if (headerIndex >= nalu.length) {
-            return -1;
+            return -1
           }
-          return nalu[headerIndex] & 0x1f;
+          return nalu[headerIndex] & 0x1f
         }
 
         function inspectAccessUnit(h264Data) {
-          const nalus = splitAnnexBNALUs(h264Data);
+          const nalus = splitAnnexBNALUs(h264Data)
           const result = {
             hasVCL: false,
             hasIDR: false,
             hasSPS: false,
             hasPPS: false,
-          };
+          }
 
           for (const nalu of nalus) {
-            const naluType = getNALUType(nalu);
+            const naluType = getNALUType(nalu)
             switch (naluType) {
               case 1:
               case 2:
               case 3:
               case 4:
               case 5:
-                result.hasVCL = true;
+                result.hasVCL = true
                 if (naluType === 5) {
-                  result.hasIDR = true;
+                  result.hasIDR = true
                 }
-                break;
+                break
               case 7:
-                result.hasSPS = true;
-                savedSPS = nalu.slice();
-                break;
+                result.hasSPS = true
+                savedSPS = nalu.slice()
+                break
               case 8:
-                result.hasPPS = true;
-                savedPPS = nalu.slice();
-                break;
+                result.hasPPS = true
+                savedPPS = nalu.slice()
+                break
             }
           }
 
-          return result;
+          return result
         }
 
         function stripStartCode(nalu) {
-          const startCodeLength = getStartCodeLength(nalu, 0);
-          return startCodeLength > 0 ? nalu.subarray(startCodeLength) : nalu;
+          const startCodeLength = getStartCodeLength(nalu, 0)
+          return startCodeLength > 0 ? nalu.subarray(startCodeLength) : nalu
         }
 
         function buildAvccDescription(sps, pps) {
-          const rawSPS = stripStartCode(sps);
-          const rawPPS = stripStartCode(pps);
+          const rawSPS = stripStartCode(sps)
+          const rawPPS = stripStartCode(pps)
 
-          const description = new Uint8Array(4 + rawSPS.length + 4 + rawPPS.length);
-          const view = new DataView(description.buffer);
-          view.setUint32(0, rawSPS.length, false);
-          description.set(rawSPS, 4);
+          const description = new Uint8Array(
+            4 + rawSPS.length + 4 + rawPPS.length,
+          )
+          const view = new DataView(description.buffer)
+          view.setUint32(0, rawSPS.length, false)
+          description.set(rawSPS, 4)
 
-          const ppsOffset = 4 + rawSPS.length;
-          view.setUint32(ppsOffset, rawPPS.length, false);
-          description.set(rawPPS, ppsOffset + 4);
+          const ppsOffset = 4 + rawSPS.length
+          view.setUint32(ppsOffset, rawPPS.length, false)
+          description.set(rawPPS, ppsOffset + 4)
 
-          return description;
+          return description
         }
 
         function convertAnnexBToAvcc(h264Data) {
-          const nalus = splitAnnexBNALUs(h264Data);
-          let totalLength = 0;
+          const nalus = splitAnnexBNALUs(h264Data)
+          let totalLength = 0
 
           for (const nalu of nalus) {
-            const raw = stripStartCode(nalu);
+            const raw = stripStartCode(nalu)
             if (raw.length === 0) {
-              continue;
+              continue
             }
-            totalLength += 4 + raw.length;
+            totalLength += 4 + raw.length
           }
 
-          const avcc = new Uint8Array(totalLength);
-          const view = new DataView(avcc.buffer);
-          let offset = 0;
+          const avcc = new Uint8Array(totalLength)
+          const view = new DataView(avcc.buffer)
+          let offset = 0
 
           for (const nalu of nalus) {
-            const raw = stripStartCode(nalu);
+            const raw = stripStartCode(nalu)
             if (raw.length === 0) {
-              continue;
+              continue
             }
 
-            view.setUint32(offset, raw.length, false);
-            offset += 4;
-            avcc.set(raw, offset);
-            offset += raw.length;
+            view.setUint32(offset, raw.length, false)
+            offset += 4
+            avcc.set(raw, offset)
+            offset += raw.length
           }
 
-          return avcc;
+          return avcc
         }
 
         // 从SPS数据推导codec字符串
         function deriveCodecString(sps, codecPrefix = "avc1") {
           if (!sps || sps.length < 4) {
-            return codecString;
+            return codecString
           }
           try {
-            let offset = 0;
+            let offset = 0
             if (
               sps.length >= 5 &&
               sps[0] === 0 &&
@@ -373,67 +377,67 @@
               sps[2] === 0 &&
               sps[3] === 1
             ) {
-              offset = 4;
+              offset = 4
             } else if (
               sps.length >= 4 &&
               sps[0] === 0 &&
               sps[1] === 0 &&
               sps[2] === 1
             ) {
-              offset = 3;
+              offset = 3
             }
             if (sps.length > offset + 3) {
-              const profile_idc = sps[offset + 1];
-              const compatibility = sps[offset + 2];
-              const level_idc = sps[offset + 3];
+              const profile_idc = sps[offset + 1]
+              const compatibility = sps[offset + 2]
+              const level_idc = sps[offset + 3]
               const profileHex = profile_idc
                 .toString(16)
                 .padStart(2, "0")
-                .toUpperCase();
+                .toUpperCase()
               const compatibilityHex = compatibility
                 .toString(16)
                 .padStart(2, "0")
-                .toUpperCase();
+                .toUpperCase()
               const levelHex = level_idc
                 .toString(16)
                 .padStart(2, "0")
-                .toUpperCase();
-              codecString = `${codecPrefix}.${profileHex}${compatibilityHex}${levelHex}`;
+                .toUpperCase()
+              codecString = `${codecPrefix}.${profileHex}${compatibilityHex}${levelHex}`
               // console.log(`根据SPS推导出的codec: ${codecString}`)
-              return codecString;
+              return codecString
             }
           } catch (e) {
-            console.warn("无法从SPS推导codec字符串，使用默认值:", e);
+            console.warn("无法从SPS推导codec字符串，使用默认值:", e)
           }
-          return codecString;
+          return codecString
         }
 
         function createDecoderConfig(bitstreamFormat) {
-          const codecPrefix = bitstreamFormat === "annexb" ? "avc3" : "avc1";
+          const codecPrefix = bitstreamFormat === "annexb" ? "avc3" : "avc1"
           const config = {
             codec: deriveCodecString(savedSPS, codecPrefix),
             optimizeForLatency: true,
-          };
-
-          if (bitstreamFormat === "avcc") {
-            config.description = buildAvccDescription(savedSPS, savedPPS);
           }
 
-          return config;
+          if (bitstreamFormat === "avcc") {
+            config.description = buildAvccDescription(savedSPS, savedPPS)
+          }
+
+          return config
         }
 
         function scheduleAvccFallback(reason) {
           if (preferredBitstreamFormat === "avcc") {
-            return;
+            return
           }
 
-          console.warn("Annex B 模式解码失败，切换到 AVCC 回退模式", reason);
-          preferredBitstreamFormat = "avcc";
-          isDecoderConfigured = false;
-          decoderNeedsKeyChunk = true;
-          clientNeedKeyframe = true;
-          baseTimestamp = null;
-          statusEl.innerText = "Annex B 解码失败，等待关键帧切换 AVCC";
+          console.warn("Annex B 模式解码失败，切换到 AVCC 回退模式", reason)
+          preferredBitstreamFormat = "avcc"
+          isDecoderConfigured = false
+          decoderNeedsKeyChunk = true
+          clientNeedKeyframe = true
+          baseTimestamp = null
+          statusEl.innerText = "Annex B 解码失败，等待关键帧切换 AVCC"
         }
 
         // ==========================================
@@ -441,9 +445,9 @@
         // ==========================================
         function ensureDecoderReady() {
           if (decoder && decoder.state === "closed") {
-            console.warn("检测到 Decoder 已关闭，准备重建...");
-            decoder = null;
-            isDecoderConfigured = false;
+            console.warn("检测到 Decoder 已关闭，准备重建...")
+            decoder = null
+            isDecoderConfigured = false
           }
 
           if (!decoder) {
@@ -451,11 +455,11 @@
               output: (frame) => {
                 let isequal =
                   canvas.width === frame.displayWidth &&
-                  canvas.height === frame.displayHeight;
+                  canvas.height === frame.displayHeight
                 if (!isequal) {
-                  canvas.width = frame.displayWidth;
-                  canvas.height = frame.displayHeight;
-                  console.log(`画布尺寸更新: ${canvas.width}x${canvas.height}`);
+                  canvas.width = frame.displayWidth
+                  canvas.height = frame.displayHeight
+                  console.log(`画布尺寸更新: ${canvas.width}x${canvas.height}`)
                 }
                 if (
                   !onResize?.(
@@ -463,36 +467,36 @@
                     isequal,
                   )
                 ) {
-                  ctx.drawImage(frame, 0, 0);
+                  ctx.drawImage(frame, 0, 0)
                 }
-                diag.rendered++;
-                frame.close();
+                diag.rendered++
+                frame.close()
               },
               error: (e) => {
-                console.error("VideoDecoder 内部错误:", e);
+                console.error("VideoDecoder 内部错误:", e)
                 if (currentBitstreamFormat === "annexb") {
-                  scheduleAvccFallback(e);
+                  scheduleAvccFallback(e)
                 }
-                statusEl.innerText = "解码错误: " + e.message;
-                isDecoderConfigured = false;
-                decoderNeedsKeyChunk = true;
+                statusEl.innerText = "解码错误: " + e.message
+                isDecoderConfigured = false
+                decoderNeedsKeyChunk = true
               },
-            });
-            console.log("新的 VideoDecoder 已创建");
+            })
+            console.log("新的 VideoDecoder 已创建")
           }
-          return decoder;
+          return decoder
         }
 
         // ==========================================
         // 2. 尝试配置解码器 (优先 Annex B，失败时回退 AVCC)
         // ==========================================
         async function tryConfigureDecoder(currentDecoder) {
-          if (isDecoderConfigured) return true;
-          if (configurePromise) return configurePromise;
+          if (isDecoderConfigured) return true
+          if (configurePromise) return configurePromise
 
           if (!savedSPS || !savedPPS) {
-            statusEl.innerText = "等待 SPS/PPS 配置信息...";
-            return false;
+            statusEl.innerText = "等待 SPS/PPS 配置信息..."
+            return false
           }
 
           configurePromise = (async () => {
@@ -500,64 +504,64 @@
               const candidateFormats =
                 preferredBitstreamFormat === "annexb"
                   ? ["annexb", "avcc"]
-                  : ["avcc"];
+                  : ["avcc"]
 
               for (const bitstreamFormat of candidateFormats) {
                 try {
-                  const config = createDecoderConfig(bitstreamFormat);
-                  const support = await VideoDecoder.isConfigSupported(config);
+                  const config = createDecoderConfig(bitstreamFormat)
+                  const support = await VideoDecoder.isConfigSupported(config)
                   if (!support.supported) {
                     console.warn("浏览器不支持当前解码配置", {
                       bitstreamFormat,
                       config,
-                    });
-                    continue;
+                    })
+                    continue
                   }
 
-                  await currentDecoder.configure(config);
-                  isDecoderConfigured = true;
-                  decoderNeedsKeyChunk = true;
-                  currentBitstreamFormat = bitstreamFormat;
-                  statusEl.innerText = `解码器配置成功 (${bitstreamFormat.toUpperCase()} 模式)`;
-                  return true;
+                  await currentDecoder.configure(config)
+                  isDecoderConfigured = true
+                  decoderNeedsKeyChunk = true
+                  currentBitstreamFormat = bitstreamFormat
+                  statusEl.innerText = `解码器配置成功 (${bitstreamFormat.toUpperCase()} 模式)`
+                  return true
                 } catch (e) {
-                  console.warn(`解码器配置失败 (${bitstreamFormat})`, e);
+                  console.warn(`解码器配置失败 (${bitstreamFormat})`, e)
                   if (bitstreamFormat === "annexb") {
-                    preferredBitstreamFormat = "avcc";
+                    preferredBitstreamFormat = "avcc"
                   }
                 }
               }
 
-              statusEl.innerText = "解码器配置失败: 当前 H.264 模式不兼容";
-              return false;
+              statusEl.innerText = "解码器配置失败: 当前 H.264 模式不兼容"
+              return false
             } finally {
-              configurePromise = null;
+              configurePromise = null
             }
-          })();
+          })()
 
-          return configurePromise;
+          return configurePromise
         }
 
         // ==========================================
         // 3. WebSocket 连接与主循环
         // ==========================================
-        const wsUrl = `ws://localhost:${port}/ws`;
-        const socket = new WebSocket(wsUrl);
-        socket.binaryType = "arraybuffer";
+        const wsUrl = `ws://${ip}:${port}/ws`
+        const socket = new WebSocket(wsUrl)
+        socket.binaryType = "arraybuffer"
 
         socket.onopen = () => {
-          statusEl.innerText = "WebSocket 已连接";
-        };
+          statusEl.innerText = "WebSocket 已连接"
+        }
 
         socket.onclose = () => {
-          statusEl.innerText = "连接已断开";
-          isDecoderConfigured = false;
-          decoderNeedsKeyChunk = true;
-        };
+          statusEl.innerText = "连接已断开"
+          isDecoderConfigured = false
+          decoderNeedsKeyChunk = true
+        }
 
         socket.onerror = (err) => {
-          console.error("WebSocket 错误:", err);
-        };
+          console.error("WebSocket 错误:", err)
+        }
 
         // ==========================================
         // 解析二进制帧消息
@@ -565,127 +569,127 @@
         // flags: bit0 = isKey
         // ==========================================
         function parseBinaryFrame(arrayBuffer) {
-          const view = new DataView(arrayBuffer);
-          const flags = view.getUint8(0);
-          const isKey = (flags & 1) !== 0;
-          const timestampHi = view.getUint32(1, false);
-          const timestampLo = view.getUint32(5, false);
-          const timestamp = timestampHi * 0x100000000 + timestampLo;
-          const h264Data = new Uint8Array(arrayBuffer, 9);
-          return { isKey, timestamp, h264Data };
+          const view = new DataView(arrayBuffer)
+          const flags = view.getUint8(0)
+          const isKey = (flags & 1) !== 0
+          const timestampHi = view.getUint32(1, false)
+          const timestampLo = view.getUint32(5, false)
+          const timestamp = timestampHi * 0x100000000 + timestampLo
+          const h264Data = new Uint8Array(arrayBuffer, 9)
+          return { isKey, timestamp, h264Data }
         }
 
-        const MAX_DECODE_QUEUE_SIZE = 15;
-        let clientNeedKeyframe = false;
+        const MAX_DECODE_QUEUE_SIZE = 15
+        let clientNeedKeyframe = false
 
         socket.onmessage = async (event) => {
           // --- A. 解析二进制消息 ---
-          let msg;
+          let msg
           try {
-            msg = parseBinaryFrame(event.data);
+            msg = parseBinaryFrame(event.data)
           } catch (e) {
-            console.error("二进制帧解析失败", e);
-            return;
+            console.error("二进制帧解析失败", e)
+            return
           }
 
-          const { isKey: isKeyFlag, timestamp, h264Data } = msg;
+          const { isKey: isKeyFlag, timestamp, h264Data } = msg
 
           // 诊断: 记录WS接收
-          const now = performance.now();
-          diag.wsRecv++;
+          const now = performance.now()
+          diag.wsRecv++
           if (diag.lastRecvTime > 0) {
-            const gap = now - diag.lastRecvTime;
-            if (gap > diag.maxGap) diag.maxGap = Math.round(gap);
+            const gap = now - diag.lastRecvTime
+            if (gap > diag.maxGap) diag.maxGap = Math.round(gap)
           }
-          diag.lastRecvTime = now;
+          diag.lastRecvTime = now
 
-          const accessUnit = inspectAccessUnit(h264Data);
-          const chunkIsKey = accessUnit.hasIDR;
+          const accessUnit = inspectAccessUnit(h264Data)
+          const chunkIsKey = accessUnit.hasIDR
 
           if (isKeyFlag !== chunkIsKey) {
             console.warn("关键帧标记与实际 access unit 不一致", {
               isKeyFlag,
               chunkIsKey,
               dataLen: h264Data.length,
-            });
+            })
           }
 
           if (accessUnit.hasSPS) {
-            console.log("收到 SPS");
+            console.log("收到 SPS")
           }
           if (accessUnit.hasPPS) {
-            console.log("收到 PPS");
+            console.log("收到 PPS")
           }
           if (chunkIsKey) {
-            console.log("收到 IDR access unit, dataLen:", h264Data.length);
+            console.log("收到 IDR access unit, dataLen:", h264Data.length)
           }
 
           if (!accessUnit.hasVCL) {
-            return;
+            return
           }
 
           // --- C. 确保 Decoder 准备就绪 ---
-          const currentDecoder = ensureDecoderReady();
+          const currentDecoder = ensureDecoderReady()
 
           // 尝试配置
-          const configSuccess = await tryConfigureDecoder(currentDecoder);
+          const configSuccess = await tryConfigureDecoder(currentDecoder)
           if (!configSuccess) {
-            return;
+            return
           }
 
           // --- D. 解码（GOP-aware 背压控制）---
           // 重置解码器并重新配置，等待下一个关键帧恢复
           const resetAndReconfigure = async () => {
             try {
-              currentDecoder.reset();
-              isDecoderConfigured = false;
-              decoderNeedsKeyChunk = true;
-              const ok = await tryConfigureDecoder(currentDecoder);
-              if (!ok) return false;
+              currentDecoder.reset()
+              isDecoderConfigured = false
+              decoderNeedsKeyChunk = true
+              const ok = await tryConfigureDecoder(currentDecoder)
+              if (!ok) return false
             } catch (e) {
-              console.warn("reset/reconfigure 异常:", e);
-              return false;
+              console.warn("reset/reconfigure 异常:", e)
+              return false
             }
-            clientNeedKeyframe = false;
-            baseTimestamp = null;
-            return true;
-          };
+            clientNeedKeyframe = false
+            baseTimestamp = null
+            return true
+          }
 
           if (isDecoderConfigured && currentDecoder.state === "configured") {
             if (clientNeedKeyframe) {
               if (!chunkIsKey) {
-                diag.dropped++;
-                return;
+                diag.dropped++
+                return
               }
-              console.warn("客户端: 收到关键帧，从丢帧状态恢复");
-              if (!(await resetAndReconfigure())) return;
+              console.warn("客户端: 收到关键帧，从丢帧状态恢复")
+              if (!(await resetAndReconfigure())) return
             }
 
             if (currentDecoder.decodeQueueSize > MAX_DECODE_QUEUE_SIZE) {
               console.warn(
                 "解码队列积压，进入等待关键帧状态, queueSize:",
                 currentDecoder.decodeQueueSize,
-              );
-              clientNeedKeyframe = true;
+              )
+              clientNeedKeyframe = true
               if (!chunkIsKey) {
-                diag.dropped++;
-                return;
+                diag.dropped++
+                return
               }
-              if (!(await resetAndReconfigure())) return;
+              if (!(await resetAndReconfigure())) return
             }
 
             if (decoderNeedsKeyChunk) {
               if (!chunkIsKey) {
-                diag.dropped++;
-                return;
+                diag.dropped++
+                return
               }
-              decoderNeedsKeyChunk = false;
+              decoderNeedsKeyChunk = false
             }
 
-            const chunkType = chunkIsKey ? "key" : "delta";
+            const chunkType = chunkIsKey ? "key" : "delta"
 
             // 修正时间戳
-            const ts = getMicroseconds(timestamp);
+            const ts = getMicroseconds(timestamp)
 
             const chunk = new EncodedVideoChunk({
               type: chunkType,
@@ -694,55 +698,55 @@
                 currentBitstreamFormat === "annexb"
                   ? h264Data
                   : convertAnnexBToAvcc(h264Data),
-            });
+            })
 
             try {
-              currentDecoder.decode(chunk);
-              diag.decoded++;
+              currentDecoder.decode(chunk)
+              diag.decoded++
             } catch (err) {
-              console.error("decode 调用失败:", err);
+              console.error("decode 调用失败:", err)
               if (currentBitstreamFormat === "annexb") {
-                scheduleAvccFallback(err);
+                scheduleAvccFallback(err)
               }
-              isDecoderConfigured = false;
-              decoderNeedsKeyChunk = true;
+              isDecoderConfigured = false
+              decoderNeedsKeyChunk = true
             }
           }
-        };
+        }
 
         // ==========================================
         // 销毁：关闭所有资源
         // ==========================================
         const destroy = () => {
-          clearInterval(diagTimerId);
+          clearInterval(diagTimerId)
 
           if (
             socket.readyState === WebSocket.OPEN ||
             socket.readyState === WebSocket.CONNECTING
           ) {
-            socket.close();
+            socket.close()
           }
 
           if (decoder && decoder.state !== "closed") {
             try {
-              decoder.close();
+              decoder.close()
             } catch (e) {
-              console.warn("关闭 VideoDecoder 异常:", e);
+              console.warn("关闭 VideoDecoder 异常:", e)
             }
           }
-          decoder = null;
-          isDecoderConfigured = false;
-          savedSPS = null;
-          savedPPS = null;
-          configurePromise = null;
-          decoderNeedsKeyChunk = true;
-          preferredBitstreamFormat = "annexb";
-          currentBitstreamFormat = "annexb";
-          baseTimestamp = null;
-        };
+          decoder = null
+          isDecoderConfigured = false
+          savedSPS = null
+          savedPPS = null
+          configurePromise = null
+          decoderNeedsKeyChunk = true
+          preferredBitstreamFormat = "annexb"
+          currentBitstreamFormat = "annexb"
+          baseTimestamp = null
+        }
 
-        return { destroy };
-      };
+        return { destroy }
+      }
 
       createRtspReander({
         canvas,
@@ -751,7 +755,7 @@
         port,
         rtsp: "xx",
         onResize: () => {},
-      });
+      })
     </script>
   </body>
 </html>
