@@ -63,6 +63,11 @@ import (
 	"github.com/pion/rtp"
 )
 
+// [输入]: RTSP 源、HTTP/WebSocket 请求、可选内置 UI 资源
+// [输出]: WebSocket 视频流、统计接口、可选调试页面
+// [定位]: RTSP 到 WebSocket 的独立服务进程入口
+// [同步]: README.md、ui_disabled.go、ui_embedded.go、index.html
+
 // 后端诊断统计。RtpLastTimeNs / RtpMaxGapNs 只在 RTP 单一回调 goroutine 内读写，
 // 非 atomic；其余计数器跨 goroutine (HTTP handler vs RTP 回调) 访问用 atomic。
 type ServerStats struct {
@@ -448,7 +453,7 @@ func (w *H264Writer) getTimestamp() uint64 {
 // - SPS/PPS在客户端连接时发送一次
 // - 后续的视频帧通过broadcastFrame持续发送
 // =============================================================================
-func startWebSocketServer(h264Writer *H264Writer, port int) {
+func startWebSocketServer(h264Writer *H264Writer, port int, enableUI bool) {
 	// 创建HTTP多路复用器
 	httpMux := http.NewServeMux()
 
@@ -551,6 +556,8 @@ func startWebSocketServer(h264Writer *H264Writer, port int) {
 		log.Printf("Client disconnected: %s", clientID)
 	})
 
+	registerUIRoutes(httpMux, enableUI)
+
 	addr := fmt.Sprintf(":%d", port)
 	go func() {
 		log.Printf("WebSocket server listening on %s", addr)
@@ -633,21 +640,22 @@ func findNALUStartCode(data []byte) int {
 // =============================================================================
 
 func main() {
-  
 	// rtspURL := flag.String("url", "rtsp://172.16.50.66:8554/live/video", "RTSP 流地址")
 	// rtspURL := flag.String("url", "rtsp://172.16.50.122:554/ch2", "RTSP 流地址")
 	// rtspURL := flag.String("url", "rtsp://172.16.50.130:554/ch2", "RTSP 流地址")
 	// rtspURL := flag.String("url", "rtsp://172.16.50.40", "RTSP 流地址")
-	rtspURL := flag.String("url", "rtsp://172.16.50.126:554/ch2", "RTSP 流地址")
+	// rtspURL := flag.String("url", "rtsp://172.16.50.126:554/ch2", "RTSP 流地址")
+	rtspURL := flag.String("url", "rtsp://172.16.50.99/ch1", "RTSP 流地址")
+
 	// rtspURL := flag.String("url", "rtsp://169.254.11.32:554/ch2", "RTSP 流地址")
 	// rtspURL := flag.String("url", "rtsp://169.254.11.31:554/ch2", "RTSP 流地址")
-  
-  
+	enableUI := flag.Bool("ui", false, "启用内置调试页面（仅 UI 构建可用）")
+
 	port := flag.Int("port", 8080, "WebSocket/HTTP 服务端口")
 	flag.Parse()
 
 	h264Writer := NewH264Writer()
-	startWebSocketServer(h264Writer, *port)
+	startWebSocketServer(h264Writer, *port, *enableUI)
 
 	u, err := base.ParseURL(*rtspURL)
 	if err != nil {

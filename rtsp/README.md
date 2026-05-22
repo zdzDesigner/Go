@@ -173,27 +173,31 @@ const chunk = new EncodedVideoChunk({
 git clone <repository>
 cd rtsp-webcodecs
 go mod tidy
-go build -o rtsp_demo .
+go build -o rtsp-service .
+go build -tags ui -o rtsp-ui .
+./build.sh all
 ```
 
 ## 使用方法
 
 ### 1. 配置 RTSP 源头
 
-编辑 `main.go` 第 265 行以匹配你的 RTSP 流：
+通过启动参数传入 RTSP 流地址：
 
-```go
-rtspURL := "rtsp://192.168.1.100:554/live"
-// 常见格式：
-// rtsp://ip:554/
-// rtsp://ip:554/stream
-// rtsp://ip:554/live.sdp
+```bash
+./rtsp-service -url "rtsp://192.168.1.100:554/live"
 ```
+
+常见格式：
+
+- `rtsp://ip:554/`
+- `rtsp://ip:554/stream`
+- `rtsp://ip:554/live.sdp`
 
 ### 2. 启动服务器
 
 ```bash
-./rtsp_demo
+./rtsp-service -url "rtsp://192.168.1.100:554/live"
 ```
 
 服务器将启动：
@@ -201,11 +205,31 @@ rtspURL := "rtsp://192.168.1.100:554/live"
 - RTSP 客户端连接到配置的源
 - 日志输出显示连接状态
 
+也可以直接使用脚本构建：
+
+```bash
+./build.sh service
+./build.sh ui
+./build.sh all
+```
+
 ### 3. 打开 Web 播放器
 
-在支持的浏览器中导航到 `index.html`：
-- 直接文件访问：`file:///path/to/index.html`
-- HTTP 服务器：`http://localhost:3000/index.html`
+内置 UI 仅在 UI 构建中可用，并且需要显式开启 `-ui`：
+
+```bash
+./rtsp-ui -url "rtsp://192.168.1.100:554/live" -ui
+./build.sh run-ui -- -url "rtsp://192.168.1.100:554/live" -port 8080
+```
+
+然后访问：
+
+- `http://127.0.0.1:8080/`
+
+如果使用独立 `index.html`，页面默认按当前来源自动连接，也可以通过查询参数覆盖：
+
+- `file:///path/to/index.html?host=127.0.0.1&port=8080`
+- `http://localhost:3000/index.html?host=127.0.0.1&port=8080`
 
 ### 4. 配置并连接
 
