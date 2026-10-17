@@ -14,6 +14,26 @@ export WHISPER_CPP_MODEL="/path/to/whisper.cpp/models/ggml-base.bin"
 go run .
 ```
 
+启用确定性中文纠错词表：
+
+```bash
+export WHIPER_CORRECTIONS="向木=项目，衣赖=依赖，从新=重新，单元侧试=单元测试，全线=权限，权现效验=权限校验，带办=待办"
+go run .
+```
+
+启用 CPU 中文短句纠错：
+
+```bash
+export WHIPER_CORRECTOR_ENABLED="true"
+export WHIPER_CORRECTOR_CLI="/path/to/llama.cpp/build/bin/llama-cli"
+export WHIPER_CORRECTOR_MODEL="/path/to/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf"
+export WHIPER_CORRECTOR_HOTWORDS="欧喷扣=OpenCode，欧盆扣=OpenCode，扣德=code"
+export WHIPER_CORRECTOR_TIMEOUT="5s"
+go run .
+```
+
+确定性词表优先用于开发领域词纠错；LLM 纠错层用于 50 字以内中文短句，只修正明显语音识别错误，模型输出异常时保留原始 STT 文本。
+
 默认监听：
 
 ```text
@@ -60,3 +80,9 @@ API Key: local
 - `WHIPER_API_KEY`：可选；不设置则不校验鉴权，设置后校验 `Authorization: Bearer <key>`
 - `WHIPER_LANGUAGE`：可选，例如 `zh`、`en`、`auto`
 - `WHIPER_TIMEOUT`：可选，例如 `120s`、`3m`
+- `WHIPER_CORRECTIONS`：可选，确定性纠错词表，格式为 `错词=正确词`，多个词用中文逗号、英文逗号或换行分隔
+- `WHIPER_CORRECTOR_ENABLED`：可选，启用中文语义纠错，例如 `true`、`false`
+- `WHIPER_CORRECTOR_CLI`：启用纠错时必填，`llama-cli` 绝对路径
+- `WHIPER_CORRECTOR_MODEL`：启用纠错时必填，推荐 `Qwen2.5-0.5B-Instruct GGUF Q4_K_M`
+- `WHIPER_CORRECTOR_HOTWORDS`：可选，中文热词表，默认包含 `OpenCode` 相关纠错
+- `WHIPER_CORRECTOR_TIMEOUT`：可选，纠错超时，默认 `5s`

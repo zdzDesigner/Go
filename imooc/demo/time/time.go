@@ -9,7 +9,7 @@ import (
 func main() {
 	// base()
 	// base1()
-	base2()
+	// base2()
 	// base3()
 	// timeHandler()
 	// base4()
@@ -21,6 +21,8 @@ func main() {
 	// tim()
 	// sub()
 	// addDate()
+	val := nextSampleDelay(time.Now(), 10*time.Minute)
+	fmt.Println("nextSampleDelay:", val)
 }
 
 func addDate() {
@@ -77,7 +79,7 @@ func base1() {
 
 func base2() {
 	fmt.Println(time.Now().Second())
-	fmt.Println(time.Now().UnixMilli(),int(time.Now().UnixMilli()))
+	fmt.Println(time.Now().UnixMilli(), int(time.Now().UnixMilli()))
 	fmt.Println(time.Now().Unix())
 	fmt.Println(time.Now().UnixNano())
 
@@ -181,4 +183,13 @@ func since() {
 	now := time.Now()
 	time.Sleep(time.Second * 2)
 	fmt.Println(time.Since(now))
+}
+
+func nextSampleDelay(now time.Time, interval time.Duration) time.Duration {
+	next := now.Truncate(interval).Add(interval)
+	wait := next.Sub(now)
+	if wait <= 0 {
+		return interval
+	}
+	return wait
 }

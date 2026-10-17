@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/subtle"
 	"encoding/json"
@@ -20,17 +21,24 @@ const (
 	defaultAddr       = "127.0.0.1:8318"
 	defaultMaxBytes   = 25 << 20
 	defaultTimeout    = 120 * time.Second
+	defaultLLMTimeout = 5 * time.Second
 	transcriptionsURL = "/v1/audio/transcriptions"
 )
 
 type Config struct {
-	Addr     string
-	CliPath  string
-	Model    string
-	APIKey   string
-	Language string
-	Timeout  time.Duration
-	MaxBytes int64
+	Addr        string
+	CliPath     string
+	Model       string
+	APIKey      string
+	Language    string
+	Corrections string
+	LLMEnabled  bool
+	LLMCliPath  string
+	LLMModel    string
+	LLMHotWords string
+	LLMTimeout  time.Duration
+	Timeout     time.Duration
+	MaxBytes    int64
 }
 
 type Server struct {
@@ -74,12 +82,17 @@ func loadConfig() (Config, error) {
 		// CliPath:  strings.TrimSpace(os.Getenv("WHISPER_CPP_CLI")),
 		// Model:    strings.TrimSpace(os.Getenv("WHISPER_CPP_MODEL")),
 		// Language: strings.TrimSpace(os.Getenv("WHIPER_LANGUAGE")),
-		APIKey:   strings.TrimSpace(os.Getenv("WHIPER_API_KEY")),
-		CliPath:  "/home/zdz/Documents/Try/LLM/fork/whisper.cpp/build/bin/whisper-cli",
-		Model:    "/home/zdz/Documents/Try/LLM/fork/whisper.cpp/models/ggml-base.bin",
-		Language: "zh",
-		Timeout:  defaultTimeout,
-		MaxBytes: defaultMaxBytes,
+		APIKey:      strings.TrimSpace(os.Getenv("WHIPER_API_KEY")),
+		CliPath:     "/home/zdz/Documents/Try/LLM/fork/whisper.cpp/build/bin/whisper-cli",
+		Model:       "/home/zdz/Documents/Try/LLM/fork/whisper.cpp/models/ggml-base.bin",
+		Language:    "zh",
+		Corrections: strings.TrimSpace(envOr("WHIPER_CORRECTIONS", defaultCorrections())),
+		LLMCliPath:  strings.TrimSpace(os.Getenv("WHIPER_CORRECTOR_CLI")),
+		LLMModel:    strings.TrimSpace(os.Getenv("WHIPER_CORRECTOR_MODEL")),
+		LLMHotWords: strings.TrimSpace(envOr("WHIPER_CORRECTOR_HOTWORDS", "欧喷扣=OpenCode，欧盆扣=OpenCode，扣德=code")),
+		LLMTimeout:  defaultLLMTimeout,
+		Timeout:     defaultTimeout,
+		MaxBytes:    defaultMaxBytes,
 	}
 
 	if config.CliPath == "" {
@@ -95,8 +108,61 @@ func loadConfig() (Config, error) {
 		}
 		config.Timeout = duration
 	}
+	if value := strings.TrimSpace(os.Getenv("WHIPER_CORRECTOR_ENABLED")); value != "" {
+		enabled, err := parseBool(value)
+		if err != nil {
+			return Config{}, fmt.Errorf("WHIPER_CORRECTOR_ENABLED=%q is invalid: %w", value, err)
+		}
+		config.LLMEnabled = enabled
+	}
+	if value := strings.TrimSpace(os.Getenv("WHIPER_CORRECTOR_TIMEOUT")); value != "" {
+		duration, err := time.ParseDuration(value)
+		if err != nil {
+			return Config{}, fmt.Errorf("WHIPER_CORRECTOR_TIMEOUT=%q is invalid: %w", value, err)
+		}
+		config.LLMTimeout = duration
+	}
+	if config.LLMEnabled {
+		if config.LLMCliPath == "" {
+			return Config{}, errors.New("WHIPER_CORRECTOR_CLI is required when WHIPER_CORRECTOR_ENABLED is true")
+		}
+		if config.LLMModel == "" {
+			return Config{}, errors.New("WHIPER_CORRECTOR_MODEL is required when WHIPER_CORRECTOR_ENABLED is true")
+		}
+	}
 
 	return config, nil
+}
+
+func defaultCorrections() string {
+	return strings.Join([]string{
+		"欧喷扣=OpenCode",
+		"欧盆扣=OpenCode",
+		"扣德=code",
+		"向木=项目",
+		"衣赖=依赖",
+		"从新=重新",
+		"侧试=测试",
+		"单元侧试=单元测试",
+		"全线=权限",
+		"权现=权限",
+		"效验=校验",
+		"权现效验=权限校验",
+		"带办=待办",
+		"日成=日程",
+		"反回=返回",
+	}, "，")
+}
+
+func parseBool(value string) (bool, error) {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "1", "true", "yes", "on":
+		return true, nil
+	case "0", "false", "no", "off":
+		return false, nil
+	default:
+		return false, fmt.Errorf("expected one of true,false,1,0,yes,no,on,off")
+	}
 }
 
 func envOr(key string, fallback string) string {
@@ -224,8 +290,116 @@ func (server *Server) transcribe(ctx context.Context, inputPath string, workDir 
 		if err != nil {
 			return "", err
 		}
+		// text, err = applyTextCorrections(text, server.config.Corrections)
+		// if err != nil {
+		// 	return "", err
+		// }
+		// text, err = server.correctChineseText(ctx, text)
+		// if err != nil {
+		// 	return "", err
+		// }
 	}
 	return text, nil
+}
+
+func applyTextCorrections(text string, corrections string) (string, error) {
+	if strings.TrimSpace(corrections) == "" {
+		return text, nil
+	}
+	corrected := text
+	for _, item := range strings.FieldsFunc(corrections, func(char rune) bool { return char == ',' || char == '，' || char == '\n' }) {
+		item = strings.TrimSpace(item)
+		if item == "" {
+			continue
+		}
+		parts := strings.SplitN(item, "=", 2)
+		if len(parts) != 2 {
+			return "", fmt.Errorf("invalid WHIPER_CORRECTIONS item %q: expected wrong=right", item)
+		}
+		wrong := strings.TrimSpace(parts[0])
+		right := strings.TrimSpace(parts[1])
+		if wrong == "" || right == "" {
+			return "", fmt.Errorf("invalid WHIPER_CORRECTIONS item %q: wrong and right must be non-empty", item)
+		}
+		corrected = strings.ReplaceAll(corrected, wrong, right)
+	}
+	return corrected, nil
+}
+
+func (server *Server) correctChineseText(ctx context.Context, text string) (string, error) {
+	if !server.config.LLMEnabled {
+		return text, nil
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, server.config.LLMTimeout)
+	defer cancel()
+
+	systemPrompt := "你是中文语音识别纠错器。只修正明显的语音识别错字、同音字、近音字、热词和标点。保留原意，不补充信息，不解释。不确定就原样返回。只输出修正后的文本。"
+	if server.config.LLMHotWords != "" {
+		systemPrompt = systemPrompt + "热词：" + server.config.LLMHotWords + "。"
+	}
+	prompt := fmt.Sprintf("原文：%s", text)
+	args := []string{"-m", server.config.LLMModel, "-sys", systemPrompt, "-p", prompt, "-n", "128", "--temp", "0", "--no-display-prompt", "--single-turn", "--log-disable", "--no-show-timings", "--simple-io"}
+	command := exec.CommandContext(ctx, server.config.LLMCliPath, args...)
+	var stderr bytes.Buffer
+	command.Stderr = &stderr
+	log.Printf("running corrector: cli=%s model=%s text=%q", server.config.LLMCliPath, server.config.LLMModel, text)
+	output, err := command.Output()
+	trimmedOutput := strings.TrimSpace(string(output))
+	trimmedError := strings.TrimSpace(stderr.String())
+	if ctx.Err() == context.DeadlineExceeded {
+		return "", fmt.Errorf("corrector timed out after %s, cli=%s, model=%s, text=%q", server.config.LLMTimeout, server.config.LLMCliPath, server.config.LLMModel, text)
+	}
+	if err != nil {
+		return "", fmt.Errorf("corrector failed: cli=%s, model=%s, text=%q, error=%v, output=%s, stderr=%s", server.config.LLMCliPath, server.config.LLMModel, text, err, trimmedOutput, trimmedError)
+	}
+
+	corrected := extractCorrection(trimmedOutput)
+	if !isValidCorrection(text, corrected) {
+		log.Printf("corrector rejected output: raw=%q corrected=%q", text, corrected)
+		return text, nil
+	}
+	if corrected != text {
+		log.Printf("corrector changed text: raw=%q corrected=%q", text, corrected)
+	}
+	return corrected, nil
+}
+
+func extractCorrection(output string) string {
+	lines := strings.Split(output, "\n")
+	for index := len(lines) - 1; index >= 0; index-- {
+		line := strings.Trim(strings.TrimSpace(lines[index]), "\"'")
+		if isLLMNoiseLine(line) {
+			continue
+		}
+		return line
+	}
+	return ""
+}
+
+func isLLMNoiseLine(line string) bool {
+	if line == "" {
+		return true
+	}
+	noisePrefixes := []string{"Loading model", "build", "model", "modalities", "available commands", "/exit", "/regen", "/clear", "/read", "/glob", ">", "[ Prompt:"}
+	for _, prefix := range noisePrefixes {
+		if strings.HasPrefix(line, prefix) {
+			return true
+		}
+	}
+	return line == "Exiting..." || line == "using custom system prompt" || strings.Contains(line, "▄▄") || strings.Contains(line, "██") || strings.Contains(line, "▀▀")
+}
+
+func isValidCorrection(raw string, corrected string) bool {
+	if corrected == "" {
+		return false
+	}
+	if strings.Contains(corrected, "原文：") || strings.Contains(corrected, "修正：") || strings.Contains(corrected, "解释") {
+		return false
+	}
+	rawLen := len([]rune(raw))
+	correctedLen := len([]rune(corrected))
+	return correctedLen <= rawLen*3+20
 }
 
 func convertToSimplified(ctx context.Context, text string) (string, error) {
