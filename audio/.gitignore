@@ -1,0 +1,3 @@
+audio-server
+*.log
+.env
