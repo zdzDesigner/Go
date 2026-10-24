@@ -1,3 +1,7 @@
+// [输入]: H5 DOM、同源 API 或 Android 原生适配层。
+// [输出]: 音频库列表、认证、播放和设备续播。
+// [定位]: 网页与 App 共用的界面控制。
+// [同步]: folder.md、../README.md。
 const loginPanel = document.querySelector('#login-panel')
 const playerPanel = document.querySelector('#player-panel')
 const libraryPanel = document.querySelector('#library-panel')
@@ -12,6 +16,7 @@ const currentTitle = document.querySelector('#current-title')
 const currentStatus = document.querySelector('#current-status')
 const previousButton = document.querySelector('#previous-button')
 const nextButton = document.querySelector('#next-button')
+const native = window.audioNative
 
 const lastAudioKey = 'audio-last-resource-id'
 let audioItems = []
@@ -25,6 +30,7 @@ function progressKey(id) {
 }
 
 function readProgress(id) {
+  if (native) return native.progress(id)
   try {
     const raw = localStorage.getItem(progressKey(id))
     if (!raw) return null
@@ -55,6 +61,7 @@ function saveLastAudioId(id) {
 }
 
 function saveProgress() {
+  if (native) return
   if (!currentAudioId || !Number.isFinite(audioPlayer.currentTime)) return
   if (audioPlayer.ended || !Number.isFinite(audioPlayer.duration)) return
 
@@ -104,7 +111,7 @@ function showLibrary() {
 }
 
 async function request(url, options = {}) {
-  const response = await fetch(url, options)
+  const response = native ? await native.request(url, options) : await fetch(url, options)
   if (response.status === 401) {
     let message = '访问会话已失效，请重新输入共享访问密钥。'
     try {
@@ -158,9 +165,11 @@ async function loadLibrary() {
     showLibrary()
     if (!restoredLastAudio) {
       restoredLastAudio = true
-      restoreLastAudio()
+      if (native) await native.restore(audioItems)
+      else restoreLastAudio()
     }
   } catch (error) {
+    if (native) native.showError(error)
     if (error.message !== '访问会话已失效') {
       libraryStatus.textContent = error.message
     }
@@ -232,6 +241,10 @@ function restoreLastAudio() {
 }
 
 function playAudio(item) {
+  if (native) {
+    native.play(audioItems, item.id).catch(native.showError)
+    return
+  }
   saveProgressImmediately()
   currentAudioId = item.id
   saveLastAudioId(currentAudioId)
@@ -246,6 +259,10 @@ function playAudio(item) {
 }
 
 function playAdjacent(offset) {
+  if (native) {
+    native.adjacent(offset).catch(native.showError)
+    return
+  }
   const index = currentAudioIndex()
   const nextIndex = index + offset
   if (index < 0 || nextIndex < 0 || nextIndex >= audioItems.length) return
@@ -290,6 +307,7 @@ refreshButton.addEventListener('click', loadLibrary)
 previousButton.addEventListener('click', () => playAdjacent(-1))
 nextButton.addEventListener('click', () => playAdjacent(1))
 
-loadLibrary().catch((error) => {
+if (native) native.boot().catch(native.showError)
+else loadLibrary().catch((error) => {
   console.warn('初始化音频库失败', error)
 })

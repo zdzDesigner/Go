@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "音频库",
+  "version": "0.1.0",
+  "identifier": "app.audio.library",
+  "build": {
+    "frontendDist": "../web"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [{ "title": "音频库", "width": 420, "height": 820 }],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; media-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "android": { "minSdkVersion": 26 }
+  }
+}

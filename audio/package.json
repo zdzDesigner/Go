@@ -1,0 +1,13 @@
+{
+  "name": "audio-app",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "tauri": "tauri",
+    "test": "node --test app_js_test.js",
+    "android:build": "bash build/android.sh"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.12.4"
+  }
+}

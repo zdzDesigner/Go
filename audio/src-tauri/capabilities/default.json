@@ -1,0 +1,6 @@
+{
+  "identifier": "main",
+  "windows": ["main"],
+  "platforms": ["android"],
+  "permissions": ["core:default", "playback:default"]
+}

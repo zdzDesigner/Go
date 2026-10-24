@@ -1,3 +1,16 @@
 audio-server
 *.log
 .env
+node_modules/
+src-tauri/target/
+src-tauri/gen/android/.gradle/
+src-tauri/gen/android/.kotlin/
+src-tauri/gen/android/**/build/
+src-tauri/gen/android/app/src/main/jniLibs/
+src-tauri/gen/android/app/src/main/assets/
+src-tauri/gen/android/local.properties
+src-tauri/gen/android/tauri.settings.gradle
+src-tauri/gen/android/app/tauri.build.gradle.kts
+src-tauri/gen/android/keystore.properties
+*.jks
+*.keystore
